@@ -34,7 +34,7 @@ window.App = {
 		DELAY_INFINITE: 0,
 		LEVEL_0_POP_PER_TURN_MULT: 1.05, // Army population growth rate
 		LEVEL_0_MOR_PER_TURN_MULT: 1.05, // Army morale growth rate
-		LOGGING: true, // Sets whether console messages are logged
+		LOGGING: false, // Sets whether console messages are logged
 		ATTACK_MORALE_MINIMUM: 20, // Minimum unit morale required to attack
 		ATTACK_ARMY_MINIMUM: 2000, // Minimum army units required to attack 
 		ATTACK_INVADE_ARMY_MINIMUM: 10000, // Minimum army units required to invade

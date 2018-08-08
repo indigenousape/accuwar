@@ -1,6 +1,6 @@
 {
   "name": "accuwar",
-  "version": "1.0.0",
+  "version": "2.9.1",
   "description": "Turn based strategy game and war simulator.",
   "main": "index.html",
   "scripts": {
