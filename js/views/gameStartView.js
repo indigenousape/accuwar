@@ -243,7 +243,7 @@ App.Views.GameStart = Backbone.View.extend({
 		App.Models.nationStats.get('right').set('color', rightColor);
 		App.Collections.terrCollection.changeColors();
 
-		if(!App.Utilities.isMobile()) {
+		if(!App.Utilities.isMobile() || leftColor != 'blue' || rightColor != 'orange') {
 			App.Utilities.restartSkipBeginning();
 		}
 

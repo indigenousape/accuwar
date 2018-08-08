@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: -2.9 Pre-Alpha
+	Release: -2.9.2 Pre-Alpha
 	Author: Josh Harris
-	7/22/2018
+	8/8/2018
 */
 
 var startYear = new Date();
@@ -980,7 +980,8 @@ window.App = {
 			App.Models.battleMapModel = new App.Models.BattleZone({
 				'territories' : App.Models.battleMapModel.get('territories'),
 				'mobileMode' : App.Defaults.mobileMode,
-				'randomMap' : App.Models.battleMapModel.get('randomMap')
+				'randomMap' : App.Models.battleMapModel.get('randomMap'),
+				'audio' : App.Models.battleMapModel.get('audio')
 			});
 			App.Views.battleMap = new App.Views.BattleZone({model: App.Models.battleMapModel});
 			$('#game').html(App.Views.battleMap.$el);
@@ -988,7 +989,8 @@ window.App = {
 			var initTreasury = App.Utilities.isMobile() ? App.Constants.STARTING_TREASURY_MOB : App.Constants.STARTING_TREASURY,
 				initInfraCost = App.Utilities.isMobile() ? 18000000000 : 50000000000,
 				initEconPopulation = App.Utilities.isMobile() ? 90000000 : 250000000,
-				initArmyPopulation = App.Utilities.isMobile() && !App.Constants.TESTING_MODE ? 2250000 : 6250000;
+				initArmyPopulation = App.Utilities.isMobile() && !App.Constants.TESTING_MODE ? 2250000 : 6250000,
+				initEconOutput = App.Utilities.isMobile() && !App.Constants.TESTING_MODE ? 720000000000 : 2000000000000;
 
 			var LeftModel = new Emp({
 				armyPopulationStart: initArmyPopulation,
@@ -999,7 +1001,9 @@ window.App = {
 				repairAllInfrastructureCost: initInfraCost,
 				treasury: initTreasury,
 				treasuryPrev: initTreasury,
-				treasuryStart: initTreasury
+				treasuryStart: initTreasury,
+				econOutput: initEconOutput,
+				econOutputStart: initEconOutput
 			});
 			        	
 			var RightModel = new Emp({
@@ -1011,7 +1015,9 @@ window.App = {
 				repairAllInfrastructureCost: initInfraCost,
 				treasury: initTreasury,
 				treasuryPrev: initTreasury,
-				treasuryStart: initTreasury
+				treasuryStart: initTreasury,
+				econOutput: initEconOutput,
+				econOutputStart: initEconOutput
 			});
 			App.Models.nationStats = new App.Models.NationStats({
 				'left' : LeftModel,

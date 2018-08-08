@@ -210,7 +210,7 @@
 
 		<div class="tips-control hide-phone"><label>Show Tips: </label><input id="showTips" type="checkbox" checked /> <span id="tipsState">On</span></div>
 
-		<button id="declareWar" disabled>Declare War <span>(Fullscreen)</span></button>
+		<button id="declareWar" disabled>Declare War <% if (!App.Utilities.isSafari()) { %><span>(Fullscreen)</span><% } %></button>
 
 		<p class="small text-muted version-text">Pre-Alpha <span class="release-txt">Release 2.9</span></p>
 
@@ -830,7 +830,7 @@
 	      	<div class="sidebar-container">
 		      	<!-- Button group -->
 				<div class="btn-group">
-				  <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				    Actions Menu <span class="glyphicon glyphicon-chevron-down"></span>
 				  </button>
 				  <ul class="dropdown-menu sidebar-menu">
@@ -1080,7 +1080,7 @@
 
 		      	<!-- Button group -->
 				<div class="btn-group">
-				  <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				    Actions Menu <span class="glyphicon glyphicon-chevron-down"></span>
 				  </button>
 				  <ul class="dropdown-menu sidebar-menu">
