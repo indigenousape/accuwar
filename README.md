@@ -6,13 +6,14 @@ Turn-based strategy game and war simulator built with BackboneJS. Players raise 
 Play side-by-side with another player or alone in sandbox mode to learn the game controls. Compatible with all modern browsers and mobile devices. Report any issues.
 
 # Features
-- Random maps and ambient music (disabled by default)
 - Trainable armies that gain and lose morale based on battle outcomes
 - Repairable infrastructure that takes damage and limits army movements
 - Upgradeable forts that protect territory armies, populations, and infrastructure
 - Upgradeable tech levels to grow territory economies and populations
+- Policies to automate territory repairs, recruiting, and tech level upgrades
 - National economic risks for long periods of high and low tax rates
 - Quick and Long Game Modes (Desktop only)
+- Random maps and ambient music (disabled by default)
 
 # Libraries
 - Backbone - http://backbonejs.org/
