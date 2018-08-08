@@ -1,0 +1,1391 @@
+==========================================
+Libraries
+Alert Windows -- Growlers
+http://bootstrap-notify.remabledesigns.com/
+
+Color Palette -- Google Material Design
+https://material.io/guidelines/style/color.html#
+
+Sidebar
+https://simple-sidebar.github.io/simpler-sidebar/
+==========================================
+
+===========================================================================
+Release Notes
+-2.9 Pre Alpha
+Release Date 07/22/2018
+
+MAJOR UPDATE: Introducing Gulp, SASS, and the production build
+
+FEATURES
+1. Side menu: Budget modal
+	- Large modal
+	- Displays view of current empire's budget
+		- Taxes collected
+		- Minus policy spending
+		- Equals current treasury (default)
+		- After first dollar of current turn spending:
+		- Equals starting treasury
+			- Minus current turn spending (collapsible)
+			- Equals current treasury
+		- Projected Next Turn
+		- Projected collected income taxes
+
+ENHANCEMENTS
+1. UX/UI Sidebar: Click to select territory from the sidebar territory list.
+	Create an array of territory VIEWS alongside the territory models
+	Use underscore to search the collection and findWhere the territory name matches the clicked value
+	Return the object and then activate its terrClick method
+
+2. UX: Gameplay: Recruiting units should ALWAYS recruit NEW, untrained units, regardless of the XP of the units already in the territory. Major hole in making the game interesting.
+	- Policies
+	- On the spot recruiting
+
+3. Music: Removed ambient23 Gregorian chant.
+
+TECHNICAL DEBT
+1. Update Attack Range Logic
+	Store the Row and Column identifying each territory
+		This value never changes no matter what
+	Store on the App a new inRange function that just looks through the rows/columns values
+		Row 1, Column 3
+		In Range: All of own side plus (Row 1, Column 4) (Row 2, Column 4)
+
+2. Error messages below inputs are starting to feel clunky.
+	Use proper error messages objects to give more detailed feedback and more language flexibility
+	Add error message for when territory or empire names match
+
+	Needs to work when:
+		Input is clicked
+		Input is changed
+		Input is blurred
+		*Other input is changed (Two Prompt modal and Game Start view)
+
+	Message should be specific
+		Your territory name must be unique.
+		Your empire name must be unique.
+		Your [] name can not exceed # characters.
+		Your [] must contain only letters and spaces.
+		Your [] name must contain at least 2 characters.
+
+	Error codes:
+		Conditions return the codes
+		Codes retrieve the messages by passing whether it's a territory or empire
+
+3. Implemented Gulp Build & SASS
+	- Converted site's CSS into SASS
+	- Implemented Gulp tasks for watches and builds
+
+	MAJOR
+	Implemented SASS
+	Implemented Gulp
+	Minified and concatenated JS and CSS files
+		COMMANDS
+			For Development
+				gulp watch
+					- Watches for changes in SASS files
+			
+				gulp sass
+					- Compiles SASS into CSS files and outputs uglified and minified versions into the project
+
+			For Production Releases
+				gulp prodbuild
+					- Completes all below production tasks and outputs the files into the dist subfolder
+
+				gulp distjs
+					- Concatenates JS files from index.html based on controls in the comments on the page
+					- Minifies the output and moves them to the dist folder specified in the controls
+					- Currently: Moves the files to the js subfolder on the dist (production) folder
+
+				gulp distcss
+					- Moves the three minified CSS files to their subfolders in the dist (production) folder 
+
+				gulp fonts
+				gulp images
+				gulp rootImages
+				gulp audio
+					- Moves the files to the dist (production folder)
+
+	MINOR
+	Removed modal tab styles and utility function
+	Fixed sidebar top close menu button borders
+
+BUG FIXES
+1. Found a way to have an invalid Player 1 name without the error message displaying
+	Make both names the same
+	Change the name that isn't underlined
+
+2. Can have the side menu and footer open at the same time. Opening one should close the other and vice versa.
+
+=========================================================================
+Release Notes
+-2.8 Pre Alpha
+Release Date 07/05/2018
+
+FEATURES
+
+1. UX/UI: Add national policy options to automate routine tasks like repairing roads and forts, recruiting units.
+	- Enact policies
+	- Enacting a policy requires assigning its priority (radio buttons)
+	- Priority determines the order in which the policy will be enacted during the turn calculations
+		- P1 will be completed before P2
+		- If empire is out of money before getting to P2, then P2 doesn't happen
+	- Click a policy from the side menu
+		- Opens the modal view: Update Policies
+			- Modal shows active policies sorted by priority
+			- Then inactive policies
+			- Intro paragraph introducing the general concept of policies
+			- No changes are saved until the user clicks the confirm button
+			- Example:
+				Repair infrastructure [x] P1 [] P2 [] P3 [] P4 [] Inactive
+				Repair forts [] P1 [x] P2 [] P3 [] P4 [] Inactive
+				Upgrade technology  [] P1 [] P2 [] P3 [] P4 [x] Inactive
+				Recruit army units [] P1 [] P2 [] P3 [] P4 [x] Inactive
+
+			- Recruit army units is special
+				- If enabled, displays a range input
+
+			- When enacted, announce update
+
+	- Policy: Repair the roads! 
+			Repairs all damaged infrastructure each year.
+			Repair costs are deducted from the treasury.
+
+	- Policy: Repair forts!
+			Repairs all damaged forts each year.
+			Repair costs are deducted from the treasury.
+
+	- Policy: National recruiting drive!
+			Recruit a selected amount of units each turn from each territory
+			Recruiting costs are deducted from the treasury.
+			Decrease the multiplier for armies to automatically regenerate (volunteers).
+
+	- Policy: Technology boost!
+			Upgrade territory economies to a selected tech level
+			Upgrade costs are deducted from the treasury.
+
+	- Policies should be enacted in 'smart' order
+		- Repair forts/infrastructure from most to least damaged
+		- Recruit units in territories with smaller armies first
+		- Upgrade tech levels in the places with the lowest level (replaces average approach - remove from sidebar?)
+
+
+
+2. UX/UI: Average Tech level impacts army battle strength
+		Each empire's average tech level adds a strength bonus on the battlefield 
+		Each level is worth an additional 25% strength bonus
+		Impact appears on attack modal
+		Average Tech level displayed on sidebar stats
+
+3. UX/UI: Random Map checkbox
+	- Toggles random maps vs the globe map
+	- Beside the 'Music' checkbox on the start screen 
+		- Overrides special map settings
+		- eg Civil War will display a random map texture if the checkbox is checked
+
+4. UX/UI: (Desktop) Intro Tips
+	Descriptive popovers are displayed when the user hovers over buttons and menus during the first 3 turns
+	Provide context and purpose to the different controls on the screen
+
+
+ENHANCEMENTS
+
+Game Intro
+	- Alert must be dismissed instead of self-dismissing on a timer
+	- Intro text shortened
+	- Added column headings to War Rages On notification so that empire names aren't awkwardly repeated
+
+Game Mode
+	- Random map no longer the default
+	- Refactored how maps are rendered, reduced JS by quite a bit
+	- Start year is always the current year
+	- Globe map and territory names are default
+
+Messaging
+	- Replaced all references to "rebuild" in messages with "repair" for consistency
+
+Music Cleanup
+	- Added looping victory music to Game Over experience
+	- Replaced five songs that did not fit for different reasons
+	- Added 14 new songs on top of those replaced 
+	- Updated all credits and confirmed they are accurate
+
+Other
+	- Added fullscreen text to Declare War button so user is alerted to what's happening
+	- Added support for iPhone X
+	- Reordered the buttons in the sidebar Actions menus
+
+BUGFIX
+
+1. Restarting in Civil War mode the map height never filled the map height properly.
+
+2. Tech Debt/Bugfix: Color Selector
+	- BUG: When user is focused on a select menu and types 'o' as Player 1, they can access the hidden option. (old method of hiding the options)
+	- Created view for the select menu and options
+	- Used the GameStart model to store the available and selected colors for each side
+	- Created ColorView to rerender the menus on the fly without rerendering the entire template
+
+3. Color selector was broken.
+	In Long game mode, after changing P2 colors from default, the territory tabs display as the wrong color (or as no color at all) in attack mode. 
+
+4. Couldn't select a random map in Long Game mode.
+
+5. Validation:
+	Updated territory name length to 15 characters for all battle modes.
+		Reduces cognitive load
+		Fixes bug where user can invade North Korea, but can't keep the name the same
+		Removed numbers from legal characters for territory and empire names
+
+TECH DEBT
+Storing views on the App
+	App.Views.allViews stores all views
+	App.Views.leftViews / App.Views.rightViews stores views by side (updated on invasion)
+	Can be programmatically accessed to fire view events (like clicking)
+
+=========================================================================
+Release Notes
+-2.7 Pre Alpha
+Release Date 12/10/2017
+
+FEATURES
+
+1. SEO Updates
+	- Updated site title
+	- Created robots.txt to help bots index the site
+	- Meta tag updates
+		- Updated description
+		- Added favicon
+		- Added OG image for sharing on Facebook and Reddit
+
+2. UX: Skip to next song
+	- Added a new epic battle song to track list
+	- User can skip to next song from side menu
+
+3. Added rudimentary handling for unsupported browsers.
+
+
+PERFORMANCE IMPROVEMENTS
+
+1. Added htaccess file to improve Performance
+	Caches files for 1 year so user will not have to download resources when they haven't changed
+	Added 301 redirect for all 404s to take user to homepage
+
+2. UI: Compressed map images.
+
+
+ENHANCEMENTS
+
+1. UI: Removed modal tabs in favor of side-by side view for Attack, Reinforce, and Invasion windows
+
+2. UI: Resize growth icon buttons in footer to be less wide.
+
+3. UI: Prevent double-clicking end of turn and everything else.
+	Confirm button in modals was the culprit. Added stopClick property to model to prevent functions from being fired twice.
+
+4. UI: Footer tabs should have a max height and use a scroll bar for content beyond that height
+		- Keeps the footer section entirely on screen when expanded in 320px wide devices
+
+5. UI: Battle Map Territory states
+		- Selected:
+			Army unit icon displays
+			Full opacity
+			No details display
+			- If can't attack or reinforce, no detail data shows up on the map for other territories
+
+		- Out of Turns
+			Default: All detail text is white, 60% opacity
+			Reinforce: Inherits all traits of reinforce
+			In Range: Inherits all trains of in range
+
+		- Reinforce:
+			Default:
+				Both - Full opacity 
+				Mobile - All details display until clicked/active state
+				Desktop/Large - No details display until hover state
+
+			Clicked/Active state: Army unit icon displays
+
+		- In range:
+			Default:
+				Both - Full Opacity
+				Mobile - All details display until clicked/active state
+				Desktop/Large - No details display until hover state
+			Clicked/Active state: Fire icon displays, all text is white
+
+
+BUGFIXES
+
+- Footer Scroller
+	- Cycling through details faster and faster after clicking territories quickly (fixed - cleared timeouts)
+	- Left column was being resized in large view for quick games (cause: isMobile vs smallScreenOnly)
+
+- Safari:
+	- Text inputs were INVISIBLE in mobile
+	- Removed all mention of fullscreen (not supported by browser)
+
+- Other: 
+	- Laptops hooked up to small monitors (eg at work) were not able to see the game
+	- Add padding to the bottom of the side menu so the user will be able to scroll it into view in smaller screens.
+	- At end of loop through background music list, songs would not repeat. Cause was songs array being modified rather than copied.
+	- When reinforcing, territories were transparent should be opaque.
+
+
+
+=========================================================================
+Release Notes
+-2.6 Pre Alpha
+Release Date 12/2/2017
+
+
+FEATURES
+
+1. UX: Add toggle for game mode to be 9 or 25 territories.
+	Uses slide toggle component.
+
+2. UX: Image-based terrain maps
+	--Added as a layer beneath the territories.
+	--Rotates randomly through several Google Earth images
+	-- World War map is an approximate map of Earth.
+	-- Civil War map is an approximate map of the continental United States
+	-- Territory hover/active/focus styles updated to provide adequate contrast for the text over the image maps
+			DETAILS
+			Territory states:
+
+					Default (with Turns)
+						90% opacity
+						background color of side
+						dark text
+						no visible border
+
+					Hover/Selected state (with Turns)
+						100% opacity
+						dark text
+						4px solid white border
+
+					All focus states:
+						4px inset white border
+
+					Reinforce territory
+						hover:
+							4px solid white border
+						default:
+							100% opaque
+							background color of side
+							dark text
+						click hover:
+							100% opaque
+							display dark user icon
+							dark text
+							4px solid white border
+
+					In range territory
+						default:
+							100% opaque
+							background color of side
+							dark text
+						hover:
+							4px solid red border
+							dark text
+
+						click hover:
+							100% opaque
+							display white fire icon
+							white text
+							4px solid red border
+
+					Out of turns territory
+						default: 60% opaque
+						No active or hover states
+						White text
+	-- Refactored range utility function to accommodate border changes required to support the updated design
+
+
+	IMPORTANT NOTE: NO IMPACT ON BATTLE DYNAMICS WILL EVER BE REQUIRED.
+
+3. UX: Background music
+	-- Controlled from game start screen and action menus
+	-- Off by default
+	-- Added 13 ambient sound tracks for background music
+
+4. UX: Added "War Games" Easter Eggs
+	Any combination that makes 'Joshua' or 'War Games' will launch the World War mode and fire off an audio track from the film War Games
+
+
+
+
+ENHANCEMENTS
+
+1. UI: Global - Improved tablet styles.
+		Create desktop and tablet styles for the "mobile" experience
+		In desktop view, details display with larger text and progress bars with more spacing when map is smaller
+
+2. UI: Game screen styles adjusted to fit better within the screen in mobile devices without being full screen.
+
+3. UI: Added styles for smaller laptop screens so people can play at work.
+	-- Call out that people can play at work
+
+4. UI: Tile Click Function Improvements
+	-- User should never have a problem clicking the tiles to attack or reinforce ever again
+	-- Updated click and hold events so that they will fire if user releases over the fort label, army label, or rank stars
+	-- Also click on the heading and release over anything else (like the tile or fort labels, etc)
+	-- Detects whether in mobile mode and binds appropriate click handler
+
+
+BUGS
+
+1. Bug: When invading a territory the modal should scroll up in mobile. Doesn't currently.
+	// Issue was input receiving focus
+
+2. Bug/Enhancement: When values for army population / civilian population grow and shrink the size of the fixed scrolling container should move to accommodate
+	- Hardcoded more width values based on # of digits
+
+=========================================================================
+Release Notes
+-2.5 Pre Alpha
+Release Date 11/26/2017
+
+FEATURES
+
+1. UI: Selected Territory Detail Rotator
+
+	-- The text below the name of the selected territory rotates on a timer (every 3s)
+		- Example:
+			Army: 250,000 units | icon Side capital
+	
+	-- Rotates text to include different details every few seconds
+		- Example:
+		  Fixed: Army population
+		  Rotating: 80% Morale
+		  			24 XP
+		  			icon stars Rank
+		  			100% Fort Strength
+		  			Fort Level 1
+
+		  Fixed: Econ population
+		  Rotating: GDP: $80,000,000
+		  			Civilian Morale: 80%
+		  			Infrastructure: 80%
+		  			Tech Level: 1
+
+	-- Left-aligning footer detail text in mobile experience to accommodate smaller screen
+		- Fixed category displays either Army units or Econ population
+		- Category widths are hardcoded values - did not see a better way
+	-- When selected territory is capital that detail displays first
+	-- Animates in and out with FadeInUp and FadeOutUp
+
+
+ENHANCEMENTS
+
+1. UI: Declare War Button
+	- Added deeper shadows
+	- Hover and focus effects
+	- Reduced size and position to be less bulky and fit the start screen in all mobile views
+
+2. UX: End Turn Modal messaging
+	- Add turn number to the modal header
+	- Update message text to reflect how many territories have turns remaining
+
+3. UI: Indicate to user when selected army cannot invade
+
+4. UI: Add keyboard accessibility to Selected territory name
+	- Fixed tab order of for selected territory name, close, and show details button
+
+5. UI: When count of unit number is above 99,999,999 hide the label from the main map
+
+
+BUGFIXES + ENHANCEMENTS
+
+1. UX/UI/Bugfixes: Game Start View
+	- Bugfix: Could not select color in mobile (conflict from fastclick)
+	- Redesigned empire name inputs and Declare War button
+	- Empire name inputs have shadows and are no longer fully enclosed in borders
+	- Declare War button has shadows and has been resized to be less bulky
+	- When color selector receives focus, color indicator is raised
+	- Removed FastClickJS for removing tap delay on mobile
+		-- Safari + Chrome no longer do tap delays if the responsive meta tag is in the header
+		-- Added responsive meta tag for initial scale
+	- Bugfix: Form elements were not in alignment in Internet Explorer
+
+
+2. UI Enhancements: Older Phones
+	-- Added support for 320px breakpoint
+		- See Declare War button
+		- See adding the battle results to the middle
+		- Removed fort strength bar from the map
+
+BUGFIXES
+ - Full Screen mode wasn't working properly in Firefox, or at all in Internet Explorer.
+	- Only bug now: In IE, when you press enter at the start screen it sets the view to full screen mode...but does not launch full screen mode.
+ - Battle outcome qualifiers improved. Defensive blowouts were impossible.
+ - When fort is destroyed but strength is above 0 after an invasion, the fort strength does not display as zero in the footer after the invasion is complete.
+ - Battle Results Window - Tap events on battle results are backwards in mobile
+ - Rank Stars
+ 	- returnNewMoraleXpRank function's rank calculation needed refactoring to support reinforcements
+ 	- Rank value displayed in From column was incorrect in reinforce mode  
+
+TECHNICAL DEBT
+
+1. Create an App constant and utility for logging messages in the console.
+	App.Constants.LOGGING, App.Utilities.console(msg)
+	When contant is true utility will print console messages
+	~10% performance improvement
+	Alphabetized App Utilities
+	Added window.template method to it
+
+2. Notifications
+	-- UI Enhancement: Added icons to Can't update enemy tax rate/enemy territory name and army training notifications
+	-- Refactored notifications method to accept parameters for delay timing, offset, and vertical alignment
+		- Created constants on the App model to use for these parameters for consistency:
+			- App.Contants.DELAY_SHORTEST = 3 seconds
+			- App.Constants.DELAY_DEFAULT = 5 seconds
+			- App.Contants.DELAY_LONGEST = 12 seconds
+		- If no delay argument is passed the default value is used 
+	-- UI Enhancement: 	Battle confirmation message displays in info style
+
+
+
+
+
+=========================================================================
+Release Notes
+-2.4 Pre Alpha
+Release Date 11/23/2017
+
+FEATURES
+
+1.	UX: Selectable Player Colors
+	-- At Game Start select your colors
+		- Colors choices displayed in select menu:
+			Blue
+			Orange
+			Green
+			Purple
+			Pink
+		- Choices from the Google Material Design palette
+			- https://material.io/guidelines/style/color.html#
+			- Cannot be red, white, gray, yellow, or black
+
+		Elements/Features that respond to color change:
+			- Tiles
+			- Footer zone: Hover state for tabs / active tab
+			- Side menu button
+			- Side menu backgrounds
+			- Battle results window bars / hover states
+			- Modal tabs / active + hover states
+			- Modal slider colors / border colors
+			- Alert window backgrounds
+			- Turn indicator
+			- Buttons (Repair all)
+
+2. UX: Full Screen Mode
+	- On game start, automatically launches player into full screen mode
+	- Side Menu: Added option to launch and exit full screen mode
+		- Menu choices automatically update when the user has enables/disables full screen on their own
+
+3. UX: Notifications: Contextual Battle Result Notifications
+	- Randomized battle descriptions with casualties data
+	- Displayed after dismissing the battle result window
+	- Title uses random qualifying adjectives to characterize the battle based on casualty rates
+		Blowouts
+		Regular - Attacker victory/Defender victory
+		Close victories
+		Won but lost (high casualties)
+		Skirmish
+
+4. UX/UI: Flip Animation on Bar Charts
+	- Use flip animation pattern for bar chart elements updates when updated by direct user interaction
+		- All relevant bar charts should animate also (examples: morale, GDP)
+	- Fort Strength, Fort Level and Army Population will update on the map only
+		- Update when units are recruited or transferred
+	- Econ Strength, Morale, and Tech Level will animate in the footer
+
+5. UI: When territory, empire name, treasury, or projected tax income change the updated value animates
+
+ENHANCEMENTS
+
+1. UI Enhancement: Battle Results Window (Mobile)
+	In mobile, tapping the bar charts shows the starting value.
+	In desktop, clicking the bar charts shows the ending value (because hovering shows the starting value).
+
+2. UI Enhancement: Infrastructure Repair Messages
+	Updated to clarify relationship between infrastructure and unit transfer
+	Added randomized messaging to keep it visually interesting
+
+3. UX/UI: Added label to top Menu button
+
+
+BUGFIXES
+1. UI Bug: Tapping modals tabs can give the tab the wrong background color in mobile.
+	// Fixed hover style
+
+2. UI: Game should not advance to next turn after attack until the user clicks the Confirm button from the battle results window.
+	// When on the last move of a turn, auto-advance would take place before the attacking user finished looking at the battle results window
+
+
+TECHNICAL DEBT
+1. Refactored collection methods for getting total infrastructure & fort strength costs into a single method
+
+
+
+=========================================================================
+Release Notes
+-2.3 Pre Alpha
+Release Date 11/12/2017
+
+NEW FEATURES
+
+1. Replaced input controls with sliders when numeric inputs are used
+	- Set init recruit value to 10,000
+	- Set init reinforce/invasion transfer values to 50%
+	- Set max recruit/reinforce value to reflect any limits due to the step value
+	- Redesigned the control dot to be a wider, shorter rectangle for a larger click target
+
+2. Side Menu: Display Total Army Recruits this turn
+	- Clickable data reveals territory list with number of recruits
+	- List sorted by number of recruits in desc order
+
+3. Side Menu: Territories dropdown
+	- Refactored and redesigned Turns dropdown
+	- Renamed "Territories"
+	- List displays all territories sorted by turns remaining (greatest to least) and the number of turns remaining
+
+
+ENHANCEMENTS
+
+1. Notifications Updates:
+	- Now display at the correct width, position, and for the correct amount of time
+	- Timing
+		- Shorter messages display for 2.5 seconds
+		- Longer messages display for 5 seconds
+		- Intro messages display for 12 seconds from the top
+	- Longer end of turn messages display from the top for 5 seconds
+	- Shorter end of turn messages display from the bottom for 2.5 seconds
+	- Size
+		- Adjusted the widths of the messages to better fit mobile and small screens
+	- Content
+		- Intro message now names the enemy capital
+		- Repair all forts displays wrench icon
+
+2. UX: Added fast-click JS to make the site more responsive. Removes native 300ms delay before click events.
+	- Extremely noticeable performance difference
+
+3. Mobile Enhancements //TEST MOBILE LIVE
+	- Map now scrolls to top when:
+		- Every modal window opens
+		- Every modal window closes
+		- After declaring war
+
+4. Modals
+	- Tab background colors in attack, reinforcement, and invasion modals reflect the empire
+	- Active tab background color is displayed
+	- Hover reveals side color for inactive tab
+
+5. Selected Footer
+	- Added Fort Strength % to Fort tab label
+
+
+BUGFIXES
+
+1. In Civil War & World War modes, longer territory names that break the maximum character limits and could not be saved after invasions and renaming
+	- Character limit updated to 15 for these modes
+	- Territory title is truncated in the selected footer window
+
+2. UI: Long titles were not truncating correctly in the capital tile due to the star icon
+
+3. Start/Current army count after first turn was off, was not accounting for 15% reinforcements.
+
+4. Market crashes were infecting the other side's economy.
+	- Semi-realistic, but unfair
+	- Market crashes only impact the affected empire now
+
+5. Changing tax rates while territory is selected would "unselect" the map.
+
+6. Market crashes messages sometimes showed $0 amount.
+
+7. Repairing infrastructure in a territory after a market crash made its GDP go DOWN.
+
+8. Added repair wrench icon to Repair all forts notification
+
+9. Footer Zone: Growth rates now display on focus in mobile
+	// Test after push
+	// Emulator: PASS
+	// Live: ???
+
+10. Right side was immune to high tax rate morale penalty.
+
+11. Could not repair all forts from side menu.
+
+12. Battle results graphs were not animating on focus in mobile
+	// Test after push
+
+13. Repair All Forts would sometimes display in side menu when no fort strength needed to be repaired.
+
+14. Update territory and national infrastructure and fort strength costs were not updated after each battle and repair
+
+TECHNICAL DEBT
+
+1. Refactored collection methods
+	- Created a single method (returnSideTotal) to get totals of individual properties using underscore methods
+	- Infrastructure & econ strength cost total methods use underscore
+	- Refactored anyTurns left method to use underscore without _.each
+
+
+
+=========================================================================
+Release Notes
+-2.2 Pre Alpha
+Release Date 11/7/2017
+
+
+NEW FEATURES
+
+1. Messaging: Army limitations.
+	- Provides context for the color of the army bar
+	- When territory is selected a notification indicates any limits the army faces
+	- For example: low morale, army size too low to attack/reinforce
+	- Message recommends improvements needed to remedy
+
+2. Territory click context animations
+	- When a territory is selected and a user clicks or taps and holds over another territory, the design will animate based on context
+		- Attack: Background red, title white and bold, with large white fire icon vertically centered
+		- Reinforce: Background white, title dark gray and bold, with large dark gray army unit icon vertically centered
+
+3. Side Menu: Global Actions
+	 - Repair All Infrastructure
+	 - Repair All Forts
+	 - Display when relevant and affordable
+
+4. Turn indicator rotates after each turn
+
+
+ENHANCEMENTS
+
+1. Special Modes:
+	- Update start message to include special message based on type of war (civil or world).
+	- Changes the names to be appropriate : Allies vs Axis or America vs Rebels
+	- Update start message to inform the user they can change the tax rate
+
+2. Confirmation Message Enhancements:
+	- Recruit message: Uncle (Empire) Wants You: Drill sergeants give 10,000 citizen recruits a warm welcome at boot camp in Georgia.
+	- Fort Level upgrade: Fort Upgraded: Level 5 / Everyone is feeling safer in Georgia after installation of new $30,000,000,000 defenses.
+	- Used map-marker icon for To tab in Reinforce and Invasion screens
+
+3.	Design: Added depth and sharper corners.
+	- Box shadows added to all buttons with hover effects
+	- Shadows also added to side menus, top stats, and bottom selected territory containers
+	- Shadows added to bar charts on battle results window and in footer
+	- Sharper corners added to all edges 
+
+	Footer Section - Updated Economy panel 
+	- Enclosed Economy bar charts in bordered panel to reduce size and match design of left and right
+
+MOBILE/RESPONSIVE ENHANCEMENTS
+
+1. Input modals:
+	- Change input tags to numeric value type in mobile view for easier input entry
+	- When values are added to inputs, use non-comma values
+
+2. Battle Results Window:
+	- Message for mobile users encouraging them to tap the result bars to see the change again
+
+3. Footer Zone
+	- Indicate that territory can be renamed
+
+4. Responsive Context: Game determines whether in mobile view on game start
+	-- For performance, territories are build when first loads based on the view you are in (mobile or not)
+	-- When you "Declare War", the game checks to see whether you are still in the same mode.
+		- If not, a new map is created.
+		- If so, only the new empire names are added.
+
+BUGS
+ - Fix for killing entire army in battle WITHOUT being able to invade
+ - Fixed double-counting of casualties on first territory invaded
+ - When playing World War mode, you are forced to change the names of certain territories due to length limits
+
+
+=========================================================================
+Release Notes
+-2.1 Pre Alpha
+Release Date 11/6/2017
+
+Features + Enhancements
+1. Side Menu: New Features + Enhancements
+	-- Current Year Battle Stats
+		-- Collapsible lists
+			- Invaded territories
+			- Promoted armies
+			- Lost territories
+			- Forts destroyed/lost
+			- Battle record with kills and casualties
+			- Territories - with separate list of territories with turns remaining
+
+	-- Primary Actions Dropdown
+		- Edit Empire Name
+		- Change Tax Rate
+		- Restart War
+		- End turn
+
+	-- Close the side menus when:
+		- Turns end
+		- Territories are selected
+
+	-- Only active side can open the side menu
+		- Secure approach: HTML for disabled menu does not appear on the page
+
+2. Animation when territories are attacked and reinforced
+	Background color transitions to red when attacked, or white when reinforced
+
+3. Color-coded globe indicator icon displays beside turn count to show which side controls the turn
+
+4. Army Bar Chart Enhancement - Footer/Battle Map
+	- Bar turns red when the army cannot attack due to infrastructure strength limits
+
+5. Battle Outcome Window
+	- Battle outcome headline is larger, centered, and uppercase
+	- Top section is Army, bottom section is Economy
+
+6. Minor Enhancements:
+	- Footer Section opens to the Army tab rather than the Fort Tab
+	- Mobile Enhancement - Do not select or add keyboard focus to inputs
+	- Game Start Screen: Pressing enter in valid field takes user into empty field
+	- Smooth scrolling added to loading experience and battle result window
+	- Added messaging to turn start alert to reinforce the idea of turns
+	- Mobile Enhancement: Displaying charts in battle zone for active side in empire
+		- less cluttered, can't hover
+
+BUGS
+- On invasion, national population is not being updated on side menu.
+- Show/Hide button text gets mixed up when updating items in the footer
+- Mobile: Fix army icon, gun pokes out of shoulder from the bottom.
+
+
+=========================================================================
+Release Notes
+-2.0 Pre Alpha
+Release Date 10/28/2017
+
+
+NEW FEATURES
+
+1. Tablet/Mobile Mode
+	Battle map displays 3x3 territories in landscape mode on phones and tablets
+	When page loads, if screen width is below 1280px or height is below 650px in landscape orientation, goes into this mode
+
+2. Side Menu for National Details
+	- Displays:
+		Current empire name and icon to edit
+		Treasury
+		Tax income
+		Tax rate and icon to edit
+		Population
+		Starting population
+		Battle record
+		Number of armies promoted, forts destroyed, territories invaded, and territories lost 
+	- Added the plugin https://simple-sidebar.github.io/simpler-sidebar/
+
+3. Low Taxes Penalty
+	- Tax rates below 15% grow economy quickly, but risk random market crashes after a few turns
+	- Market Crash - Periodic decreases in GDP of between 5 & 10%
+
+4. Descriptive Tax Warnings
+	- Shows the user different headlines depending on how long ago taxes were raised or lowered into a danger zone
+	- Danger zones include tax rates higher than 50% or lower than 15%
+
+
+IMPROVEMENTS
+
+1. Enhanced color scheme for bar charts
+		When army bar is green, army can attack
+		When army chart is red, army can't attack
+		When army chart is yellow, army is small enough to damage civilian morale
+
+	Improved text contrast
+		Text displays as white, black, or red depending on bar color and width of bar
+
+2. Added star indicator for the capital on the battle map
+
+3. Pressing enter will advance through all forms 
+
+4. User sees confirmation message when taxes are raised and lowered noting the impact on the empire
+
+5. Added dark border around notifications to make them stand out against background better
+
+
+TECHNICAL DEBT
+
+1. Removed unused variables: dropMode, thisView, preventClose
+
+2. Removed all instances of objects stored in single use variables
+
+3. Replaced all code calling current turn's empire name with Utility function
+
+4. Refactored Change Empire Name and Change Tax Rate methods to be cleaner
+
+5. Created utilities to detect when key is pressed, when value of key is enter, 
+
+6. Updated updateGDP function to better reflect mix of metrics, high/low tax turns, market crashes, and to include growth rate
+
+7. Econmorale utility function - Better connected to poulation growth, market crashes
+
+
+=========================================================================
+Release Notes
+-1.9 Pre Alpha
+Release Date 10/21/2017
+
+
+UX/UI UPDATES
+
+1. Selected Footer Panel: Territory Population and GDP Growth
+	-- Civilian population and GDP growth rates are semi-randomized
+	-- Existing factors - morale, infrastructure strength, tech level - still have a strong impact
+	-- Growth direction icons appear on the selected footer panel for population and GDP
+		- Last turn growth % displays as tooltip when hovered, tapped, or clicked
+
+	-- Territory Model Changes:
+		- Territory population growth rate created
+			- New values stored on the model after each turn
+		- GDP growth rate created
+			- New values stored on the model after each turn
+
+3. Repair Infrastructure/Repair Fort Modals: Repair All Infrastructure + Repair All Forts Buttons
+	-- Repair All buttons display in Repair Infrastructure and Repair Fort modals your side can afford them
+	-- When clicked, each repairs the fort or infrastructure strength in all territories that have a turn remaining
+
+4. Battle Results Window: Re-order the results so the sides stay consistent.
+	-- Left side data always appears on the left
+	-- Right side data always appears the right
+	-- Heading "Attacking" or "Defending" changes 
+
+5. Battlezone + Footer - Army Bar Redesign
+	-- Label text indicates number of units
+		- changes to red ONLY when fewer than 4000 units remain
+		- changes to white ONLY when bar is red and filled > 25%		
+
+	-- Bar changes to yellow only when the number of units is less than the minimum for morale
+	-- Background changes to red when army can't attack due to:
+		- Below minimum number of units to attack
+		- Morale is too low morale
+		- Too few units available due to infrastructure strength impact
+
+
+TECHNICAL DEBT
+
+1. Semantics Cleanup
+	-- Renamed all classes, files, IDs, models, views, collections that were based on the words "tile" or "side" for clarity
+
+2. Constants Cleanup:
+	Added constants for ... and used consistently throughout code and template
+		- starting number of army units
+		- minimum army units for civilian morale
+		- minimum econ strength to attack
+
+3. Removed legacy "currSide" references from modal views and all dependencies
+
+
+BUGFIXES
+
+1. P1 New national metrics were not being reset when game turn changed for: fortsLost, fortsDestroyed, all casualties, battle wins/losses
+
+2. P3 Adding a comma in the value when trying to recruit units would show the incorrect cost. Root cause is the field was using parseInt incorrectly.
+
+3. P1 If you restarted the game while a territory was selected, the game would look frozen when it restarted. Root cause was the group of classes that are added when a territory is selected were not being removed.
+
+
+
+=========================================================================
+Release Notes
+-1.8 Pre Alpha
+Release Date 10/14/2017
+
+UX/UI Updates
+1. Display each army's battle wins and losses on the battle window
+
+2. Game Turn Metrics - Casualties
+		- Army and civilian casualties are stored throughout a game turn and displayed at the end of the turn if they are greater than zero
+
+3. Army training improves the army's morale by the same amount added to XP
+
+4. Redesigned Military Tabs in Selected Territory Footer
+	- Vertical tabs on the left to select Army or Fort
+	- Army tab link displays Rank star icons to indicate the army's current rank
+	- Bar chart for Army Rank has been removed
+
+5. Limit recruiting within a territory to 50% of civilian population per turn
+
+Technical Debt
+1. New Territory Model Updates
+		- Store battle wins and losses
+		- Stored civilian and army casualties resulting from battles
+
+2. Refactor the Nation Stats Model
+	Created new Side model to store existing empire data previously stored under duplicated properties
+
+	Added new properties to track turn based metrics for each empire:
+		- National civilian population at turn start
+		- National army at the beginning of the turn
+		- Territories invaded and lost during the turn
+		- Recruited army units during the turn
+		- Battle wins and losses
+		- Forts lost
+		- Promoted armies
+
+	Created a method to get army and civilian casualties from territory models
+
+3. Create Utility function to get currently active side and implement globally
+
+4. Refactored Footer View
+	- Removed wonky method of raising and lowering the footer
+	- Footer should no longer jump around in iOS/Safari * TEST
+
+
+Bugfixes
+ - Crashes when changing turns while a territory is selected
+ - Can no longer close modals without clicking Cancel button
+ - Turn-based casualties count is now correct
+ - Next treasury was always a little more than projected
+ - Safari: Footer panel bounces around during game play
+ - Tax Rate:
+ 	- User can enter 14% as tax rate and it will display as a float 14.0000002%
+	- User can enter 1= as a tax rate without validation catching it
+
+=========================================================================
+Release Notes
+-1.7 Pre Alpha
+Release Date 9/26/2017
+
+1. UI: Confirmation growler message for units being transferred
+
+2. Bugfixes:
+	Major - Game would crash when the last territory on a side used its turn, now it displays a message and switches sides
+	Minor - Console error on single prompt modal
+	Minor - User can create an empire name of exactly 10 characters in length now
+
+Technical Debt
+1. Modular Code
+	Massive cleanup of models, views, and collections
+	All properly belong to the App namespace now
+	Each model, view, and collection exists as an independent file now
+	Cleaner code - much easier to read and debug
+
+Features
+1. UX: Special Battle Modes
+	Entering certain combinations of side names will generate bonus maps
+
+	 - Civil vs War = All 50 US states
+	 - World vs War = Fifty random countries
+	
+	When a bonus map pattern is entered, a message displays to inform the user
+	Scalable - Easy to add other maps, just need a list of 50+ territories and two words
+
+Enhancements
+1. UX/UI: Army recruits comes from a territory's Economic Population
+	- Recruiting costs are displayed and updated on the form as the user types
+	- Maximum number of recruits limited by the Economic Population size in the territory OR by the treasury
+	- When confirmed, the recruits now come from the economic population which impacts the territory's GDP
+
+2. UI: Empire names resize based on length of the name (deprecated)
+
+3. UI: Added styles to encourage using the game only when the display is good.
+		Alert message displays below tablet landscape viewports
+		Message encourages user to increase browser size or view on a larger screen
+		
+		Styles updated to create basic tablet interface 
+			- Treasury values stack and float right
+			- Hid extra text on territory bar
+			- Hid extra text in footer display buttons 
+
+
+=========================================================================
+Release Notes
+-1.6 Pre Alpha
+Release Date 9/23/2017
+
+Enhancements
+
+1. Pressing enter now submits most forms including Game Setup, Sending reinforcements, Recruiting units, Updating tax rates, and Renaming the empire/territories 
+
+2. Redesigned Growler Messages
+ 	Background color now matches selected territory
+	Updated animation style
+	Confirm messages for territory upgrades now display
+
+Performance
+ - Attached events for animated modal bars to the modal view so they can be detached when the view is destroyed.
+
+Tech Debt
+ - Can no longer select Restart and Next Turn buttons by pressing tab before game start
+ - Remove ECMA 6 constants and moved into App.Constants namespace
+ - Cleaned up the window namespace
+ - In prompts where Maximum & Minimum values are displayed, display the values with commas.
+ - Text color on army bar chart should turn red when the bar chart is red
+
+=========================================================================
+Release Notes
+-1.5 Pre Alpha
+Release Date 9/18/2017
+
+New Feature
+
+Animated Battle Results Window
+	- Displays metrics after battle is over
+	- Displays message if fort level destroyed (drops fort level to 1)
+	- Displays message for unit promotion with rank stars 
+	- User is prevented from closing the modal the normal way
+
+UI: Rank is now displayed as stars in attack, reinforce, invasion, and battle results windows
+
+UX: Prevent empire and territory names from exceeding 10 characters in length.
+
+UI: Made territory titles a little smaller and bold when selected or hovered.
+
+Messaging: Added notification when user repairs infrastructure.
+
+=========================================================================
+Release Notes
+-1.4 Pre Alpha
+Release Date: 9/10/2017
+
+1. Tech Debt + Performance: Refactored all modals
+	- A common wrapper now houses all templates
+	- Three types of modals - Confirmation, Single Prompt, and Two Prompt
+	- Each type has its own view with click functions for required elements
+
+2. Bugfixes
+	- Battles now immediately impact the economies of both nations
+	- When reinforcement/invasion windows display, the fields automatically validate to show the correct number of units
+
+3. UX: Modal Enhancements
+	- When reinforcing or invading, the number of units that will remain in the original territory is displayed at all times
+
+=========================================================================
+Release Notes
+-1.3 Pre Alpha
+Release Date: 8/29/2017
+
+1. Global UI: Replaced plain buttons with rich color coded button design
+	Color context
+		Red = New Game, Loss of Turn
+		Blue = Primary actions
+		White = Default style
+
+	Updated button text to better match experience
+
+2. UX/UI: Footer Updates
+	Added icons to action buttons
+	Added tabs for military metrics and action buttons
+	Added scrolling to reveal covered portion of territories in the bottom row
+	Added text and icon indicating when a capital territory is selected
+
+3. UI: Added red color text to progress bars on tile and in selected window to identify risks to player
+	1. When army size or army morale are below minimum required for territory to attack
+	2. When fort level is below 25% (fort level in danger of being destroyed)
+
+4. UI: Convert Windows to New Style
+	Update Empire Name
+	Update Territory Name
+	Update Tax Rate*
+	Recruit
+	Reinforce*
+	Confirm Attack
+	After Invasion - Rename Territory & Transfer Units*
+	Victory/End of Game
+
+	* Live-typing updates show projected impact of change
+	* Live-typing validation of fields
+
+5. Bugfix: Restart Game after invading last territory puts user back at the starting screen, properly resets the game.
+
+6. UX: Prevent users from front-loading units and winning before the other team gets a chance to start.
+	Updated starting conditions:
+		Border states start with forts upgraded to level 2
+		Capitals start with forts upgraded to level 5 and armies with rank of 2
+
+=========================================================================
+Release Notes
+-1.2 Pre Alpha
+Release Date: 8/24/2017
+
+1. Replaced all confirmation dialogs with richer user interfaces
+2. Replaced alert messages with contextual self-dismissing alerts
+3. Updated Rename Empire experience to new modal window style
+4. Updated territory hover effects to more clearly indicate when a selected territory can not reinforce or attack
+5. Updated logic that limits unit movement according to infrastructure strength to prevent bugs when invading and reinforcing
+
+- Technical Debt (Under the hood):
+	Moved all data manipulation methods to the appropriate models
+	Combined and moved all DOM manipulation functions to the appropriate views
+	Updated the window.App namespace
+		Includes selected and clicked models and views
+		Created Utilities object for adding commas to numbers, updating morale and GDP values
+
+- Bugfix: Fixed "double recruiting" bug where system would recruit twice the number of units added by user
+
+=========================================================================
+Release Notes
+-1.1 Pre-Alpha
+Release Date: 8/13/2017
+
+New Features
+
+1. Turns - Empire and Territory
+	
+	Each territory within the empire can do certain things during each empire's turn
+	
+	Some actions will end a Territory Turn:
+		Attacking
+		Sending reinforcements
+		Training army units
+		Recruiting army units
+	
+	Other actions do not impact Territory Turns:
+		Repairing infrastructure
+		Repairing fort strength
+		Upgrade tech levels
+
+	Empire Turns can end three ways
+	
+	1. User can click the "Next Turn" button to end the empire's turn and give control to the other user
+		User must confirm their choice
+	
+	2. Empire turns advance automatically after all territories turns have ended
+		Users are alerted to inform them of the empire turn ending
+	
+	3. User can click the Restart button to end the turn and restart the game
+		User must confirm their choice
+
+	NOTES
+	Can only change your empire's name and tax rate during your empire's turn 
+
+2. Loading Experience
+		Added a start screen and loading experience
+		Start screen defines side names
+		Form fields are validated as the user types and provide feedback
+		When fields are valid, Declare War button displays 
+
+3. Taxes and Civilian Morale
+	When taxes are raised, morale goes down by the amount of the increase (1% raised = -1 morale)
+	When taxes are lowered, morale goes up by the amount of the decrease (1% lowered = +1 morale)
+	Low taxes (below 35%) adds up to 5 points to civilian morale each turn
+	High taxes (above 50%) subtracts up to 5 points from civlian morale each turn
+	High taxes for 3 more than consecutive turns triggers an additional drag on morale and GDP
+		The size of the drag goes up over time
+
+4. Army Training
+	Purchase 25% of remaining XP
+	Very expensive generally
+	Cost based on size of army and raw amount of experience points to be earned
+	Larger armies gaining more XP will cost more than smaller armies gaining the same amount
+	Cost increases with army rank
+	Ends territory turn
+
+Economics Logic
+GDP + Treasury amounts start in the billions instead of millions for realism
+
+Military Logic
+Repairing damaged forts and upgrading fort levels now improve army unit morale
+
+UX Enhancements
+
+1. After invading a territory, the invaded territory is immediately selected and its details displayed
+
+2. Number Formatting: All population and dollar amounts now include commas for visual clarity 
+
+3. Battle Map: Selected Mode Cursor Enhancements
+	Cursor "not-allowed" when hovering over territories that are out of range
+	Border box no longer displays over territories that are out of range
+	Cursor for reinforcements is now a plus sign
+
+4. Battle Map: Territories
+	Army rank displayed as stars
+	Progress bar displays army unit size, XP, and Morale
+	Green = No civilian morale penalty based on troop strength
+	Yellow = Civilian morale penalty based on troop strength
+	Red = Unable to attack
+
+5. Added confirmaton prompts after clicking Next Turn or Restart to prevent user mistakes
+
+Technical Debt
+1. Performance improvement
+	Moved Clicked & Selected Tile models to the global namespace so they wouldn't be attached to each territory	
+
+2. Updated constants to resolve inconsistent use of deprecated ATTACK_MINIMUM constant
+
+
+=========================================================================
+Release Notes
+-1.0 Pre-Alpha
+Release Date: 8/11/2017
+
+UI Updates
+
+Simplified Territory Square interface
+ - Army experience, rank, and morale details collapsed into a single line
+ - Fort strength and level redesigned to damage indicator concept
+ - Only territory name is visible until territory is selected, out of turns, or the user hovers over it with the mouse
+
+Added barebones Top Menu Bar
+ - Shows current treasury amount
+ - Shows projected amount addition to next turn treasury
+ - Projection can be clicked to update empire tax rate
+	Shows a projection of the next turn treasury at current tax rate
+
+Added Selected Territory window to house all territory metrics and new features
+ - Purchase new army units
+ - Repair damaged forts
+ - Upgrade fort tech levels
+ - Rebuild damaged economic infrastructure
+ - Upgrade territory's economic tech levels
+ - Edit territory name
+
+Next turn
+ - Clicking "Next turn" button while a territory is selected now resets the map to non-selected mode
+
+Military Concepts
+
+Fort Strength
+ - Provides bonus to territory when under attack
+ - Level 1 = Maximum 10% Defense Bonus
+ - Level 2 = Maximum 20% Defense Bonus
+ - Damaged fort strength can be repaired
+
+Fort Level
+ - Amplifies effect of Fort Strength on defense strength when territory is attacked
+ - Fort Levels can be upgraded (Max Level: 10) from the treasury
+
+
+Economic Concepts
+
+GDP
+ - Impacted by population, tech level, citizen morale, and infrastructure
+ - Total is taxed for additional next turn treasury
+ - Tax rate is controlled by clicking the projected treasury in the top menu bar
+
+Civilian Population
+ - Suffers casualties proportional to size of attacks
+ - Protected from casualties by fort strength
+ - Contributes to territory GDP
+ - Grows based on territory's population growth rate
+
+Civilian population growth rate
+ - Based on infrastructure strength, tech level, and civilian morale
+
+Infrastructure
+ - Contributes to GDP, civilian morale, and population growth rate
+ - Takes damage proportional to size of attack
+ - Protected from damage by fort strength
+
+Tech level
+ - Contributes to GDP, civilian morale, and population growth rate
+ - Reduced when infrastructure strength takes damage greater than its available strength
+
+Civilian morale
+ - Contributes to population growth rate and GDP
+ - Impacted by:
+	Fort strength (+/-)
+	Fort level (+/-)
+	Infrastructure strength (+/-)
+	Army population (+/-)
+	Tech level (+)
+	Army/Civilian casualties (when attacked) (-)
+	Empire battle outcomes (+/-)

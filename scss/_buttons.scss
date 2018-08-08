@@ -1,0 +1,83 @@
+.btn {
+	border-radius: 2px; 
+
+	&.btn-default {
+		border: 1px solid $defaultBlack;
+
+		&:hover {
+			background-color: $white;
+		}
+
+		&:hover,
+		&:focus,
+		&:focus:hover {
+			border: 1px solid $defaultBlack;
+		}
+	}
+
+	&.btn-primary {
+		&:hover {
+			background-color: #337ab7;
+		}
+	}
+
+	&.btn-danger {
+		background-color: #D50000;
+
+		&:hover,
+		&:focus,
+		&:focus:hover {
+			background-color: #D50000;
+		}
+
+		&:active,
+		&:active:focus,
+		&:active:focus:hover {
+			background-color: #D50000;
+		}
+	}
+
+	.glyphicon {
+		font-size: 13px;
+	}
+
+	/* Color variations */
+    @include buttonStyles('orange', $sliderOrange, $orangeBorder, $orangeBtnHoverFocus);
+    @include buttonStyles('blue', $sliderBlue, $blueBorder, $sliderBlue);
+    @include buttonStyles('green', $sliderGreen, $greenBorder, $sliderGreen);
+    @include buttonStyles('purple', $sliderPurple, $purpleBorder, $sliderPurple);
+    @include buttonStyles('pink', $sliderPink, $pinkBorder, $sliderPink);
+
+}
+
+.no-btn {
+	float: none !important;
+	border: none;
+	background: none;
+	box-shadow: none  !important;
+	display: inline-block;
+	padding: 0;
+	color: $defaultBlack;
+
+	&.fort-label {
+		width: 100%;
+	}
+
+	.prog-bar {
+		top: 0;
+	}
+
+}
+
+button {
+	&.close {
+		color: $defaultBlack;
+		opacity: 1;
+		text-shadow: none;
+		margin-top: 2px;
+
+		&:hover {
+			opacity: 1;
+		}
+	}
+}

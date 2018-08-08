@@ -1,0 +1,803 @@
+/* Territory styles */
+.overlay {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	opacity: 0.6;
+	transition: opacity 0.6s;
+}
+
+ /* .army */
+.army {
+	display:block;
+	width: 100%;
+	height: 100%;
+	padding: 0 8px;
+	position: relative;
+	transition: all 0.6s;
+	background-color: transparent;
+	border-color: transparent;
+	text-align: left;
+	border: 4px solid transparent;
+	outline: none;
+
+	&:focus {
+		border: 4px inset #cccccc;
+	}
+
+	&:focus,
+	&:active:focus {
+		border-color: $white;
+		border-width: 4px;
+	}
+
+	& > label,
+	& > h2 {
+		width: 100%;
+		display: block;
+		cursor: pointer;
+	}
+
+	& > label {
+		opacity: 0;
+		transition: all 0.6s;
+	}
+
+	& > h2 {
+		font-size: 18px;
+		margin: -10px 0 5px 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-weight: bold;
+		letter-spacing: 0.25px;
+	}
+
+	.fort-label {
+		font-size: 15px;
+	}
+
+	.prog-bar {
+		height: 20px;
+	}
+
+	> .glyphicon {
+		position: absolute;
+		right: 5px;
+		top: 5px;
+		font-size: 11px;
+	}
+
+	.glyphicon-flag {
+		position: absolute;
+		font-size: 11px;
+	}
+}
+
+/* .inrange */
+.inrange {
+	&:active {
+		&:hover {
+			& > .army {
+				& > .armyLabel {
+					opacity: 0;
+				}
+			}
+		} 
+
+		.overlay {
+			background-color: #ff0000;
+		}
+
+		h2 {
+			color: $white;
+		}
+
+		& > .army {
+			& > .armyLabel {
+				opacity: 0;
+			}
+		}
+
+		.army {
+			border: 4px solid #ff0000;
+		}
+
+		> .glyphicon-fire {
+			opacity: 1;
+			z-index: 999;
+		}
+	}
+
+	.army {
+		cursor: crosshair;
+
+		& > label,
+		& > h2 {
+			cursor: crosshair;	
+		}
+	}
+
+	&.noTurns:active {
+		
+		&:hover {
+			> .army > label {
+				opacity: 0;
+			}
+		}
+
+		& > .army > label {
+			opacity: 0;
+		}
+	}
+}
+
+/* .reinforce */
+.reinforce {
+	&:active {
+		background-color: $white;
+
+		.overlay ~.army {
+			& > h2,
+			& > label {
+				color: $defaultBlack;
+			}
+		}
+
+		&:hover {
+			& > .glyphicon-user {
+				opacity: 1;
+				z-index: 999;
+			}
+		}
+
+		h2 {
+			color: $white;
+		}
+
+		& > .army {
+			&:focus {
+				label {
+					opacity: 0;
+				}
+			}
+
+			& > .armyLabel {
+				opacity: 0;
+			}
+
+			label {
+				opacity: 0;
+			}
+		}
+
+		.army {
+			border: 4px solid transparent;
+		}
+
+		& > .glyphicon-user {
+			color: $defaultBlack;
+
+			&:after {
+				border: 1.5px solid $defaultBlack;
+			}
+		}
+	}
+
+	&.noTurns {
+		&:active {
+			&:hover {
+				& > .army > .armyLabel {
+					opacity: 0;
+				}
+
+				> .army > label {
+					opacity: 0;
+				}
+			}
+
+			& > .army {
+				& > label {
+					opacity: 0;
+				}
+			}
+		}
+
+		& > .army {
+			& > h2 {
+				color: $defaultBlack;
+			}
+		}
+	}
+
+	&.selected {
+		&:active {
+			background-color: inherit;
+		}
+	}
+
+	.army {
+		cursor: cell;
+		color: $defaultBlack;
+
+		& > label,
+		& > h2 {
+			cursor: cell;
+			color: $defaultBlack;
+		}
+
+	}
+}
+
+/* .terr */
+.terr {
+	&:active {
+		&:hover {
+			.army {
+				&:focus {
+					outline: 1px solid $white;
+				}
+			}
+		}
+
+		.army {
+			&:focus {
+				outline: 1px solid $white;
+			}
+		}
+	}
+
+	&:hover {
+		> .overlay {
+			opacity: 1;
+		}
+
+		.army {
+			border-color: $white;
+
+			& > label {
+				opacity: 1;
+			}
+		}
+	}
+
+	&.noTurns {
+		&:hover {
+			.army {
+				border-color: transparent;
+			}
+
+			> .overlay {
+				opacity: 0.6;
+			}
+		}
+
+		& > .overlay {
+			opacity: 0.6;
+		}
+
+		& > .army {
+			& > label,
+			& > h2 {
+				color: #f8f8f8;
+			}
+		}
+	}
+
+	&.capital {
+		h2 {
+			.glyphicon {
+				float: left;
+				font-size: 15px;
+				margin-right: 5px;
+			}
+		}
+	}
+
+	> .overlay {
+		opacity: 0.9;
+		will-change: opacity;
+	}
+
+	& > .glyphicon-fire,
+	& > .glyphicon-user {
+		font-size: 40px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		opacity: 0;
+		transition: opacity 0.6s;
+		z-index: -1;
+		color: $white;
+	}
+
+	& > .glyphicon-user {
+		&:after {
+			left: 3px;
+			height: 15px;
+			border: 1.5px solid $white;
+		}
+	}
+
+	.army {
+		&:focus {
+			label {
+				opacity: 1;
+			}
+		}
+	}
+}
+
+/* .selectedSection */
+.selectedSection {
+	.terr {
+		&:hover {
+			cursor: not-allowed;
+
+			.army {
+				border-color: transparent;
+			}
+		}
+
+		&.selected {
+			.overlay {
+				opacity: 1;
+			}
+
+			.army {
+				border: 4px solid $white;
+			}
+		}
+
+		&.inrange:hover {
+			cursor: crosshair;
+		}
+
+		&.reinforce {
+			&.selected {
+				.army {
+					border: 4px solid $white;
+				}
+			}
+		}
+
+		& > .overlay {
+			opacity: 0.6;
+		}
+
+		.army {
+			&:focus {
+				& > label {
+					opacity: 0;
+				}
+			}
+
+			& > label {
+				opacity: 0;
+			}
+		}
+	}
+
+	.army {
+		&:hover {
+			cursor: not-allowed;
+
+			& > h2,
+			& > label {
+				cursor: not-allowed;
+			}
+		}
+
+		&:focus {
+			outline: 1px solid $white;
+		}
+	}
+
+	.reinforce {
+		&:hover {
+			cursor: cell;
+
+			.overlay {
+				opacity: 1;
+			}
+
+			.army {
+				border: 4px solid $white;
+			}
+		}
+
+		&:active {
+			.army {
+				&:hover {
+					& > label {
+						opacity: 0;
+					}
+				}
+			}
+		}
+
+		.overlay {
+			opacity: 1;
+		}
+
+		&.noTurns {
+			&:hover {
+				.overlay {
+					opacity: 1;
+				}
+			}
+
+			.overlay {
+				opacity: 1;
+			}
+		}
+
+		&.selected {
+			.army {
+				&:hover {
+					& > label {
+						opacity: 0;
+					}
+				}
+			}
+		}
+
+		.army {
+			&:hover {
+				cursor: cell;
+
+				& > h2,
+				& > label {
+					opacity: 1;
+					cursor: cell;
+				}
+			}
+		}
+	}
+
+	.inrange {
+		&:hover {
+			.army {
+				border: 4px solid #ff0000;
+			}
+		}
+
+		&.noTurns {
+			&:hover {
+				overlay {
+					opacity: 1;
+				}
+			}
+
+			.overlay {
+				opacity: 1;
+			}
+		}
+	}
+
+	.selected {
+		&:hover {
+			cursor: pointer;
+
+			.army {
+				border: 4px solid $white;
+			}
+		}
+
+		&:active {
+			.army {
+				& > label {
+					opacity: 0;
+				}
+			}
+		}
+
+		&.reinforce {
+			cursor: pointer;
+
+			&:hover {
+				cursor: pointer;
+
+				.army {
+					cursor: pointer;
+
+					& > label,
+					& > h2 {
+						cursor: pointer;
+					}
+				}
+			}
+
+			.army {
+				cursor: pointer;
+
+				& > label,
+				& > h2 {
+					cursor: pointer;
+				}
+			}
+		}
+
+		.army {
+			cursor: pointer;
+
+			&:hover {
+				cursor: pointer;	
+				
+				& > h2 {
+					cursor: pointer;
+				}
+
+				& > label {
+					opacity: 0;
+					cursor: pointer;
+				}
+			}
+
+			& > label {
+				opacity: 0;
+				cursor: pointer;
+			}
+
+			& > h2 {
+				cursor: pointer;
+			}
+		}
+	}
+
+	.noTurns {
+		&.reinforce {
+			&:active {
+				.army {
+					&:hover {
+						& > label {
+							opacity: 0;
+						}
+					}
+				}
+			}
+
+			.army {
+				&:hover {
+					& > label {
+						opacity: 1;
+					}
+				}
+
+				& > label {
+					opacity: 0;
+				}
+			}
+		}
+
+		&.inrange {
+			&:active {
+				.army {
+					&:hover {
+						& > label {
+							opacity: 0;
+						}
+					}
+				}
+			}
+
+			.army {
+				&:hover {
+					& > label {
+						opacity: 1;
+					}
+				}
+			}
+		}
+
+		.army {
+			label {
+				opacity: 0;
+			}
+		}
+	}
+}
+
+/* section */
+section {
+	& > .terr {
+		width: 10%;
+		position: relative;
+		display: inline-block;
+		float: left;
+		transition: all 0.6s;
+		cursor: pointer;
+		overflow:hidden;
+		-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+		-moz-box-sizing: border-box; /* Firefox, other Gecko */
+		box-sizing: border-box; /* Opera/IE 8+ */
+		background-color: transparent;
+		border-width: 0;
+		border-style: solid;
+
+		&.capital.reinforce:hover .army {
+			border: 4px solid $white;
+		}
+	}
+
+	& > .noTurns {
+		cursor: not-allowed;
+	}
+
+	& > .inrange {
+		&.noTurns {
+			cursor: crosshair;
+		}
+	}
+
+	& > .reinforce {
+		cursor: cell;
+
+		&.noTurns {
+			cursor: cell;
+		}
+	}
+}
+
+/* .noTurns */
+.noTurns {
+	&.inrange {
+
+		&:active {
+			.overlay ~.army {
+				& > h2,
+				& > label {
+					color: #f8f8f8;
+				}
+			}
+		}
+
+		.pink ~ .army {
+			& > h2,
+			& > label {
+				color: $defaultBlack;
+			}
+		}
+
+		.blue ~ .army {
+			& > h2,
+			& > label {
+				color: $defaultBlack;
+			}
+		}
+
+		.orange ~ .army {
+			& > h2,
+			& > label {
+				color: $defaultBlack;
+			}
+		}
+
+		.green ~ .army {
+			& > h2,
+			& > label {
+				color: $defaultBlack;
+			}
+		}
+
+		.purple ~ .army {
+			& > h2,
+			& > label {
+				color: $defaultBlack;
+			}
+		}
+	}
+
+	&.reinforce {
+		.army > label {
+			opacity: 0;
+			transition: all 0.6s;
+		}
+
+		&:hover {
+			.army > label {
+				opacity: 1;
+			}
+		}
+	}
+
+	.army > label {
+		opacity: 1;
+	}
+}
+
+/* #battleZone */
+#battleZone {
+	& > .terr.noTurns {
+		& > .army,
+		& > .army > label,
+		& > .army > h2 {
+			cursor: not-allowed;
+		}
+	}
+
+	& > .reinforce.noTurns {
+		& .army,
+		& .army > label,
+		& .army > h2 {
+			cursor: cell;
+			color: $defaultBlack;
+		}
+	}
+
+	& > .inrange.noTurns {
+		& > .army,
+		& > .army > label,
+		& > .army > h2 {
+			cursor: crosshair;
+		}
+	}
+}
+
+/* .selected */
+.selected {
+	&:active {
+		& > .glyphicon-user {
+			opacity: 1;
+			z-index: 99;
+		}
+	}
+
+	&.terr {
+		& > .glyphicon-user {
+			opacity: 1;
+			z-index: 99;
+			color: $defaultBlack;
+
+			&:after {
+				border: 1.5px solid $defaultBlack;
+			}
+		}
+	}
+
+	.army > label {
+		opacity: 1;
+	}
+}
+
+/* .armyLabel */
+.armyLabel {
+	font-size: 12px;
+	margin-bottom: 0;
+}
+
+/* .mobile */
+.mobile {
+	.army {
+		& > h2 {
+			font-size: 22px;
+		}
+
+		& > .armyLabel {
+			font-size: 14px;
+		}
+
+		.prog-bar {
+			height: 30px;
+		}
+	}
+
+	.armyLabel {
+		font-size: 14px;
+	}
+}
+
+/* .selectedTitle */
+.selectedTitle {
+	display: inline-block;
+	text-decoration: underline;
+	cursor: pointer;
+
+	&.small {
+		text-decoration: none;
+		color: $defaultBlack;
+	}
+}

@@ -1,0 +1,120 @@
+body {
+	margin: 0;
+	font-family: Arial;
+	font-size: 16px;
+	background-color: $white;
+	
+	&.terrSelected {
+		height: calc(100vh + 67px);
+	}
+}
+
+/* Global styles*/
+a:focus, a:hover, a {
+	color: inherit;
+	text-decoration: inherit;
+	background-color: inherit;
+}
+
+form {
+	display: none;
+}
+
+
+input[type='text'] {
+	border-right:none;
+	border-left: none;
+	border-top: none;
+	border-bottom-width: 2px;
+	border-color: $defaultBlack;
+	transition: border-bottom-color 1s;
+	box-shadow: 1px 1px 3px $defaultBlack;
+	border-radius: 0;
+}
+
+input[type='text']:focus {
+	box-shadow: 2px 2px 6px $defaultBlack;
+	border-color: #000000;
+}
+
+input {
+	&.invalid {
+		border-bottom: 2px solid #cc0000;
+
+		&:focus {
+			border-color: #cc0000;
+		}
+	}
+}
+
+/* Battle Zone styles */
+
+#battleZone {
+	width: 100%;
+	height: 95vh;
+	display: block;
+	clear: both;
+	margin-top: 5vh;
+}
+
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+	#battleZone {
+		width: 100vw;
+	}
+}
+
+@supports (-ms-accelerator:true) {
+	#battleZone {
+		width: 100vw;
+	}	
+}
+
+.mobile {
+	#battleZone {
+		height: 90vh;
+		margin-top: 10vh;
+	}
+}
+
+#game {
+	position: absolute;
+	top: 0;
+	opacity: 0;
+	transition: all 0.6s;
+}
+
+.world-war {
+	background-image: url('../images/worldwar.jpg');
+	background-size: cover;
+}
+
+.civil-war {
+	background-image: url('../images/civilwar.jpg');
+	background-size: cover;
+}
+
+.texture-0 {
+	background-image: url('../images/seamless-texture-0.jpg');
+	background-size: cover;
+}
+
+.texture-1 {
+	background-image: url('../images/seamless-texture-1.jpg');
+	background-size: cover;
+}
+
+.texture-2 {
+	background-image: url('../images/seamless-texture-2.jpg');
+	background-size: cover;
+}
+
+.texture-3 {
+	background-image: url('../images/seamless-texture-3.jpg');
+	background-size: cover;
+}
+
+.texture-4 {
+	background-image: url('../images/seamless-texture-4.jpg');
+	background-size: cover;
+}
+

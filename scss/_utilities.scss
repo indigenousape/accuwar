@@ -1,0 +1,136 @@
+
+/* Bootstrap overrides */
+
+.popover {
+	min-width: 300px;
+}
+
+.popover-title {
+	background-color: #f8f8f8;
+}
+
+.tooltip {
+	position: absolute;
+}
+
+.tooltip.right {
+	background-color: transparent;
+}
+
+.text-danger {
+	color: #B71C1C;
+}
+
+/* Nav Tab styles */
+.nav-tabs {
+	border-bottom: none;
+
+	label {
+		cursor: pointer;
+		margin-bottom: 0;
+	}
+
+	& > li {
+		& > a {
+			will-change: background-color;
+		    transition: all 0.4s;
+		    color: $defaultBlack;
+			background-color: transparent;
+			border-top: 1px solid transparent;
+			border-right: 1px solid transparent;
+			border-left: 1px solid transparent;
+			border-bottom: 1px solid $defaultBlack;
+
+			/* Color variations */
+			@include navTabColors('blue', $sliderBlue);
+			@include navTabColors('green', $sliderGreen);
+			@include navTabColors('purple', $sliderPurple);
+			@include navTabColors('pink', $sliderPink);
+			@include navTabColors('orange', $sliderOrange);
+
+		    &:hover {
+		    	color: $defaultBlack;
+				background-color: transparent;
+				border-top: 1px solid transparent;
+				border-right: 1px solid transparent;
+				border-left: 1px solid transparent;
+				border-bottom: 1px solid $defaultBlack;
+		    }
+		}
+
+		&.active {
+			& > a {
+			    color: $defaultBlack;
+				background-color: transparent;
+				border-top: 1px solid $defaultBlack;
+				border-left: 1px solid $defaultBlack;
+				border-right: 1px solid $defaultBlack;
+				border-bottom: 1px solid #f8f8f8;
+
+				&:hover,
+				&:focus {
+				    color: $defaultBlack;
+					background-color: transparent;
+					border-top: 1px solid $defaultBlack;
+					border-left: 1px solid $defaultBlack;
+					border-right: 1px solid $defaultBlack;
+					border-bottom: 1px solid #f8f8f8;
+				}
+
+				label {
+					cursor: default;
+				}
+			}
+		}
+	}
+}
+
+.tab-pane {
+	small {
+		display: block;
+		margin-bottom: 10px;
+	}
+}
+
+.error {
+	margin: 10px 0;
+	color: #cc0000;
+	text-align: center;
+}
+
+/* Show and Hide mobile classes */
+.show-mob {
+	display: none;
+}
+
+@media #{$tabletLandscape} {
+	.hide-mob {
+ 		display: none;
+ 	}
+
+ 	.show-mob {
+ 		display: inline-block;
+ 	}
+}
+
+/* Color classes */
+
+.blue {
+	background-color: $sliderBlue;
+}
+
+.green {
+	background-color: $sliderGreen;
+}
+
+.purple {
+	background-color: $sliderPurple;
+}
+
+.pink {
+	background-color: $sliderPink;
+}
+
+.orange {
+	background-color: $sliderOrange;
+}

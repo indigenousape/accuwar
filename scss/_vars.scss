@@ -1,0 +1,44 @@
+
+//Button, slider, and background colors
+
+$sliderBlue: #29B6F6;
+$sliderGreen: #8BC34A;
+$sliderOrange: #FF9800;
+$sliderPurple: #B388FF;
+$sliderPink: #F48FB1;
+
+
+// Focus colors
+
+$blue: #4FC3F7;
+$orange: #FB8C00;
+$green: #7CB342;
+$purple: #9575CD;
+$pink: #F06292;
+
+
+// Button border colors
+
+$orangeBorder: #985f0d;
+$blueBorder: #46b8da;
+$greenBorder: #33691E;
+$purpleBorder: #673AB7;
+$pinkBorder: #D81B60;
+
+
+// Button hover / focus colors
+
+$orangeBtnHoverFocus: #EF6C00;
+
+// Other colors
+$white: #fff;
+$defaultBlack: #333;
+
+// Responsive breakpoint strings
+
+$landscape: 'screen and (orientation: landscape)';
+$tabletLandscape: 'screen and (max-width: 1280px) and (orientation: landscape)';
+$smallerTablets: 'screen and (max-width: 1200px)';
+$largePhoneLandscape: 'screen and (max-width: 812px)';
+$medPhoneLandcape: '(max-width: 768px)';
+$smallPhones: 'screen and (max-width: 580px)';

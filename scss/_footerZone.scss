@@ -1,0 +1,309 @@
+#footerZone {
+	display: block;
+	transition: all 0.6s;
+	position: fixed;
+	z-index: 1000;
+	width: 100%;
+	height: auto;
+	background: $white;
+	padding-bottom:15px;
+	box-shadow: 1px 1px 6px $defaultBlack;
+	transform: translateY(100%);
+	bottom: 70px;
+	box-shadow: 1px 1px 10px $defaultBlack;
+
+	&:empty {
+		display: none;
+	}
+
+	&.lift {
+		transform: none;
+		bottom: 0;
+	}
+
+	> div {
+		position: relative;
+		height: 62px;
+
+		> span {
+			float: left;
+			line-height: 34px;
+			margin-left: 10px;
+		}
+	}
+
+	section {
+		width: 50%;
+		height: auto;
+		float: left;
+		clear: none;
+
+		& > h3 {
+			text-align: center;
+		    display: block;
+		    margin: 10px auto;
+		}
+
+		& > .clearfix {
+			min-height: 0;
+		}
+
+		button {
+			color: #000000;
+			@include buttonBeforeHover();
+
+			&:hover,
+			&focus {
+				@include buttonHover();
+			}
+
+			.glyphicon {
+				color: #000000;
+			}
+		}
+	}
+
+	label {
+		width: 250px;
+		height: 34px;
+		display: inline-block;
+		float: left;
+		line-height: 34px;
+		box-shadow: 1px 1px 3px $defaultBlack;
+	}
+
+	button {
+		float: left;
+		margin-left: 10px;
+	}
+
+	.nav-tabs {
+		border-bottom: none;
+
+		& > li {
+			float: none;
+
+			&:hover {
+				box-shadow: 0 0 6px $defaultBlack;
+			}
+
+			&:first-child {
+				& > a {
+					border-top-left-radius: 2px;
+				}
+			}
+
+			&:last-child {
+				& > a {
+					border-bottom-left-radius: 2px;
+				}
+			}
+
+			&.active {
+				box-shadow: 0 0 6px $defaultBlack;
+
+				&:hover {
+					box-shadow: 0 0 6px $defaultBlack;
+				}
+
+				a {
+					background-color: $white;
+
+					&:hover,
+					&focus {
+						background-color: $white;
+					}
+
+					> strong {
+						display: block;
+						font-size: 13px;
+					}
+				}
+			}
+
+			> a {
+				border-bottom: 1px solid $defaultBlack;
+				border-left: 1px solid $defaultBlack;
+				border-top: 1px solid $defaultBlack;
+				border-right: transparent;
+				margin-right: 0;
+				border-radius: 0;
+			}
+		}
+
+		.rank-stars {
+			display: block;
+		}
+	}
+
+	@include footerTabLinkColors('blue', $sliderBlue);
+	@include footerTabLinkColors('green', $sliderGreen);
+	@include footerTabLinkColors('orange', $sliderOrange);
+	@include footerTabLinkColors('purple', $sliderPurple);
+	@include footerTabLinkColors('pink', $sliderPink);
+
+	.tab-content {
+		width: 390px;
+		padding-bottom: 15px;
+		margin: auto;
+	}
+
+	.tab-pane {
+		padding: 15px;
+		border: 1px solid $defaultBlack;
+		background-color: #f8f8f8;
+		box-shadow: 0 0 3px $defaultBlack inset;
+		border-top-right-radius: 2px;
+		border-bottom-right-radius: 2px;
+	}
+
+	.fort-label {
+		.no-btn {
+			margin-left: 0;
+		}
+	}
+
+	.no-btn {
+		.glyphicon {
+			color: $defaultBlack;
+		}
+	}
+
+	.rank-stars {
+		font-size: 14px;
+
+		.glyphicon {
+			margin-right: 2px;
+		}
+	}
+
+}
+
+#economy > h3 {
+	width: 390px;
+}
+
+#military > h3 {
+	width: 540px;
+}
+
+.footer-label-container {
+	width: 390px;
+	min-height: 34px;
+	margin: 0 auto 5px;
+	clear: both;
+}
+
+.selected-details-rotator {
+	width: 500px;
+	margin:4px auto 2px;
+
+	& > span {
+		float: left;
+	}
+
+	span {
+		line-height: 20px;
+		display: inline-block;
+	}
+}
+
+.selected-rotator-container {
+	position: relative;
+	width: 240px;
+	background-color: $white;
+	overflow: hidden;
+}
+
+.selected-faders {
+	position: absolute;
+	z-index: -1;
+	background-color: $white;
+
+	&.next {
+		z-index: 4;
+	}
+
+	&.active {
+		z-index: 5;
+	}
+}
+
+#selectedFixedRotator .selected-faders {
+	text-align: right;
+	right: 0;
+}
+
+#selectedRotator .selected-faders {
+	text-align: left;
+	left: 0;
+}
+
+.selected-rotator-pipe {
+	width: 20px;
+	text-align: center;
+}
+
+.close-footer {
+	margin-left: 10px;
+}
+
+.close-footer,
+.drop,
+.raise {
+	float: right;
+	opacity: 1;
+}
+
+.drop .up,
+.raise .down {
+	display: none;
+}
+
+.footer-container {
+	max-width: 400px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 15px;
+	border: 1px solid $defaultBlack;
+	background-color: #f8f8f8;
+	box-shadow: 0 0 3px $defaultBlack inset;
+	border-radius: 2px;
+}
+
+.footer-col-wrapper {
+	width: 540px;
+	margin: auto;
+}
+
+.footer-col-1 {
+	width: 150px;
+	display: inline-block;
+	float: left;
+}
+
+.footer-col-2 {
+	width: 390px;
+	display: inline-block;
+}
+
+.terrName {
+	text-align: center;
+	margin: 4px 0 2px;
+}
+
+.footer-icons {
+	position: absolute;
+	top: 50%;
+	right: 15px;
+	transform:translateY(-50%);
+
+	button {
+		@include buttonBeforeHover();
+
+		&:hover,
+		&:focus {
+			@include buttonHover();
+		}
+	}
+}

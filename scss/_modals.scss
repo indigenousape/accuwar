@@ -1,0 +1,310 @@
+
+/* General modal styles */
+
+.modal {
+	z-index:99999;
+}
+
+.modal-title {
+	font-weight: bold;
+	font-size: 22px;
+}
+
+.modal-body {
+	padding: 0;
+
+	.top-label {
+		display: block;
+		font-size: 18px;
+		margin-bottom: 5px;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	}
+
+	& > p:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.modal-content {
+	border-radius: 2px;
+}
+
+.modal-inputs {
+	padding: 0 15px 15px;
+
+	& > p {
+		margin: 10px 0 0;
+	}
+}
+
+.modal-footer {
+	.btn {
+		@include buttonBeforeHover();
+
+		&:hover,
+		&:focus {
+			@include buttonHover();
+		}
+	}
+}
+
+/* Specific modal styles */
+
+#oneModal {
+	.fort-label {
+		height: 34px;
+		display: block;
+		line-height: 34px;
+		margin-bottom: 8px;
+		box-shadow: 1px 1px 3px $defaultBlack;
+		background-color: #bdbdbd;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+
+		.prog-bar {
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		.prog-txt {
+			&:hover {
+				cursor: pointer;
+			}
+		}
+	}
+}
+
+/* Large headline for invasion modals */
+.headline-title {
+	text-transform: uppercase;
+	text-align: center;
+	font-size: 28px;
+}
+
+/* Prompt styles */
+.form-text {
+	margin-top: 10px;
+
+	&:first-child {
+		margin-top: 0;
+	}
+}
+
+/* Input message styles */
+#modal-msg {
+	padding: 15px;
+
+	.text-danger {
+		font-weight: bold;
+	}
+
+	.modal-inputs {
+		padding: 0;
+	}
+
+	& > p:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.noturns-msg {
+	float: left;
+	margin: 0;
+	line-height:34px;
+	font-weight:bold;
+
+	&:empty {
+		display: none;
+	}
+}
+
+@include modalInputMsg('error-message');
+@include modalInputMsg('impact-msg');
+@include modalInputMsg('tp-modal-msg-2');
+@include modalInputMsg('error-message-2');
+
+#tp-modal-msg-2 {
+	margin-top: 10px;
+}
+
+/* Attack and Reinforce Modal styles */
+.modal-two-terr-container {
+	margin-bottom: 15px;
+	box-shadow: 1px 1px 3px $defaultBlack;
+}
+
+.modal-side-container {
+	padding-top: 15px;
+	padding-bottom: 15px;
+
+	.fort-data {
+		margin-top: 10px;
+
+		div:last-child label {
+			margin-bottom: 0;
+		}
+	}
+}
+
+.reinf-col {
+	&.pull-left {
+		border-right: 1px solid $defaultBlack;
+	}
+
+	&.pull-right {
+		border-left: 1px solid $defaultBlack;
+	}
+}
+
+.defender-col {
+	&.pull-left {
+		border-right: 2px solid $defaultBlack;
+	}
+
+	&.pull-right {
+		border-left: 2px solid $defaultBlack;
+	}
+}
+
+/* Policies modal */
+
+#enactedPolicies {
+
+	label {
+		display: block;
+
+		.glyphicon {
+			cursor: pointer;
+		}
+
+		.glyphicon-chevron-up {
+			color: green;
+		}
+
+		.glyphicon-chevron-down {
+			color: red;
+		}
+
+		.glyphicon.disabled {
+			color: #ccc;
+			cursor: default;
+		}
+
+	}
+
+}
+
+#armyUnitsRange {
+	margin: 20px 0 5px;
+	max-width: 500px;
+}
+
+#budgetTable { 
+	text-align: right;
+
+	.collapsed {
+		.glyphicon-chevron-up {
+			display: none;
+		}
+
+		.glyphicon-chevron-down {
+			display: inline-block;
+		}
+	}
+
+	.glyphicon-chevron-down {
+		display: none;
+	}
+
+	.glyphicon-chevron-up {
+		display: inline-block;
+	}
+
+	ul {
+		list-style-type: none;
+		padding-left: 0;
+	}
+
+	span {
+		&:first-child {
+			width: 50%;
+			float: left;
+		}
+
+		&:nth-child(2) {
+			width: 50%;
+		}
+
+		&.glyphicon {
+			&:first-child {
+				width: auto;
+				float: none;
+			}
+		}
+	}
+}
+
+.br-alert {
+	margin-top: 10px;
+}
+
+.recruit-impact {
+	max-width: 500px;
+	display: block;
+	font-weight: normal;
+	margin-bottom: 20px;
+
+	& > span {
+		&:first-child {
+			float: left;
+		}
+
+		&:nth-child(2) {
+			float: right;
+		}
+	}
+}
+
+.available-policies-container {
+	label {
+		display: block;
+	}
+}
+
+.battle-result {
+	h3 {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
+
+	.charts-header {
+		margin-bottom: 15px;
+		margin-top: 15px;
+		clear: both;
+	}
+
+	.fort-label {
+		&:hover {
+			background-color: #9E9E9E;
+
+			@include progBarColors('blue', $blue);
+			@include progBarColors('green', $green);
+			@include progBarColors('orange', $orange);
+			@include progBarColors('purple', $purple);
+			@include progBarColors('pink', $pink);
+		}
+	}
+
+	.previous {
+		@include progBarColors('blue', $blue);
+		@include progBarColors('green', $green);
+		@include progBarColors('orange', $orange);
+		@include progBarColors('purple', $purple);
+		@include progBarColors('pink', $pink);
+	}
+}

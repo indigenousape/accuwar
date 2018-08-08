@@ -1,0 +1,49 @@
+.small-screen-overlay {
+	display: none;
+	position: fixed;
+	z-index:2000;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: white;
+}
+
+.error-box {
+	width: 60%;
+	min-width: 300px;
+	position: absolute;
+	top: 10%;
+	left: 50%;
+	transform: translateX(-50%);
+
+	h1 {
+		font-family: "Courier New";
+		margin-top: 0;
+		letter-spacing: 5px;
+	}
+
+	.bg-danger {
+		padding: 15px;
+		border-radius: 8px;
+	}
+}
+
+.old-browser {
+	position: relative;
+	top: inherit;
+	left: inherit;
+	margin: 30px auto 0;
+}
+
+@media screen and (max-width: 1280px) and (orientation: portrait) {
+	.small-screen-overlay {
+		display: block;
+	}
+}
+
+@media screen and (max-height: 580px) and (min-device-width: 813px) {
+	.small-screen-overlay {
+		display: block;
+	}
+}

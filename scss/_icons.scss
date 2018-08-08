@@ -1,0 +1,31 @@
+.glyphicon-user:after {
+	display: block;
+	content: '';
+	border-right: 1px solid $defaultBlack;
+	position:absolute;
+	width:1px;
+	height: 7px;
+	left: 1px;
+	bottom: 3px;
+	z-index: 0;
+}
+
+.ic-blue {
+	color: #29B6F6;
+}
+
+.ic-green {
+	color: #8BC34A;
+}
+
+.ic-purple {
+	color: #B388FF;
+}
+
+.ic-pink {
+	color: #F48FB1;
+}
+
+.ic-orange {
+	color: #FF9800;
+}

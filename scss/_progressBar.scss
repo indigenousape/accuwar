@@ -1,0 +1,61 @@
+
+.fort-label {
+	display: block;
+	height: 20px;
+    position: relative;
+	background-color: #BDBDBD;
+	text-align: center;
+	transition: background-color 1s;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	.glyphicon {
+		color: $defaultBlack;
+		font-size: 14px;
+	}
+}
+
+.prog-txt {
+	width: 100%;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	text-align: center;
+	color: #101101;
+	letter-spacing: 0.5px;
+
+	&.red {
+		color: #cc0000;
+	}
+
+	&.white {
+		color: #EEEEEE;
+	}
+}
+
+.prog-bar {
+	position: absolute;
+	left: 0;
+	height: 34px;
+	transition: all 0.6s ease-out;
+}
+
+.yellow-prog {
+	background-color: yellow;
+}
+
+.red-prog {
+	background-color: red;
+}
+
+.green-prog {
+	background-color: #2E7D32;
+}
+
+.mobile {
+	.fort-label {
+		height: 30px;
+	}
+}

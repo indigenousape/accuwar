@@ -1,0 +1,588 @@
+ 
+@media #{$landscape} {
+	#battleZone > div {
+		height: 19vh;
+
+		&.small {
+			height: 30vh;
+			width: 16.6667%;
+		}
+	}	
+}
+
+@media #{$tabletLandscape} {
+
+	.game-start-desc {
+		margin-bottom: 0;
+	}
+
+	.game-alert {
+		p {
+			font-size: 15px;
+		}
+
+		ul {
+			font-size: 13px;
+		}
+	}
+
+	.left-stats .btn {
+		margin-right: 10px;
+	}
+
+	.right-stats .btn {
+		margin-left: 10px;
+	}
+
+	body.terrSelected {
+		height: calc(100vh + 55px);
+	}
+
+	.alert {
+		padding: 10px 15px;
+	}
+
+	.modal-two-terr-container {
+		margin-bottom: 10px;
+	}
+
+	.modal-side-container {
+		padding: 10px;
+	}
+
+	.modal-header,
+	.modal-footer,
+	#modal-msg {
+		padding: 8px 15px;
+		font-size: 15px;
+	}
+
+	.modal-inputs {
+		padding: 0 15px 10px;
+	}
+
+	.army {
+		padding: 0 4px;
+	}
+
+	.army h2,
+	.mobile .army h2 {
+		font-size: 17px;
+	}
+
+	.mobile .army .armyLabel,
+	.army .armyLabel {
+		font-size: 12px;
+	}
+
+	.armyLabel {
+		line-height: 1.1;
+	}
+
+	.army .fort-label {
+		margin-top: 2px;
+		margin-bottom: 4px;
+	}
+
+	.terrName {
+		font-size: 24px;
+	}
+
+	.turn-counter {
+		font-size: 32px;
+	}
+
+	.selected-details-rotator,
+	.terrName {
+		margin: 2px 0 2px;
+	}
+
+	#footerZone {
+		bottom: 55px;
+		padding-bottom: 5px;
+	}
+
+	#footerZone .nav-tabs>li>a {
+		padding: 6px 0 6px 8px;
+	}
+
+	button .glyphicon,
+	.mobile button .glyphicon {
+		font-size: 12px;
+	}
+
+	.mobile .fort-label,
+	.prog-bar,
+	.mobile .army .prog-bar  {
+		height: 20px;
+	}
+
+	.nav>li>a {
+		padding: 8px 10px;
+		font-size: 15px;
+	}
+
+	.nav-tabs>li>a.left:hover,
+	.nav-tabs>li>a.right:hover {
+		background-color: $white;
+	}
+
+	#footerZone .tabs-left > li:hover a,
+	#footerZone .tabs-right > li:hover a {
+		border-right: none;
+	}
+
+	.army > h2 {
+		margin: 1px 0 4px;
+	}
+
+	.footer-container {
+		max-width: 100%;
+		margin-left: 15px;
+		margin-right: 15px;
+		padding: 10px 15px;
+		margin-bottom: 15px;
+	}
+
+	#footerZone section button {
+		height: 30px;
+		width: 40px;
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	#footerZone section .no-btn {
+		width: auto;
+		padding-left: 5px;
+		padding-right: 5px;
+	}
+
+	#footerZone label {
+		height: 30px;
+		line-height: 30px;
+	}
+
+	.prog-bar {
+		height: 30px;
+	}
+
+	#footerZone .tab-pane {
+		padding: 10px;
+	}
+
+	.army > label,
+	.noTurns.reinforce .army > label {
+		opacity: 1;
+	}
+
+	#footerZone section button:hover,
+	.footer-icons button:hover,
+	.turn-counter .newTurn:hover,
+	.modal-footer .btn:hover {
+		box-shadow: 1px 1px 3px $defaultBlack;
+	}
+
+	.battle-result .charts-header {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+	.battle-result .prog-bar,
+	#oneModal .battle-result .fort-label {
+		height: 30px;
+		line-height: 30px;
+	}
+
+	.glyphicon-user:after {
+		bottom: 2px;
+	}
+
+	.battle-result h3 {
+		font-size: 22px;
+	}
+
+ 	.mobile .stats-container .btn {
+		padding: 0 20px;
+	}
+
+ 	.mobile .treasury-label {
+ 		margin-top: 2vh;
+ 	}
+
+ 	.sidebar .sideName {
+ 		display: inline-block;
+ 		margin-bottom: 0;
+ 	}
+
+	#startHeading {
+		margin-top: 3vh;
+	}
+
+	section {
+		height: 90vh;
+	}
+
+	#declareWar {
+		line-height: 1.0;
+		padding: 3rem;
+	}
+
+	.treasury-tot {
+		line-height: 20px;
+	}
+
+	.changeTax {
+		line-height: 20px;
+	}
+
+	.small .army {
+		height: 30vh;
+		overflow: hidden;
+	} 
+
+	#battleZone > .small {
+		height: 30vh;
+		width: 16.6667%;
+	}
+
+	/* Footer styles */
+
+	#footerZone section h3 {
+		margin: 2px auto 10px;
+	}
+
+	#military h3 {
+		float: right;
+    	width: calc(100% - 110px);
+    	margin-right: 15px;
+    }
+	.footer-col-wrapper {
+		width: 100%;
+	}
+	.footer-col-1 {
+		width: 100px;
+	}
+
+	.footer-col-2 {
+		width: calc(100% - 115px);
+	}
+
+	#footerZone .tab-content {
+		width: 100%;
+	}
+
+	.footer-label-container {
+		width: 100%;
+	}
+
+	#economy .footer-label-container:last-child {
+		margin: 0 auto;
+	}
+
+	#footerZone  #economy h3 {
+		width: 100%;
+	}
+
+	#footerZone label {
+		width: calc(100% - 50px);
+	}
+
+	#selectedRotator .selected-faders,
+	#selectedRotator .glyphicon {
+		font-size: 13px;
+	}
+
+	#footerZone > div {
+		height: 53px;
+	}
+
+	#footerZone section {
+		margin-top: 5px;
+	}
+
+	#selectedFixedRotator .selected-faders {
+		left: 0;
+		right: inherit;
+		text-align: left;
+		white-space: nowrap;
+	}
+
+	#selectedFixedRotator {
+		width: 125px;
+	}
+
+	.selected-rotator-container {
+		width: 170px;
+	}
+
+	.selected-details-rotator {
+		width: auto;
+		font-size: 14px;
+	}
+
+	.terrName, .selected-details-rotator {
+		margin: 3px 0;
+		text-align: left;
+		padding-left: 15px;
+	}
+
+}
+
+@media #{$smallerTablets} {
+
+ 	.hide-mob {
+ 		display: none !important;
+ 	}
+
+ 	.show-mob {
+ 		display: inline-block;
+ 	}
+
+	#declareWar {
+	    width: calc(100% - 200px);
+	    padding: 2rem;
+	    font-size: 4rem;
+	}
+
+	#declareWar span {
+		font-size: 1.75rem;
+	}
+
+	.prog-txt {
+		font-size: 13px;
+	}
+
+	.treasury-label {
+		margin-top: 1vh;
+	}
+
+	.turn-counter .newTurn {
+		font-size: 18px;
+	}
+
+}
+
+@media #{$largePhoneLandscape} {
+
+	.modal-dialog {
+		margin: 10px auto;
+	}
+
+	.hide-phone {
+		display: none;
+	}
+
+	.terr > .glyphicon-fire,
+	.terr > .glyphicon-user {
+		font-size: 30px;
+	}
+
+	.modal-side-container {
+		font-size: 14px;
+	}
+
+	.modal-side-container label {
+		margin-bottom: 4px;
+	}
+
+	.modal-title,
+	.modal-body .top-label {
+		font-size: 18px;
+	}
+
+	.battle-result h3 {
+		font-size: 18px;
+	}
+
+	.selectedSection .terr .army > label,
+	.selectedSection .terr .army:focus > label,
+	.selectedSection .noTurns .army > label,
+	.selectedSection .noTurns.reinforce .army > label {
+		opacity: 1;
+	}
+
+	.selectedSection .selected .army > label {
+		opacity: 0;
+	}
+
+	.audio-control,
+	.map-control {
+		position: fixed;
+		bottom: 10px;
+		margin: 8px 0;
+	}
+
+	.audio-control {
+		width: 60px;
+		left: 10px;
+		text-align: left;
+		padding-left: 0;
+		padding-right: 10px;
+	}
+
+	.map-control {
+		width: auto;
+		left: 70px;
+		padding-right: 0;
+		padding-left: 10px;
+		text-align: left;
+	}
+
+	.audio-control label,
+	.map-control label {
+		display: block;
+	}
+
+	.terr-slider-control {
+		display: none;
+	}
+
+	.mobile .stats-container .btn {
+		padding: 0 12px;
+	}
+
+	.mobile .turn-counter .newTurn {
+		height: 32px;
+    	line-height: 32px;
+   	 	margin-top: calc(5vh - 16px);
+	}
+
+	.mobile .fort-label,
+	.mobile .army .prog-bar {
+		height: 20px;
+	}
+
+	.turn-counter {
+		font-size: 24px;
+	}
+
+	.turn-counter .glyphicon,
+	.mobile .turn-counter .glyphicon {
+		font-size: 32px;
+	}
+
+	.turn-counter .newTurn,
+	.mobile .turn-counter .newTurn {
+		height: 30px;
+		line-height: 30px;
+	}
+
+	#startHeading {
+		font-size: 5rem;
+		margin-top: 2vh;
+	}
+
+	#setup .form-group  {
+		margin: 5px auto;
+	}
+
+	.game-start-desc {
+		margin-top: 0;
+	}
+
+	.game-start-desc > p:first-child {
+		display: none;
+	}
+
+	.game-alert p {
+		font-size: 14px;
+	}
+
+	#declareWar {
+		width: calc(100% - 290px);
+		max-width: 500px;
+		margin-top: 10px;
+		font-size: 3.5rem;
+	}
+
+	.version-text {
+		right: 10px;
+		bottom: 0;
+		margin-bottom:10px;
+	}
+
+	.release-txt {
+		display: block;
+	}
+
+	.army:focus {
+		border: 4px solid transparent;
+	}
+
+}
+
+@media #{$medPhoneLandcape} {
+
+	.modal-dialog {
+		margin: 0;
+	}
+
+	.audio-control {
+		bottom: 60px;
+		width: auto;
+	}
+
+	.map-control {
+		left: 0;
+		bottom: 0;
+		width: auto;
+	}
+
+	.audio-control label, .map-control label {
+		display: block;
+	}
+
+	.audio-control label .hide-phone, .map-control label .hide-phone {
+		display: inline-block;
+	}
+}
+
+@media #{$smallPhones} {
+
+	#footerZone {
+		max-height: 95vh;
+	}
+
+	#footerZone .nav-tabs>li>a {
+		font-size: 13px;
+	}
+
+	.army > .fortStrength-main {
+		display: none;
+	}
+
+	.army > .armyPopulation-main {
+		margin-top: 2px;
+	}
+
+	.army > h2 {
+		margin-bottom: 5px;
+	}
+
+	#selectedRotator .selected-faders,
+	.selected-faders .glyphicon {
+		font-size: 13px;
+	}
+
+	.game-alert {
+		font-size: 14px;
+	}
+
+	button.close {
+		margin-top: 1px;
+	}
+
+	.terrName {
+		font-size: 22px;
+	}
+
+	#footerZone section h3 {
+		font-size: 22px;
+	}
+
+	.footer-container {
+		max-height: 195px;
+		overflow-y: auto;
+	}
+
+}
