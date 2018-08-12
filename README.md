@@ -27,7 +27,7 @@ Play side-by-side with another player or alone in sandbox mode to learn the game
 - Chrome, Safari, Firefox, IE10+/Edge
 
 # Release
-2.9 Alpha
+3.0 Alpha
 
 # Credits
 MAPS
@@ -47,3 +47,8 @@ MUSIC
 - Royalty Free Music from Bensound
 - http://www.purple-planet.com
 - Shane Ivers - https://www.silvermansound.com
+- Air Force Band of Liberty
+
+SOUND EFFECTS
+- United Artists & Sherwood Productions
+- NYSE

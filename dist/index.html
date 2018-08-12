@@ -13,11 +13,27 @@
 	<link rel="author" href="https://www.linkedin.com/in/joshmharris" />
 	<link rel="canonical" href="http://www.accuwar.com" />
 
-	<link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-	<link rel="manifest" href="/manifest.json">
-	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+	<link rel="shortcut icon" href="favicon.ico">
+	<link rel="icon" sizes="16x16 32x32 64x64" href="favicon.ico">
+	<link rel="icon" type="image/png" sizes="196x196" href="favicon-192.png">
+	<link rel="icon" type="image/png" sizes="160x160" href="favicon-160.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="favicon-96.png">
+	<link rel="icon" type="image/png" sizes="64x64" href="favicon-64.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+	<link rel="apple-touch-icon" href="favicon-57.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="favicon-114.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="favicon-72.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="favicon-144.png">
+	<link rel="apple-touch-icon" sizes="60x60" href="favicon-60.png">
+	<link rel="apple-touch-icon" sizes="120x120" href="favicon-120.png">
+	<link rel="apple-touch-icon" sizes="76x76" href="favicon-76.png">
+	<link rel="apple-touch-icon" sizes="152x152" href="favicon-152.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+	<meta name="msapplication-TileColor" content="#FFFFFF">
+	<meta name="msapplication-TileImage" content="favicon-144.png">
+	<meta name="msapplication-config" content="browserconfig.xml">
+
 	<meta name="theme-color" content="#fff">
 
 	<meta property="og:url" content="http://www.accuwar.com">
@@ -199,16 +215,28 @@
 
 		<div class="terr-slider-control">
 			<label class="active" id="quickGame">Quick game</label>
-	    	<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-blue" min="<%= App.Constants.STARTING_TERRITORIES_MOB %>" max="<%= App.Constants.STARTING_TERRITORIES %>" step="<%= App.Constants.STARTING_TERRITORIES - App.Constants.STARTING_TERRITORIES_MOB %>" value="<%= App.Constants.STARTING_TERRITORIES_MOB %>" defaultValue="<%= App.Constants.STARTING_TERRITORIES_MOB %>" id="terrNumberInput">
+	    	<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-blue" min="<%= App.Constants.STARTING_TERRITORIES_MOB %>" max="<%= App.Constants.STARTING_TERRITORIES %>" step="<%= App.Constants.STARTING_TERRITORIES - App.Constants.STARTING_TERRITORIES_MOB %>" value="<%= App.Constants.STARTING_TERRITORIES_MOB %>" defaultValue="<%= App.Constants.STARTING_TERRITORIES_MOB %>" id="terrNumberInput" aria-label="Number of territories per side.">
 	    	<label class="text-muted"  id="longGame">Long game</label>
 	    	<div class="clearfix"></div>
 		</div>
 
-		<div class="map-control"><label>Random Map<span class="hide-phone">:</span> </label><input id="randomMap" type="checkbox" /> <span id="randomMapState">Off</span></div>
+		<div class="text-center game-controls">
 
-		<div class="audio-control"><label>Music<span class="hide-phone">:</span> </label><input id="noSound" type="checkbox" /> <span id="soundState">Off</span></div>
+			<label for="randomMap">Random Map<span class="hide-phone">:</span> </label>
+			<input id="randomMap" type="checkbox" /> 
+			<span id="randomMapState">Off</span> 
 
-		<div class="tips-control hide-phone"><label>Show Tips: </label><input id="showTips" type="checkbox" checked /> <span id="tipsState">On</span></div>
+			<label for="noSound">Music<span class="hide-phone">:</span> 
+			</label><input id="noSound" type="checkbox" /> 
+			<span id="soundState">Off</span>
+
+			<span class="hide-phone">
+				<label for="showTips">Show Tips: </label>
+				<input id="showTips" type="checkbox" checked />
+				<span id="tipsState">On</span>
+			</span>
+
+		</div>
 
 		<button id="declareWar" disabled>Declare War <% if (!App.Utilities.isSafari()) { %><span>(Fullscreen)</span><% } %></button>
 
@@ -278,7 +306,7 @@
 			<h3>Active Policies</h3>
 
 			<% if (App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') > 1) { %>
-				<p>Active policies will be carried out before the start of each year in the order below. Territories with the greatest needs will receive assistance first.</p>
+				<p>Active policies will be carried out before the start of each year in the order below. Territories with the greatest needs will receive assistance&nbsp;first.</p>
 			<% } %>
 
 				<% var policies = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
@@ -336,7 +364,7 @@
 	<script id="footerTemplate" type="text/template">
 
 		<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-			<h2 class="terrName">Selected: <a href="#" class="selectedTitle animated" data-toggle="popover" data-trigger="hover" data-placement="top" title="Change Territory Name" data-content="Updates the name of this territory."><%= name %></a> <span class="small selectedTitle" data-toggle="popover" data-trigger="hover" data-placement="top" title="Change Territory Name" data-content="Customize the name of this territory."><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></span></h2>
+			<h2 class="terrName">Selected: <a href="#" class="selectedTitle animated" data-toggle="popover" data-trigger="hover" data-placement="top" title="Change Territory Name" data-content="Change the name of this territory."><%= name %></a> <span class="small selectedTitle" data-toggle="popover" data-trigger="hover" data-placement="top" title="Change Territory Name" data-content="Change the name of this territory."><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></span></h2>
 		<% } else { %>
 			<h2 class="terrName">Selected: <a href="#" class="selectedTitle animated"><%= name %></a> <span class="small selectedTitle"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></span></h2>
 		<% } %>
@@ -383,7 +411,7 @@
 
 		<div class="footer-icons">
 		<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-			<button class="raise btn btn-primary pull-left" id="dropFooter" data-toggle="popover" data-trigger="hover" data-placement="top" title="<%= name %> Details Panel" data-content="Recruit and train army units. Repair and upgrade forts. Develop the local economy."><span class="down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> </span><span class="up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> </span> <span class="hide-mob">Details &amp;</span> Actions</button>
+			<button class="raise btn btn-primary pull-left" id="dropFooter" data-toggle="popover" data-trigger="hover" data-placement="top" title="<%= name %> Details Panel" data-content="Recruit and train army units. Repair and upgrade forts. Develop the local&nbsp;economy."><span class="down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> </span><span class="up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> </span> <span class="hide-mob">Details &amp;</span> Actions</button>
 		<% } else {%>
 
 			<button class="raise btn btn-primary pull-left" id="dropFooter"><span class="down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> </span><span class="up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> </span> <span class="hide-mob">Details &amp;</span> Actions</button>
@@ -404,40 +432,17 @@
 								upOrDown = econGrowthPct > 0 ? "+" : "";
 						%>
 
-						<% if ((economicOutput / startEconomicOutput) * 100 > 80) { %>
-							<div class="green-prog prog-bar" data-test="<%=startEconomicOutput%>" style="width: <%= Math.min((economicOutput / startEconomicOutput) * 100, 100) %>%"></div>
-							<div class="white prog-txt">
-								<strong>GDP $<%= displayGDP %>
-									<% if(econGrowthPct != 0) {%>
-									<button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econGrowthPct.toFixed(2) %>%">
-									 	<span class="glyphicon <%= displayGDPIcon %>"></span>
-									 </button>
-									 <% } %>
-								</strong>
-							</div>
-						<% } else if ((economicOutput / startEconomicOutput) * 100 > 25) { %>
-							<div class="yellow-prog prog-bar" style="width: <%= Math.min((economicOutput / startEconomicOutput) * 100, 100) %>%"></div>
-							<div class="prog-txt">
-								<strong>GDP $<%= displayGDP %>
-									<% if(econGrowthPct != 0) {%>
-									 <button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econGrowthPct.toFixed(2) %>%">
-									 	<span class="glyphicon <%= displayGDPIcon %>"></span>
-									 </button>
-									 <% } %>
-								</strong>
-							</div>
-						<% } else { %>
-							<div class="red-prog prog-bar" style="width: <%= Math.min((economicOutput / startEconomicOutput) * 100, 100) %>%"></div>
-							<div class="red prog-txt">
-								<strong>GDP $<%= displayGDP %>
-									<% if(econGrowthPct != 0) {%>
-									 <button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econGrowthPct.toFixed(2) %>%">
-									 	<span class="glyphicon <%= displayGDPIcon %>"></span>
-									 </button>
-									 <% } %>
-								</strong>
-							</div>
-						<% } %>
+						<div class="<%= App.Utilities.returnStandardBarColors(this.model, 'economicOutput', 'startEconomicOutput').background %>-prog prog-bar" style="width: <%= Math.min((economicOutput / startEconomicOutput) * 100, 100) %>%"></div>
+						
+						<div class="<%= App.Utilities.returnStandardBarColors(this.model, 'economicOutput', 'startEconomicOutput').text %> prog-txt">
+							<strong>GDP $<%= displayGDP %>
+								<% if(econGrowthPct != 0) {%>
+								<button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econGrowthPct.toFixed(2) %>%">
+								 	<span class="glyphicon <%= displayGDPIcon %>"></span>
+								 </button>
+								 <% } %>
+							</strong>
+						</div>
 
 					</label>
 
@@ -451,32 +456,17 @@
 								upOrDown = econPopulationGrowthPct > 0 ? "+" : "";
 						 %>
 
-						<% if ((econPopulation / startEconPopulation) * 100 > 80) { %>
-							<div class="green-prog prog-bar" style="width: <%= (econPopulation / startEconPopulation) * 100 %>%"></div>
-								<div class="white prog-txt"><strong>Population <%= displayPop %>
-								<% if(econPopulationGrowthPct != 0) {%>
-								<button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econPopulationGrowthPct.toFixed(2) %>%">
-									<span class="glyphicon <%= displayPopIcon %>"></span>
-								</button>
-								<% } %></strong></div>
-						<% } else if ((econPopulation / startEconPopulation) * 100 > 25) { %>
-							<div class="yellow-prog prog-bar" style="width: <%= (econPopulation / startEconPopulation) * 100 %>%"></div>
-							<div class="prog-txt"><strong>Population <%= displayPop %>
+						<div class="<%= App.Utilities.returnStandardBarColors(this.model, 'econPopulation', 'startEconPopulation').background %>-prog prog-bar" style="width: <%= (econPopulation / startEconPopulation) * 100 %>%"></div>
+							
+						<div class="<%= App.Utilities.returnStandardBarColors(this.model, 'econPopulation', 'startEconPopulation').text %> prog-txt">
+							<strong>Pop<span class="small-ph">ulation</span> <%= displayPop %>
 							<% if(econPopulationGrowthPct != 0) {%>
 								<button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econPopulationGrowthPct.toFixed(2) %>%">
 									<span class="glyphicon <%= displayPopIcon %>"></span>
 								</button>
-							<% } %></strong></div>
-						<% } else { %>
-							<div class="red-prog prog-bar" style="width: <%= (econPopulation / startEconPopulation) * 100 %>%"></div>
-							<div class="red prog-txt"><strong>Population <%= displayPop %>
-							<% if(econPopulationGrowthPct != 0) {%>
-								<button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econPopulationGrowthPct.toFixed(2) %>%">
-									<span class="glyphicon <%= displayPopIcon %>"></span>
-								</button>
-							<% } %></strong></div>
-
-						<% } %>
+							<% } %>
+							</strong>
+						</div>
 
 					</label>
 
@@ -484,38 +474,22 @@
 				<div class="footer-label-container">
 
 					<label class="fort-label animated econMorale-bar">
-						<% if (econMorale > 80) { %>
-							<div class="green-prog prog-bar" style="width: <%= (econMorale / 100) * 100 %>%"></div>
-							<div class="white prog-txt"><strong>Civilian Morale <%=econMorale%>%</strong></div>
-						<% } else if (econMorale > 25) { %>
-							<div class="yellow-prog prog-bar" style="width: <%= (econMorale / 100) * 100 %>%"></div>
-							<div class="prog-txt"><strong>Civilian Morale <%=econMorale%>%</strong></div>
-						<% } else { %>
-							<div class="red-prog prog-bar" style="width: <%= (econMorale / 100) * 100 %>%"></div>
-							<div class="red prog-txt"><strong>Civilian Morale <%=econMorale%>%</strong></div>
-						<% } %>
+						<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'econMorale').background %>-prog prog-bar" style="width: <%= (econMorale / 100) * 100 %>%"></div>
+						<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'econMorale').text %> prog-txt"><strong>Civilian Mor<span class="small-ph">ale</span> <%=econMorale%>%</strong></div>
 					</label>
 
 				</div>
 				<div class="footer-label-container">
 
 					<label class="fort-label animated econStrength-bar">
-						<% if (econStrength > 80) { %>
-							<div class="green-prog prog-bar" style="width: <%= (econStrength / 100) * 100 %>%"></div>
-							<div class="white prog-txt"><strong>Infrastructure <%=econStrength%>%</strong></div>
-						<% } else if (econStrength > 25) { %>
-							<div class="yellow-prog prog-bar" style="width: <%= (econStrength / 100) * 100 %>%"></div>
-							<div class="prog-txt"><strong>Infrastructure <%=econStrength%>%</strong></div>
-						<% } else { %>
-							<div class="red-prog prog-bar" style="width: <%= (econStrength / 100) * 100 %>%"></div>
-							<div class="red prog-txt"><strong>Infrastructure <%=econStrength%>%</strong></div>
-						<% } %>
+						<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'econStrength').background %>-prog prog-bar" style="width: <%= (econStrength / 100) * 100 %>%"></div>
+						<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'econStrength').text %> prog-txt"><strong>Infrastructure <%=econStrength%>%</strong></div>
 					</label>
 
 					<% if (econStrength < 100 && currTreasury >= econStrengthCost) { %>
 
 						<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-							<button class="btn btn-default" id="investEconStr" data-toggle="popover" data-trigger="hover" data-placement="top" title="Repair Infrastructure" data-content="Repairs the roads in <%= name %>. Improves the local economy and your ability to mobilize army units stationed here."><span class="glyphicon glyphicon-wrench"></span> <span class="hide-mob">Repair</span></button>
+							<button class="btn btn-default" id="investEconStr" data-toggle="popover" data-trigger="hover" data-placement="top" title="Repair Infrastructure" data-content="Repairs the roads in <%= name %>. Improves the local economy and your ability to mobilize army units stationed&nbsp;here."><span class="glyphicon glyphicon-wrench"></span> <span class="hide-mob">Repair</span></button>
 						<% } else { %>
 
 							<button class="btn btn-default" id="investEconStr"><span class="glyphicon glyphicon-wrench"></span> <span class="hide-mob">Repair</span></button>
@@ -530,16 +504,16 @@
 						<div class="green-prog prog-bar" style="width: <%= (econLevel / 10) * 100  %>%"></div>
 
 						<% if (econLevel < 7 ) { %>
-							<div class="prog-txt"><strong>Tech Level <%= econLevel %></strong></div>
+							<div class="prog-txt"><strong><span class="small-ph">Tech</span> Level <%= econLevel %></strong></div>
 						<% } else { %>
-							<div class="white prog-txt"><strong>Tech Level <%= econLevel %></strong></div>
+							<div class="white prog-txt"><strong><span class="small-ph">Tech</span> Level <%= econLevel %></strong></div>
 						<% } %>
 					</label>
 
 					<% if (econLevel < 10 && !econLeveledUp && econStrength === 100 && currTreasury >= econLevelCost) { %>
 
 						<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-							<button class="btn btn-default" id="investEcon" data-toggle="popover" data-trigger="hover" data-placement="top" title="Upgrade Economy" data-content="Makes a significant investment in research and education in <%= name %> to boost the local economy. An empire's average tech level also impacts the battle strength of all of its armies."><span class="glyphicon glyphicon-education"></span><span class="hide-mob"> Upgrade</span></button>
+							<button class="btn btn-default" id="investEcon" data-toggle="popover" data-trigger="hover" data-placement="top" title="Upgrade Economy" data-content="Makes a significant investment in research and education in <%= name %> to boost the local economy. An empire's average tech level also impacts the battle strength of all of its&nbsp;armies."><span class="glyphicon glyphicon-education"></span><span class="hide-mob"> Upgrade</span></button>
 						<% } else {%>
 							<button class="btn btn-default" id="investEcon"><span class="glyphicon glyphicon-education"></span><span class="hide-mob"> Upgrade</span></button>
 						<% } %>
@@ -605,7 +579,7 @@
 								<% if (remainingTurns > 0 && currTreasury >= armyPopulationCost) { %>
 									
 									<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-										<button class="btn btn-default" id="recruitUnits" data-toggle="popover" data-trigger="hover" data-placement="top" title="Recruit Units" data-content="Drafts local civilians into the army. To recruit units in all territories between turns, visit your Active Policies in the side menu."><span class="glyphicon glyphicon-user"></span><span class="hide-mob"> Recruit</span></button>
+										<button class="btn btn-default" id="recruitUnits" data-toggle="popover" data-trigger="hover" data-placement="top" title="Recruit Units" data-content="Drafts local civilians into the army. To recruit units in all territories between turns, visit your Active Policies in the side&nbsp;menu."><span class="glyphicon glyphicon-user"></span><span class="hide-mob"> Recruit</span></button>
 									<% } else {%>
 										<button class="btn btn-default" id="recruitUnits"><span class="glyphicon glyphicon-user"></span><span class="hide-mob"> Recruit</span></button>
 									<% } %>
@@ -618,16 +592,8 @@
 							<div class="footer-label-container">
 
 								<label class="fort-label">
-									<% if (morale > 80) { %>
-										<div class="green-prog prog-bar" style="width: <%= morale %>%"></div>
-										<div class="white prog-txt"><strong>Morale <%= morale %>%</strong></div>
-									<% } else if (morale > 20) { %>
-										<div class="yellow-prog prog-bar" style="width: <%= morale %>%"></div>
-										<div class="prog-txt"><strong>Morale <%= morale %>%</strong></div>
-									<% } else { %>
-										<div class="red-prog prog-bar" style="width: <%= morale %>%"></div>
-										<div class="red prog-txt"><strong>Morale <%= morale %>%</strong></div>
-									<% } %>
+									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'morale').background %>-prog prog-bar" style="width: <%= morale %>%"></div>
+									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'morale').text %> prog-txt"><strong>Mor<span class="small-ph">ale</span> <%= morale %>%</strong></div>
 								</label>
 
 								<div class="clearfix"></div>
@@ -645,11 +611,10 @@
 									<% } %>
  								</label>
 
-
 								<% if (remainingTurns > 0 && currTreasury >= trainingArmyCost && !trainingClicked) { %>
 
 									<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-										<button class="btn btn-default" id="trainArmy" data-toggle="popover" data-trigger="hover" data-placement="top" title="Train Army" data-content="Invests in a year of training for your army units. Every 100 XP earns a new rank."><span class="glyphicon glyphicon-signal"></span><span class="hide-mob"> Train</span></button>
+										<button class="btn btn-default" id="trainArmy" data-toggle="popover" data-trigger="hover" data-placement="top" title="Train Army" data-content="Invests in a year of training for your army units. Every 100 XP earns a new&nbsp;rank."><span class="glyphicon glyphicon-signal"></span><span class="hide-mob"> Train</span></button>
 									<% } else {%>
 
 										<button class="btn btn-default" id="trainArmy"><span class="glyphicon glyphicon-signal"></span><span class="hide-mob"> Train</span></button>
@@ -665,23 +630,14 @@
 
 							<div class="footer-label-container">
 								<label class="fort-label">
-									<% if (fortStrength > 80) { %>
-										<div class="green-prog prog-bar" style="width: <%= fortStrength %>%"></div>
-										<div class="white prog-txt"><strong><span class="hide-mob">Fort</span> Strength <%= fortStrength %>%</strong></div>
-									<% } else if (fortStrength > 25) { %>
-										<div class="yellow-prog prog-bar" style="width: <%= fortStrength %>%"></div>
-										<div class="prog-txt"><strong><span class="hide-mob">Fort</span> Strength <%= fortStrength %>%</strong></div>
-									<% } else { %>
-										<div class="red-prog prog-bar" style="width: <%= fortStrength %>%"></div>
-										<div class="red prog-txt"><strong><span class="hide-mob">Fort</span> Strength <%= fortStrength %>%</strong></div>
-									<% } %>
-
+									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'fortStrength').background %>-prog prog-bar" style="width: <%= fortStrength %>%"></div>
+									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'fortStrength').text %> prog-txt"><strong><span class="hide-mob">Fort</span> Str<span class="small-ph">ength</span> <%= fortStrength %>%</strong></div>
 								</label>
 
 								<% if (fortStrength < 100 && remainingTurns > 0 && currTreasury >= fortStrengthCost) { %>
 
 									<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-										<button class="btn btn-default" id="repairFort" data-toggle="popover" data-trigger="hover" data-placement="top" title="Repair Fort" data-content="Repairs local defenses to provide more protection for local civilians, army units, and infrastructure."><span class="glyphicon glyphicon-wrench"></span><span class="hide-mob"> Repair</span></button>
+										<button class="btn btn-default" id="repairFort" data-toggle="popover" data-trigger="hover" data-placement="top" title="Repair Fort" data-content="Repairs local defenses to provide more protection for local civilians, army units, and&nbsp;infrastructure."><span class="glyphicon glyphicon-wrench"></span><span class="hide-mob"> Repair</span></button>
 									<% } else {%>
 										<button class="btn btn-default" id="repairFort"><span class="glyphicon glyphicon-wrench"></span><span class="hide-mob"> Repair</span></button>
 									<% } %>
@@ -707,7 +663,7 @@
 								<% if (fortStrength === 100 && fortLevel <= 10 && remainingTurns > 0 && !fortLeveledUp && currTreasury >= fortLevelCost) { %>
 
 									<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-										<button class="btn btn-default" id="upgradeFort" data-toggle="popover" data-trigger="hover" data-placement="top" title="Upgrade Fort" data-content="Upgrades local defenses to boost protection for local civilians, army units, and infrastructure."><span class="glyphicon glyphicon-signal"></span><span class="hide-mob"> Upgrade</span></button>
+										<button class="btn btn-default" id="upgradeFort" data-toggle="popover" data-trigger="hover" data-placement="top" title="Upgrade Fort" data-content="Upgrades local defenses to boost protection for local civilians, army units, and&nbsp;infrastructure."><span class="glyphicon glyphicon-signal"></span><span class="hide-mob"> Upgrade</span></button>
 									<% } else {%>
 
 										<button class="btn btn-default" id="upgradeFort"><span class="glyphicon glyphicon-signal"></span><span class="hide-mob"> Upgrade</span></button>
@@ -739,7 +695,7 @@
 		<h2 class="turn-counter"><span class="glyphicon glyphicon-globe ic-<%=sideTurn%> ic-<%=App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>"></span> Year: <%= currentTurn %>
 
 			<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-				<button class="btn btn-primary quitter newTurn" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="End Turn" data-content="Ends the current year for <%= App.Utilities.getActiveEmpireName() %>.">End Turn</button>
+				<button class="btn btn-primary quitter newTurn" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="End Turn" data-content="Ends the current year for&nbsp;<%= App.Utilities.getActiveEmpireName() %>.">End Turn</button>
 			<% } else { %>
 				<button class="btn btn-primary quitter newTurn">End Turn</button>
 			<% } %>
@@ -747,17 +703,17 @@
 		<div class="left-stats stats-container">
 
 			<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-			    <button id="sidebar-main-trigger" class="btn btn-default pull-left left <%= left.get('color') %>" <% if(App.Utilities.activeSide() != 'left' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= left.get('empName') %> Menu" data-content="Shows game settings, empire actions, policies, and details about your empire's military and economy.">
-	        		<span class="glyphicon glyphicon-menu-hamburger"></span> <span class="hide-mob">Menu</span>
+			    <button id="sidebar-main-trigger" class="btn btn-default pull-left left <%= left.get('color') %>" <% if(App.Utilities.activeSide() != 'left' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= left.get('empName') %> Menu" data-content="Shows game settings, empire actions, policies, and details about your empire's military and&nbsp;economy." aria-label="<%= left.get('empName') %> Empire Menu">
+	        		<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> <span class="hide-mob">Menu</span>
 	      		</button>
 			<% } else { %>
 			    <button id="sidebar-main-trigger" class="btn btn-default pull-left left <%= left.get('color') %>" <% if(App.Utilities.activeSide() != 'left' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%>>
-	        		<span class="glyphicon glyphicon-menu-hamburger"></span> <span class="hide-mob">Menu</span>
+	        		<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> <span class="hide-mob">Menu</span>
 	      		</button>
 			<% } %>
 
 			<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'left') {%>
-				<label data-side="left" class="sideName animated <% if(left.get('empName').length > 6 && App.Utilities.isMobile()) {%>long-name<%}%>" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Rename Empire" data-content="Updates the name of your empire.">
+				<label data-side="left" class="sideName animated <% if(left.get('empName').length > 6 && App.Utilities.isMobile()) {%>long-name<%}%>" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Rename Empire" data-content="Updates the name of your&nbsp;empire.">
 					<span><%= left.get('empName') %></span>
 				</label>
 			<% } else {%>
@@ -774,7 +730,7 @@
 				
 				<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'left') {%>
 					<% var displayTaxRate = Math.round((100 * left.get('taxRate'))) + '%'; %>
-					<span data-side="left" class="changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Click to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>.">(+$<%=displayLeftNextTreas%>)</span>
+					<span data-side="left" class="changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Click to raise or lower the tax rate in your empire. Your current tax rate is&nbsp;<%= displayTaxRate %>.">(+$<%=displayLeftNextTreas%>)</span>
 				<% } else {%>
 					<span data-side="left" class="changeTax animated">(+$<%=displayLeftNextTreas%>)</span>
 				<% } %>
@@ -784,18 +740,18 @@
 		<div class="right-stats stats-container">
 
 			<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-				<button id="sidebar-secondary-trigger" class="btn btn-default pull-right right <%= right.get('color') %>" <% if(App.Utilities.activeSide() != 'right' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= right.get('empName') %> Menu" data-content="Shows game settings, empire actions, policies, and details about your empire's military and economy.">
-		      		<span class="glyphicon glyphicon-menu-hamburger"></span> <span class="hide-mob">Menu</span>
+				<button id="sidebar-secondary-trigger" class="btn btn-default pull-right right <%= right.get('color') %>" <% if(App.Utilities.activeSide() != 'right' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= right.get('empName') %> Menu" data-content="Shows game settings, empire actions, policies, and details about your empire's military and&nbsp;economy." aria-label="<%= right.get('empName') %> Empire Menu">
+		      		<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> <span class="hide-mob">Menu</span>
 		    	</button>
 			<% } else {%>
 				<button id="sidebar-secondary-trigger" class="btn btn-default pull-right right <%= right.get('color') %>" <% if(App.Utilities.activeSide() != 'right' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%>>
-		      		<span class="glyphicon glyphicon-menu-hamburger"></span> <span class="hide-mob">Menu</span>
+		      		<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> <span class="hide-mob">Menu</span>
 		    	</button>
 			<% } %>
 
 
 			<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() != 'left') {%>
-				<label data-side="right" class="sideName animated <% if(right.get('empName').length > 6) {%>long-name<%}%>" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Rename Empire" data-content="Update the name of your empire.">
+				<label data-side="right" class="sideName animated <% if(right.get('empName').length > 6) {%>long-name<%}%>" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Rename Empire" data-content="Update the name of your&nbsp;empire.">
 					<span><%= right.get('empName') %></span>
 				</label>
 			<% } else { %>
@@ -812,7 +768,7 @@
 
 				<% var displayTaxRate = Math.round(100 * right.get('taxRate')) + '%'; %>
 				<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() != 'left') {%>
-					<span data-side="right" class="changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Click to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>.">(+$<%=displayRightNextTreas%>)</span>
+					<span data-side="right" class="changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Click to raise or lower the tax rate in your empire. Your current tax rate is&nbsp;<%= displayTaxRate %>.">(+$<%=displayRightNextTreas%>)</span>
 				<% } else { %>
 					<span data-side="right" class="changeTax animated">(+$<%=displayRightNextTreas%>)</span>
 				<% } %>
@@ -820,36 +776,40 @@
 			</label>
 		</div>
 
-	<% if(App.Utilities.activeSide() === 'left') { %>
+		<%	
+			var side  = App.Models.nationStats.get(App.Utilities.activeSide());
+			var mainOrSecondary = App.Utilities.activeSide() === 'left' ? 'main' : 'secondary';
+			var enemySide = App.Utilities.activeSide() === 'left' ? App.Models.nationStats.get('right') : App.Models.nationStats.get('left');
+		%>
 
-	    <div class="sidebar main left <%= left.get('color') %>" id="sidebar-main">
+	    <div class="sidebar <%= mainOrSecondary %> <%= App.Utilities.activeSide() %> <%= side.get('color') %>" id="sidebar-<%= mainOrSecondary %>">
 	      <div class="wrapper container-fluid">
-	      	<button class="btn btn-default pull-right quitter close-menu"><span class="glyphicon glyphicon-remove"></span></button>
-	      	<h1><%= left.get('empName') %></h1>
+	      	<button class="btn btn-default pull-right quitter close-menu" aria-label="Close <%= side.get('empName') %> side menu."><span class="glyphicon glyphicon-remove"></span></button>
+	      	<h1><%= side.get('empName') %></h1>
 
 	      	<div class="sidebar-container">
 		      	<!-- Button group -->
 				<div class="btn-group">
-				  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="<%= side.get('empName') %> Empire Actions Menu">
 				    Actions Menu <span class="glyphicon glyphicon-chevron-down"></span>
 				  </button>
 				  <ul class="dropdown-menu sidebar-menu">
 
-				    <% if(left.get('repairAllInfrastructureCost') < left.get('treasury') && left.get('repairAllInfrastructureCost') > 0) {%>
+				    <% if(side.get('repairAllInfrastructureCost') < side.get('treasury') && side.get('repairAllInfrastructureCost') > 0) {%>
 				    <li><span class="sideRebuildAllInf">Repair All Infrastucture</span></li>
 				    <% } %>
 
-				    <% if(left.get('repairAllFortCost') < left.get('treasury') && left.get('repairAllFortCost') > 0) {%>
+				    <% if(side.get('repairAllFortCost') < side.get('treasury') && side.get('repairAllFortCost') > 0) {%>
 				    <li><span class="sideRebuildAllFort">Repair All Forts</span></li>
 				    <% } %>
 
 				    <li><span class="policy">Update Policies</span></li>
 
-				    <li><span data-side="left" class="changeTax">Change Tax Rate</span></li>
+				    <li><span data-side="<%= App.Utilities.activeSide() %>" class="changeTax">Change Tax Rate</span></li>
 
 				    <li><span class="budget">See Budget</span></li>
 
-				    <li><span data-side="left" class="sideName">Change Name</span></li>
+				    <li><span data-side="<%= App.Utilities.activeSide() %>" class="sideName">Change Name</span></li>
 
 				    <li><span class="newTurn">End Turn</span></li>
 
@@ -881,53 +841,86 @@
 				<div class="clearfix"></div>
 		  		<div class="sidebar-section">
 
-					<p class="treasury-tot">Treasury: $<%= App.Utilities.addCommas(left.get('treasury')) %></p>
-					<p class="small">Tax Income: +$<%=App.Utilities.addCommas(left.get('nextTreasuryAddedEst'))%></p>
-					<p class="small">Tax Rate: <%= Math.round(left.get('taxRate') * 100) %>% 
+					<p class="treasury-tot">Treasury: $<%= App.Utilities.addCommas(side.get('treasury')) %></p>
+					<p class="small">Tax Income: +$<%=App.Utilities.addCommas(side.get('nextTreasuryAddedEst'))%></p>
+					<p class="small">Tax Rate: <%= Math.round(side.get('taxRate') * 100) %>% 
 		      			
-						<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'left') {%>
+						<% if (App.Models.battleMapModel.get('tipsMode')) {%>
 
-							<span data-side="left" class="changeTax" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Change Tax Rate" data-content="Raise or lower the tax rate in your empire."><span class="glyphicon glyphicon-edit"></span><span class="hide-mob">Change</span></span>
+							<span data-side="<%= App.Utilities.activeSide() %>" class="changeTax" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Change Tax Rate" data-content="Raise or lower the tax rate in your&nbsp;empire."><span class="glyphicon glyphicon-edit"></span><span class="hide-mob">Change</span></span>
 
 						<% } else { %>
-							<span data-side="left" class="changeTax"><span class="glyphicon glyphicon-edit"></span><span class="hide-mob">Change</span></span>
+							<span data-side="<%= App.Utilities.activeSide() %>" class="changeTax"><span class="glyphicon glyphicon-edit"></span><span class="hide-mob">Change</span></span>
 						<% } %>
 
 		      		</p>
 
-		      		<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'left') {%>
-		      			<p class="small budget" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Budget Details View" data-content="See how your treasury has been spent this year."><span class="glyphicon glyphicon-list" aria-hidden="true"></span>See Budget</p>
+		      		<% if (App.Models.battleMapModel.get('tipsMode')) {%>
+		      			<p class="small budget" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Budget Details View" data-content="See how your treasury has been spent this&nbsp;year."><span class="glyphicon glyphicon-list" aria-hidden="true"></span>See Budget</p>
 		      		<% } else { %>
 						<p class="small budget"><span class="glyphicon glyphicon-list" aria-hidden="true"></span>See Budget</p>
 		      		<% } %>
 
-		  			<p class="pop-tot">GDP: $<%= App.Utilities.addCommas(left.get('econOutput')) %></p>
-		  			<p class="small">Start GDP: $<%= App.Utilities.addCommas(left.get('econOutputStart')) %></p>
-					<p class="small">Avg Tech Level: <%= left.get('armyTechLvl') %></p>
+		  			<p class="pop-tot">GDP: $<%= App.Utilities.addCommas(side.get('econOutput')) %></p>
+		  			<p class="small">Start GDP: $<%= App.Utilities.addCommas(side.get('econOutputStart')) %></p>
+					<p class="small">Avg Tech Level: <%= side.get('armyTechLvl') %></p>
 
-		  			<p class="pop-tot">Population: <%= App.Utilities.addCommas(left.get('econPopulationNow')) %></p>
-		  			<p class="small">Start Population: <%= App.Utilities.addCommas(left.get('econPopulationStart')) %></p>
+		  			<p class="pop-tot">Population: <%= App.Utilities.addCommas(side.get('econPopulationNow')) %></p>
+		  			<p class="small">Start Population: <%= App.Utilities.addCommas(side.get('econPopulationStart')) %></p>
 
-	  				<p class="terr-tot sidebar-top"><a class="collapsed" role="button" data-toggle="collapse" href="#collapseTerrs" aria-expanded="false" aria-controls="collapseTerrs"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories (<%= left.get('terrsWithTurns').length %> / <%= left.get('terrs').length %>)</a></p>
+	  				<p class="terr-tot sidebar-top"><a class="collapsed" role="button" data-toggle="collapse" href="#collapseTerrs" aria-expanded="false" aria-controls="collapseTerrs"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories (<%= side.get('terrsWithTurns').length %> / <%= side.get('terrs').length %>)</a></p>
 	  				<div class="collapse" id="collapseTerrs">
 	  					<ul class="side-list territories-list">
-							<% for (var i = 0; i < left.get('terrs').length; i++) { %>
-								<li class="sidebarTerr" data-cid="<%= left.get('terrs')[i].cid %>"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><%= left.get('terrs')[i].get('name') %> (<%= left.get('terrs')[i].get('remainingTurns') %> turn<% if (left.get('terrs')[i].get('remainingTurns') != 1) {%>s<% } %>)</li>
+							<% for (var i = 0; i < side.get('terrs').length; i++) { %>
+								<li class="sidebarTerr" data-cid="<%= side.get('terrs')[i].cid %>"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><%= side.get('terrs')[i].get('name') %> (<%= side.get('terrs')[i].get('remainingTurns') %> turn<% if (side.get('terrs')[i].get('remainingTurns') != 1) {%>s<% } %>)</li>
 							<% } %>
 	  					</ul>
 	  				</div>
 
-	  				<p class="terr-tot"><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePolicies" aria-expanded="false" aria-controls="collapsePolicies"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Active Policies (<%= left.get('activePolicyCount') %> / <%= (App.Constants.POLICIES.length / 2) %>)</a></p>
+					<% var warningTotal = 0; 
+
+						for (var i = 0; i < side.get('terrs').length; i++) {
+
+							if (App.Utilities.returnTerrWarnings(side.get('terrs')[i]).length > 0) {
+								warningTotal += App.Utilities.returnTerrWarnings(side.get('terrs')[i]).length;
+							}
+
+						}
+
+						if (warningTotal > 0) { %>
+
+		  				<p class="terr-tot sidebar-top"><a class="collapsed" role="button" data-toggle="collapse" href="#collapseWarnings" aria-expanded="false" aria-controls="collapseWarnings"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Warnings (<%= warningTotal %>)</a></p>
+		  				<div class="collapse" id="collapseWarnings">
+		  					<ul class="side-list territories-list">
+								<% for (var i = 0; i < side.get('terrs').length; i++) { %>
+
+									<% if (App.Utilities.returnTerrWarnings(side.get('terrs')[i]).length > 0) { %>
+										<li class="sidebarTerr" data-cid="<%= side.get('terrs')[i].cid %>"><span class="glyphicon <% if (side.get('terrs')[i].get('remainingTurns') != 1) {%> glyphicon-exclamation-sign <% } else { %> glyphicon-map-marker <% } %>" aria-hidden="true"></span><%= side.get('terrs')[i].get('name') %> (<%= side.get('terrs')[i].get('remainingTurns') %> turn<% if (side.get('terrs')[i].get('remainingTurns') != 1) {%>s<% } %>)
+											<ul class="warning-sublist">
+										<% for (var j = 0; j < App.Utilities.returnTerrWarnings(side.get('terrs')[i]).length; j++) { %>
+											 <li><%= App.Constants.TERR_WARNINGS[0][App.Utilities.returnTerrWarnings(side.get('terrs')[i])[j]] %></li>
+										<% } %>
+											</ul>
+										</li>
+
+									<% } %>
+
+								<% } %>
+		  					</ul>
+		  				</div>
+		  			<% } %>
+
+	  				<p class="terr-tot"><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePolicies" aria-expanded="false" aria-controls="collapsePolicies"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Active Policies (<%= side.get('activePolicyCount') %> / <%= (App.Constants.POLICIES.length / 2) %>)</a></p>
 	  				<div class="collapse" id="collapsePolicies">
 	  					<ul class="side-list policies-list">
-						<% for (var i = 0; i < left.get('activePolicies').length; i++) { %>					
+						<% for (var i = 0; i < side.get('activePolicies').length; i++) { %>					
 							
 
-							<% if (left.get('activePolicies')[i].priority > 0 && left.get('activePolicies')[i].side === 'left') {%>
-								<li class="policy" data-side="left" data-pol-id="<%= left.get('activePolicies')[i].id %>"><span>
+							<% if (side.get('activePolicies')[i].priority > 0 && side.get('activePolicies')[i].side === App.Utilities.activeSide()) {%>
+								<li class="policy" data-side="<%= App.Utilities.activeSide() %>" data-pol-id="<%= side.get('activePolicies')[i].id %>"><span>
 
-								<span class="badge"><%= left.get('activePolicies')[i].priority %></span>
-								 <%= left.get('activePolicies')[i].title %></span></li>
+								<span class="badge"><%= side.get('activePolicies')[i].priority %></span>
+								 <%= side.get('activePolicies')[i].title %></span></li>
 
 							<% } %>
 
@@ -935,20 +928,20 @@
 						<% } %>
 	  					</ul>
 	  					<ul class="side-list policies-list">
-						<% for (var i = 0; i < left.get('activePolicies').length; i++) { %>					
+						<% for (var i = 0; i < side.get('activePolicies').length; i++) { %>					
 							
-							<% if (left.get('activePolicies')[i].side === 'left') { %>
+							<% if (side.get('activePolicies')[i].side === App.Utilities.activeSide()) { %>
 
-								<% if (left.get('activePolicies')[i].priority === 0) {%>
-									<li class="policy" data-side="left" data-pol-id="<%= left.get('activePolicies')[i].id %>"><span>
+								<% if (side.get('activePolicies')[i].priority === 0) {%>
+									<li class="policy" data-side="<%= App.Utilities.activeSide() %>" data-pol-id="<%= side.get('activePolicies')[i].id %>"><span>
 
 
-									<% if (left.get('activePolicies')[i].priority === 0) {%>
+									<% if (side.get('activePolicies')[i].priority === 0) {%>
 										<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
 										<span class="glyphicon glyphicon-check" aria-hidden="true" hidden></span>
 									<% } %>
 
-									 <%= left.get('activePolicies')[i].title %> policy</span></li>
+									 <%= side.get('activePolicies')[i].title %> policy</span></li>
 
 								<% } %>
 
@@ -962,359 +955,125 @@
 		      	</div>
 		      	<div class="sidebar-section army-sidebar">
 
-		  			<p class="pop-tot">Army Units: <%= App.Utilities.addCommas(left.get('armyPopulationNow')) %></p>
-		  			<p class="small">Start Army Units: <%= App.Utilities.addCommas(left.get('armyPopulationStart')) %></p>
+		  			<p class="pop-tot">Army Units: <%= App.Utilities.addCommas(side.get('armyPopulationNow')) %></p>
+		  			<p class="small">Start Army Units: <%= App.Utilities.addCommas(side.get('armyPopulationStart')) %></p>
 
-					<% if (left.get('battleWins') > 0 || left.get('battleLosses') > 0) {%>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseBattleStats" aria-expanded="false" aria-controls="collapseBattleStats"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span><%= currentTurn %> Battle Record (<%= left.get('battleWins') %>-<%= left.get('battleLosses') %>)</a></p>
+					<% if (side.get('battleWins') > 0 || side.get('battleLosses') > 0) {%>
+						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseBattleStats" aria-expanded="false" aria-controls="collapseBattleStats"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span><%= currentTurn %> Battle Record <span>(<%= side.get('battleWins') %>-<%= side.get('battleLosses') %>)</span></a></p>
 						<div class="collapse" id="collapseBattleStats">
 							
 							<p>Kills</p>
 							<ul class="side-list">
-								<% if (right.get('armyCasualties') > 0) {%>
-								<% var displayRightArmyKilled = App.Utilities.addCommas(right.get('armyCasualties')) %>
+								<% if (enemySide.get('armyCasualties') > 0) {%>
+								<% var displayRightArmyKilled = App.Utilities.addCommas(enemySide.get('armyCasualties')) %>
 								<li>Enemy Army Units: <%= displayRightArmyKilled %></li>
 								<% } %>
-								<% if (right.get('econCasualties') > 0) {%>
-								<% var displayRightEconKilled = App.Utilities.addCommas(right.get('econCasualties')) %>
+								<% if (enemySide.get('econCasualties') > 0) {%>
+								<% var displayRightEconKilled = App.Utilities.addCommas(enemySide.get('econCasualties')) %>
 								<li>Enemy Civilians: <%= displayRightEconKilled %></li>
 								<% } %>
 							</ul>
 
 							<p>Casualties</p>
 							<ul class="side-list">
-								<% if (left.get('armyCasualties') > 0) {%>
-								<% var displayLeftArmyCas = App.Utilities.addCommas(left.get('armyCasualties')) %>
-								<li>Army Units: <%= displayLeftArmyCas %></li>
+								<% if (side.get('armyCasualties') > 0) {%>
+								<% var displayArmyCas = App.Utilities.addCommas(side.get('armyCasualties')) %>
+								<li>Army Units: <%= displayArmyCas %></li>
 								<% } %>
-								<% if (left.get('econCasualties') > 0) {%>
-								<% var displayLeftEconCasualties = App.Utilities.addCommas(left.get('econCasualties')) %>
-								<li>Civilians: <%= displayLeftEconCasualties %></li>
+								<% if (side.get('econCasualties') > 0) {%>
+								<% var displayEconCasualties = App.Utilities.addCommas(side.get('econCasualties')) %>
+								<li>Civilians: <%= displayEconCasualties %></li>
 								<% } %>
 							</ul>
 
 						</div>
 					<% } else { %>
-						<p><%= currentTurn %> Battle Record (<%= left.get('battleWins') %>-<%= left.get('battleLosses') %>)</p>
+						<p><%= currentTurn %> Battle Record (<%= side.get('battleWins') %>-<%= side.get('battleLosses') %>)</p>
 					<% } %>
 
-					<% if (left.get('invadedThisTurn').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseInvadedLeft" aria-expanded="false" aria-controls="collapseInvadedLeft"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories Invaded (<%= left.get('invadedThisTurn').length %>)</a></p>
-						<div class="collapse" id="collapseInvadedLeft">
+					<% if (side.get('invadedThisTurn').length > 0) { %>
+						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseInvaded" aria-expanded="false" aria-controls="collapseInvaded"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories Invaded (<%= side.get('invadedThisTurn').length %>)</a></p>
+						<div class="collapse" id="collapseInvaded">
 							<ul class="side-list special-list">
-								<% for (var i = 0; i < left.get('invadedThisTurn').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-bookmark"></span> <%= left.get('invadedThisTurn')[i] %></li>
+								<% for (var i = 0; i < side.get('invadedThisTurn').length; i++) { %>					
+									<li><span class="glyphicon glyphicon-bookmark"></span> <%= side.get('invadedThisTurn')[i] %></li>
 								<% } %>
 							</ul>
 						</div>
 					<% } %>
-					<% if (left.get('terrLostThisTurn').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseLostTerrLeft" aria-expanded="false" aria-controls="collapseLostTerrLeft"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories Lost (<%= left.get('terrLostThisTurn').length %>)</a></p>
-						<div class="collapse" id="collapseLostTerrLeft">
+					<% if (side.get('terrLostThisTurn').length > 0) { %>
+						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseLostTerr" aria-expanded="false" aria-controls="collapseLostTerr"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories Lost (<%= side.get('terrLostThisTurn').length %>)</a></p>
+						<div class="collapse" id="collapseLostTerr">
 							<ul class="side-list special list">
-								<% for (var i = 0; i < left.get('terrLostThisTurn').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-remove"></span> <%= left.get('terrLostThisTurn')[i] %></li>
+								<% for (var i = 0; i < side.get('terrLostThisTurn').length; i++) { %>					
+									<li><span class="glyphicon glyphicon-remove"></span> <%= side.get('terrLostThisTurn')[i] %></li>
 								<% } %>
 							</ul>
 						</div>
 					<% } %>
-					<% if (left.get('armiesPromoted').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePromotedLeft" aria-expanded="false" aria-controls="collapsePromotedLeft"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Armies Promoted (<%= left.get('armiesPromoted').length %>)</a></p>
-						<div class="collapse" id="collapsePromotedLeft">
+					<% if (side.get('armiesPromoted').length > 0) { %>
+						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePromoted" aria-expanded="false" aria-controls="collapsePromoted"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Armies Promoted (<%= side.get('armiesPromoted').length %>)</a></p>
+						<div class="collapse" id="collapsePromoted">
 							<ul class="side-list special-list">
-								<% for (var i = 0; i < left.get('armiesPromoted').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-star"></span> <%= left.get('armiesPromoted')[i] %></li>
+								<% for (var i = 0; i < side.get('armiesPromoted').length; i++) { %>					
+									<li><span class="glyphicon glyphicon-star"></span> <%= side.get('armiesPromoted')[i] %></li>
 								<% } %>
 							</ul>
 						</div>
 					<% } %>
-					<% if (right.get('fortsLost').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseFortDestroyedLeft" aria-expanded="false" aria-controls="collapseFortDestroyedLeft"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Forts Destroyed (<%= right.get('fortsLost').length %>)</a></p>
-						<div class="collapse" id="collapseFortDestroyedLeft">
+					<% if (enemySide.get('fortsLost').length > 0) { %>
+						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseFortDestroyed" aria-expanded="false" aria-controls="collapseFortDestroyed"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Forts Destroyed (<%= enemySide.get('fortsLost').length %>)</a></p>
+						<div class="collapse" id="collapseFortDestroyed">
 							<ul class="side-list special-list">
-								<% for (var i = 0; i < right.get('fortsLost').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-fire"></span> <%= right.get('fortsLost')[i] %></li>
+								<% for (var i = 0; i < enemySide.get('fortsLost').length; i++) { %>					
+									<li><span class="glyphicon glyphicon-fire"></span> <%= enemySide.get('fortsLost')[i] %></li>
 								<% } %>
 							</ul>
 						</div>
 					<% } %>
-					<% if (left.get('fortsLost').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseFortLostLeft" aria-expanded="false" aria-controls="collapseFortLostLeft"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Forts Lost (<%= left.get('fortsLost').length %>)</a></p>
-						<div class="collapse" id="collapseFortLostLeft">
+					<% if (side.get('fortsLost').length > 0) { %>
+						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseFortLost" aria-expanded="false" aria-controls="collapseFortLost"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Forts Lost (<%= side.get('fortsLost').length %>)</a></p>
+						<div class="collapse" id="collapseFortLost">
 							<ul class="side-list special-list">
-								<% for (var i = 0; i < left.get('fortsLost').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-fire"></span> <%= left.get('fortsLost')[i] %></li>
+								<% for (var i = 0; i < side.get('fortsLost').length; i++) { %>					
+									<li><span class="glyphicon glyphicon-fire"></span> <%= side.get('fortsLost')[i] %></li>
 								<% } %>
 							</ul>
 						</div>
 					<% } %>
 
-					<% if (left.get('recruitsThisTurn') === 0) {%>
+					<% if (side.get('recruitsThisTurn') === 0) {%>
 					<p>New Recruits (0)</p>
 					<% } else {%>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseRecruits" aria-expanded="false" aria-controls="collapseRecruits"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>New Recruits (<%= App.Utilities.addCommas(left.get('recruitsThisTurn')) %>)</a></p>
+						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseRecruits" aria-expanded="false" aria-controls="collapseRecruits"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>New Recruits (<%= App.Utilities.addCommas(side.get('recruitsThisTurn')) %>)</a></p>
 						<div class="collapse" id="collapseRecruits">
 							<ul class="side-list">
-							<% for (var i = 0; i < left.get('terrsWithRecruits').length; i++) { %>					
-								<li><%= left.get('terrsWithRecruits')[i].get('name') %> (<%= App.Utilities.addCommas(left.get('terrsWithRecruits')[i].get('armyRecruits')) %> Units)</li>
+							<% for (var i = 0; i < side.get('terrsWithRecruits').length; i++) { %>					
+								<li><%= side.get('terrsWithRecruits')[i].get('name') %> (<%= App.Utilities.addCommas(side.get('terrsWithRecruits')[i].get('armyRecruits')) %> Units)</li>
 							<% } %>
 							</ul>
 						</div>
+					<% } %>
+
+					<% if ( side.get('treasury') > (App.Constants.ARMY_UNIT_COST * App.Constants.RECRUIT_ARMY_MINIMUM) ) { %>
+						<select class="form-control sidebar-recruit-menu">
+							<% for (var i = 0; i < side.get('terrsWithTurns').length; i++) { %>
+
+								<option value="<%= side.get('terrsWithTurns')[i].cid %>"><%= side.get('terrsWithTurns')[i].get('name') %></option>
+
+
+							<% } %>
+						</select>
+
+						<button class="btn btn-default" id="recruitSidebar">Recruit</button>
 					<% } %>
 
 				</div>
 
 			</div>
 
-	      </div>
-	    </div><!--#sidebar-main-->
-
-    <% } else { %>
-
-	    <div class="sidebar secondary right  <%= right.get('color') %>" id="sidebar-secondary">
-	      <div class="wrapper container-fluid">
-	      <button class="btn btn-default pull-right quitter close-menu"><span class="glyphicon glyphicon-remove"></span></button>
-	      	<h1><%= right.get('empName') %></h1>
-	      	
-	      	<div class="sidebar-container">
-
-		      	<!-- Button group -->
-				<div class="btn-group">
-				  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				    Actions Menu <span class="glyphicon glyphicon-chevron-down"></span>
-				  </button>
-				  <ul class="dropdown-menu sidebar-menu">
-
-				    <% if(right.get('repairAllInfrastructureCost') < right.get('treasury') && right.get('repairAllInfrastructureCost') > 0) {%>
-				    <li><span class="sideRebuildAllInf">Repair All Infrastucture</span></li>
-				    <% } %>
-
-				    <% if(right.get('repairAllFortCost') < right.get('treasury') && right.get('repairAllFortCost') > 0) {%>
-				    <li><span class="sideRebuildAllFort">Repair All Forts</span></li>
-				    <% } %>
-
-				    <li><span class="policy">Update Policies</span></li>
-
-				    <li><span data-side="right" class="changeTax">Change Tax Rate</span></li>
-
-				    <li><span class="budget">See Budget</span></li>
-
-				    <li><span data-side="right" class="sideName">Change Name</span></li>
-
-				    <li><span class="newTurn">End Turn</span></li>
-
-				    <li role="separator" class="divider"></li>
-
-				    <% if (fullScreen && !App.Utilities.isSafari()) {%>
-				    	<li><span class="exitFullScreen">Exit Full Screen</span></li>
-				    <% } else if (!App.Utilities.isSafari()) { %>
-				    	<li><span class="launchFullScreen">Launch Full Screen</span></li>
-				    <% } %>
-
-				    <% if (App.Models.battleMapModel.get('tipsMode')) {%>
-				    	<li><span class="disableTips">Disable Tips</span></li>
-				    <% } %>
-
-				    <% if (App.Models.battleMapModel.get('audio')) {%>
-				    	<li><span class="stopMusic">Music Off</span></li>
-				    <% } else { %>
-				    	<li><span class="startMusic">Music On</span></li>
-				    <% } %>
-
-				    <% if (App.Models.battleMapModel.get('audio')) {%>
-				    	<li><span class="skipSong">Shuffle Music</span>
-				    <% } %>
-
-				    <li><span class="restart">Restart War</span></li>
-				  </ul>
-				</div>
-				<div class="clearfix"></div>
-		  		<div class="sidebar-section">
-
-					<p class="treasury-tot">Treasury: $<%= App.Utilities.addCommas(right.get('treasury')) %></p>
-					<p class="small">Tax Income: +$<%= App.Utilities.addCommas(right.get('nextTreasuryAddedEst')) %></p>
-					<p class="small">Tax Rate: <%= Math.round(right.get('taxRate') * 100) %>%
-		      			
-					<% var displayTaxRate = (100 * right.get('taxRate')) + '%'; %>
-					<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() != 'left') {%>
-		      			<span data-side="right" class="changeTax" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Change Tax Rate" data-content="Raise or lower the tax rate in your empire."><span class="glyphicon glyphicon-edit"></span><span class="hide-mob">Change</span></span>
-					<% } else { %>
-		      			<span data-side="right" class="changeTax"><span class="glyphicon glyphicon-edit"></span><span class="hide-mob">Change</span></span>
-					<% } %>
-
-		      		</p>
-
-
-					<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() != 'left') {%>
-					<p class="small budget" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Budget Details View" data-content="See how your treasury has been spent this year."><span class="glyphicon glyphicon-list" aria-hidden="true"></span>See Budget</p>
-					<% } else { %>
-		      		<p class="small budget" ><span class="glyphicon glyphicon-list" aria-hidden="true"></span>See Budget</p>
-		      		<% } %>
-
-		  			<p class="pop-tot">GDP: $<%= App.Utilities.addCommas(right.get('econOutput')) %></p>
-		  			<p class="small">Start GDP: $<%= App.Utilities.addCommas(right.get('econOutputStart')) %></p>
-					<p class="small">Avg Tech Level: <%= right.get('armyTechLvl') %></p>
-
-		  			<p class="pop-tot">Population: <%= App.Utilities.addCommas(right.get('econPopulationNow')) %></p>
-		  			<p class="small">Start Population: <%= App.Utilities.addCommas(right.get('econPopulationStart')) %></p>
-
-	  				<p class="terr-tot sidebar-top"><a class="collapsed" role="button" data-toggle="collapse" href="#collapseTerrsRight" aria-expanded="false" aria-controls="collapseTerrs"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories (<%= right.get('terrsWithTurns').length %> / <%= right.get('terrs').length %>)</a></p>
-	  				<div class="collapse" id="collapseTerrsRight">
-	  					<ul class="side-list territories-list">
-							<% for (var i = 0; i < right.get('terrs').length; i++) { %>					
-								<li class="sidebarTerr" data-cid="<%= right.get('terrs')[i].cid %>"><span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span><%= right.get('terrs')[i].get('name') %> (<%= right.get('terrs')[i].get('remainingTurns') %> turn<% if (right.get('terrs')[i].get('remainingTurns') != 1) {%>s<% } %>)</li>
-							<% } %>
-	  					</ul>
-	  				</div>
-
-					<p class="terr-tot"><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePoliciesRight" aria-expanded="false" aria-controls="collapsePoliciesRight"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Active Policies (<%= right.get('activePolicyCount') %> / <%= _.where(App.Constants.POLICIES, {side: 'right'}).length %>)</a></p>
-	  				<div class="collapse" id="collapsePoliciesRight">
-	  					<ul class="side-list policies-list">
-						<% for (var i = 0; i < right.get('activePolicies').length; i++) { %>					
-							
-
-							<% if (right.get('activePolicies')[i].priority > 0 && right.get('activePolicies')[i].side === 'right') {%>
-								<li class="policy" data-side="right" data-pol-id="<%= right.get('activePolicies')[i].id %>"><span>
-
-								<span class="badge"><%= right.get('activePolicies')[i].priority %></span>
-								 <%= right.get('activePolicies')[i].title %></span></li>
-
-							<% } %>
-
-
-						<% } %>
-	  					</ul>
-	  					<ul class="side-list policies-list">
-						<% for (var i = 0; i < right.get('activePolicies').length; i++) { %>					
-							
-							<% if (right.get('activePolicies')[i].side === 'right') { %>
-
-								<% if (right.get('activePolicies')[i].priority === 0) {%>
-									<li class="policy" data-side="right" data-pol-id="<%= right.get('activePolicies')[i].id %>"><span>
-
-
-									<% if (right.get('activePolicies')[i].priority === 0) {%>
-										<span class="glyphicon glyphicon-unchecked" aria-hidden="true"></span>
-										<span class="glyphicon glyphicon-check" aria-hidden="true" hidden></span>
-									<% } %>
-
-									 <%= right.get('activePolicies')[i].title %> policy</span></li>
-
-								<% } %>
-
-							<% } %>
-
-
-						<% } %>
-	  					</ul>
-	  				</div>
-
-		      	</div>
-		      	<div class="sidebar-section army-sidebar">
-
-		  			<p class="pop-tot">Army Units: <%= App.Utilities.addCommas(right.get('armyPopulationNow')) %></p>
-		  			<p class="small">Start Army Units: <%= App.Utilities.addCommas(right.get('armyPopulationStart')) %></p>
-
-					<% if (right.get('battleWins') > 0 || right.get('battleLosses') > 0) {%>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseBattleStats" aria-expanded="false" aria-controls="collapseBattleStats"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span><%= currentTurn %> Battle Record (<%= right.get('battleWins') %>-<%= right.get('battleLosses') %>)</a></p>
-						<div class="collapse" id="collapseBattleStats">
-							<p>Kills</p>
-							<ul class="side-list">
-								<% if (left.get('armyCasualties') > 0) {%>
-								<% var displayLeftArmyKilled = App.Utilities.addCommas(left.get('armyCasualties')) %>
-								<li>Enemy Army Units: <%= displayLeftArmyKilled %></li>
-								<% } %>
-								<% if (left.get('econCasualties') > 0) {%>
-								<% var displayLeftEconKilled = App.Utilities.addCommas(left.get('econCasualties')) %>
-								<li>Enemy Civilians: <%= displayLeftEconKilled %></li>
-								<% } %>
-							</ul>
-							<p>Casualties</p>
-							<ul class="side-list">
-								<% if (right.get('armyCasualties') > 0) {%>
-								<% var displayRightArmyCas = App.Utilities.addCommas(right.get('armyCasualties')) %>
-								<li>Army Units: <%= displayRightArmyCas %></li>
-								<% } %>
-								<% if (right.get('econCasualties') > 0) {%>
-								<% var displayRightEconCasualties = App.Utilities.addCommas(right.get('econCasualties')) %>
-								<li>Civilians: <%= displayRightEconCasualties %></li>
-								<% } %>
-							</ul>
-						</div>
-					<% } else { %>
-						<p><%= currentTurn %> Battle Record (<%= right.get('battleWins') %>-<%= right.get('battleLosses') %>)</p>
-					<% } %>
-
-					<% if (right.get('invadedThisTurn').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseInvadedRight" aria-expanded="false" aria-controls="collapseInvadedRight"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories Invaded (<%= right.get('invadedThisTurn').length %>)</a></p>
-						<div class="collapse" id="collapseInvadedRight">
-							<ul class="side-list special-list">
-								<% for (var i = 0; i < right.get('invadedThisTurn').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-bookmark"></span>  <%= right.get('invadedThisTurn')[i] %></li>
-								<% } %>
-							</ul>
-						</div>
-					<% } %>
-					<% if (right.get('terrLostThisTurn').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseLostTerrRight" aria-expanded="false" aria-controls="collapseLostTerrRight"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Territories Lost (<%= right.get('terrLostThisTurn').length %>)</a></p>
-						<div class="collapse" id="collapseLostTerrRight">
-							<ul class="side-list special-list">
-								<% for (var i = 0; i < right.get('terrLostThisTurn').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-remove"></span> <%= right.get('terrLostThisTurn')[i] %></li>
-								<% } %>
-							</ul>
-						</div>
-					<% } %>
-					<% if (right.get('armiesPromoted').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePromotedRight" aria-expanded="false" aria-controls="collapsePromotedRight"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Armies Promoted (<%= right.get('armiesPromoted').length %>)</a></p>
-						<div class="collapse" id="collapsePromotedRight">
-							<ul class="side-list special-list">
-								<% for (var i = 0; i < right.get('armiesPromoted').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-star"></span> <%= right.get('armiesPromoted')[i] %></li>
-								<% } %>
-							</ul>
-						</div>
-					<% } %>
-					<% if (left.get('fortsLost').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseFortDestroyedRight" aria-expanded="false" aria-controls="collapseFortDestroyedRight"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Forts Destroyed (<%= left.get('fortsLost').length %>)</a></p>
-						<div class="collapse" id="collapseFortDestroyedRight">
-							<ul class="side-list special-list">
-								<% for (var i = 0; i < left.get('fortsLost').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-fire"></span> <%= left.get('fortsLost')[i] %></li>
-								<% } %>
-							</ul>
-						</div>
-					<% } %>
-					<% if (right.get('fortsLost').length > 0) { %>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseFortLostRight" aria-expanded="false" aria-controls="collapseFortLostRight"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>Forts Lost (<%= right.get('fortsLost').length %>)</a></p>
-						<div class="collapse" id="collapseFortLostRight">
-							<ul class="side-list special-list">
-								<% for (var i = 0; i < right.get('fortsLost').length; i++) { %>					
-									<li><span class="glyphicon glyphicon-fire"></span> <%= right.get('fortsLost')[i] %></li>
-								<% } %>
-							</ul>
-						</a>
-					<% } %>
-
-					<% if (right.get('recruitsThisTurn') === 0) {%>
-					<p>New Recruits (0 Units)</p>
-					<% } else {%>
-						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseRecruits" aria-expanded="false" aria-controls="collapseRecruits"><span class="glyphicon glyphicon-chevron-down"></span><span class="glyphicon glyphicon-remove-sign"></span>New Recruits (<%= App.Utilities.addCommas(right.get('recruitsThisTurn')) %> Units)</a></p>
-						<div class="collapse" id="collapseRecruits">
-							<ul class="side-list">
-							<% for (var i = 0; i < right.get('terrsWithRecruits').length; i++) { %>					
-								<li><%= right.get('terrsWithRecruits')[i].get('name') %> (<%= App.Utilities.addCommas(right.get('terrsWithRecruits')[i].get('armyRecruits')) %> Units)</li>
-							<% } %>
-							</ul>
-						</div>
-					<% } %>
-
-				</div>
-			</div>
 	      </div>
 	    </div>
-
-    <% } %>
 
 	</script>
 
@@ -1363,8 +1122,6 @@
 				
 				</strong>
 
-
-
 				<% } %>
 
 			</label>
@@ -1405,18 +1162,8 @@
 			</label>
 
 			<label class="fort-label animated fortStrength-main">
-
-				<% if (fortStrength > 75) { %>
-					<div class="green-prog prog-bar" style="width: <%= fortStrength %>%"></div>
-					<div class="white prog-txt"><strong>Fort</strong> (L<%= fortLevel %>)</div>
-				<% } else if (fortStrength > 25) { %>
-					<div class="yellow-prog prog-bar" style="width: <%= fortStrength %>%"></div>
-					<div class="prog-txt"><strong>Fort</strong> (L<%= fortLevel %>)</div>
-				<% } else { %>
-					<div class="red-prog prog-bar" style="width: <%= fortStrength %>%"></div>
-					<div class="red prog-txt"><strong>Fort</strong> (L<%= fortLevel %>)</div>
-				<% } %>
-
+				<div class="<%= App.Utilities.returnSimpleTerrBarColors(this.model, 'fortStrength').background %>-prog prog-bar" style="width: <%= fortStrength %>%"></div>
+				<div class="<%= App.Utilities.returnSimpleTerrBarColors(this.model, 'fortStrength').text %> prog-txt"><strong>Fort</strong> (L<%= fortLevel %>)</div>
 			</label>
 			
 		</button>
@@ -1430,7 +1177,6 @@
 
 	<!--<![endif]-->
 
-	
 	<script src="js/main.min.js"></script>
 
 	<!--
@@ -1478,6 +1224,7 @@
 			Cataclysmic Molten Core.....Jingle Punks  - ambient-12
 
 			Black and White.......Max Surla/Media Right Productions  - ambient-11
+			Patriotic March.......Max Surla/Media Right Productions - victory_college
 
 			Drama Music...........Alexander Blu - ambient-17
 			http://www.orangefreesounds.com/
@@ -1501,8 +1248,11 @@
 				Passage of Arms - ambient-16
 				Soviet March - ambient-18
 
-	-->
+		Air Force Band of Liberty - When Johnny Comes Marching Home Instrumental - victory_union
 
+
+
+	-->
 
 <!--<![endif]-->
 </body>

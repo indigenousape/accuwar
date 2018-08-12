@@ -26,45 +26,32 @@ window.App = {
 						'audio/ambient-16.mp3', 'audio/ambient-17.mp3', 'audio/ambient-18.mp3', 'audio/ambient-19.mp3', 'audio/ambient-20.mp3',
 						'audio/ambient-21.mp3', 'audio/ambient-22.mp3', 'audio/ambient-23.mp3', 'audio/ambient-24.mp3', 'audio/ambient-25.mp3',
 						'audio/ambient-26.mp3', 'audio/ambient-27.mp3'],
-		COLOR_OPTIONS: ['blue', 'orange', 'green', 'purple', 'pink'],
-		COLOR_OPTIONS_DISP: ['Blue', 'Orange', 'Green', 'Purple', 'Pink'],
-		DELAY_SHORTEST: 3, // Notification delays (in seconds)
-		DELAY_DEFAULT: 5,
-		DELAY_LONGEST: 12,
-		DELAY_INFINITE: 0,
-		LEVEL_0_POP_PER_TURN_MULT: 1.05, // Army population growth rate
-		LEVEL_0_MOR_PER_TURN_MULT: 1.05, // Army morale growth rate
-		LOGGING: false, // Sets whether console messages are logged
-		ATTACK_MORALE_MINIMUM: 20, // Minimum unit morale required to attack
-		ATTACK_ARMY_MINIMUM: 2000, // Minimum army units required to attack 
-		ATTACK_INVADE_ARMY_MINIMUM: 10000, // Minimum army units required to invade
-		RECRUIT_ARMY_MINIMUM: 1000, // Minimum army units available to recruit
 		ARMY_TRAINING_COST: 10000000, // Training cost per 1000 units
 		ARMY_UNIT_COST: 50000, // Per unit cost
-		FORT_STR_COST: 500000000, // Per 10 strength added
+		ATTACK_ARMY_MINIMUM: 2000, // Minimum army units required to attack 
+		ATTACK_INVADE_ARMY_MINIMUM: 10000, // Minimum army units required to invade
+		ATTACK_MORALE_MINIMUM: 20, // Minimum unit morale required to attack
+		COLOR_OPTIONS: ['blue', 'orange', 'green', 'purple', 'pink'],
+		COLOR_OPTIONS_DISP: ['Blue', 'Orange', 'Green', 'Purple', 'Pink'],
+		COST_PER_RECRUIT: 50000,
+		DELAY_SHORTEST: 4, // Notification delays (in seconds)
+		DELAY_DEFAULT: 6,
+		DELAY_INFINITE: 0,
+		ECON_LVL_UP_AMT: 10000000000,
 		ECON_STR_COST: 1000000000, // Per 10 strength added
 		FORT_LVL_COST: 10000000000, // Per fort level, per territory
-		MIN_ARMY_FOR_MORALE: 250000,
-		XP_PER_BATTLE: 5,
+		FORT_STR_COST: 500000000, // Per 10 strength added
+		GDP_PENALTY_LOW_TAX: 0.9,
+		HIGH_TAX_MORALE_AMT: 0.5,
+		LEVEL_0_MOR_PER_TURN_MULT: 1.05, // Army morale growth rate
+		LOGGING: false, // Sets whether console messages are logged
+		LOW_TAX_EC_CRASH_AMT: 0.15,
 		MAX_RANK: 5,
 		MAX_TECH_LEVEL: 10,
-		ECON_LVL_UP_AMT: 10000000000,
-		HIGH_TAX_MORALE_AMT: 0.5,
-		LOW_TAX_EC_CRASH_AMT: 0.15,
-		GDP_PENALTY_LOW_TAX: 0.9,
-		TESTING_MODE: false, // Set to true to give left side a huge advantage and other test conditions
-		PER_THOUSAND_UNIT_TRANSFER_COST: 5000,
+		MIN_ARMY_FOR_MORALE: 250000,
 		MIN_ECON_POP_RECRUITING: 1000,
-		COST_PER_RECRUIT: 50000,
 		PLAYER_1_DEF_START_COLOR: 'blue',
 		PLAYER_2_DEF_START_COLOR: 'orange',
-		STARTING_TREASURY: 500000000000,
-		STARTING_TREASURY_MOB: 180000000000,
-		STARTING_TERRITORIES: 25,
-		STARTING_TERRITORIES_MOB: 9,
-		START_TURN: startYear,
-		START_ARMY_UNITS: 250000,
-		MIN_ECON_STR_TO_ATTACK: 20,
 		POLICIES: [
 			{ 
 				side: 'left',
@@ -116,7 +103,39 @@ window.App = {
 				title: 'Upgrade technology',
 				priority: 0
 			}
-			]
+		],
+		RECRUIT_ARMY_MINIMUM: 1000, // Minimum army units available to recruit
+		START_TURN: startYear,
+		START_ARMY_UNITS: 250000,
+		STARTING_TERRITORIES: 25,
+		STARTING_TERRITORIES_MOB: 9,
+		STARTING_TREASURY: 500000000000,
+		STARTING_TREASURY_MOB: 180000000000,
+		TERR_WARNINGS: [
+			{
+				army_cant_invade: 'Not enough units to invade.',
+				army_trapped: 'Army units unable to mobilize.',
+				gdp_shrinking: 'Economy shrinking.',
+				pop_shrinking: 'Population shrinking.',
+				below_min_army_units: 'Not enough army units to attack.',
+				below_min_army_morale: 'Severely low army morale.',
+				below_25_infr_str: 'Severely damaged infrastructure.',
+				below_25_fort_str: 'Severely damaged fort.',
+				below_25_econ_mor: 'Severely low civilian morale.'
+			}
+		],
+		TESTING_MODE: false, // Set to true to give left side a huge advantage and other test conditions
+		VICTORY_MUSIC: [
+			{
+				def: 'audio/victory.mp3',
+				rebels: 'audio/victory_rebels.mp3',
+				union: 'audio/victory_union.mp3',
+				college: 'audio/victory_college.mp3',
+				wallstreet: 'audio/victory_wallstreet.mp3',
+				wargames: 'audio/victory_wargames.mp3'
+			}
+		],
+		XP_PER_BATTLE: 5
 	},
 	Defaults: {
 		mobileMode: true
@@ -150,6 +169,11 @@ window.App = {
 		capitalizeStr: function(str) {
 			return str.charAt(0).toUpperCase() + str.slice(1);
 		},
+		console: function(msg) {
+			if(App.Constants.LOGGING) {
+				console.log(msg);
+			}
+		},
 		crashNotification: function(currGDPPenalty) {
 
 			var formattedGDPPenalty = currGDPPenalty > 1000000000 ? currGDPPenalty - (currGDPPenalty%1000000000) : currGDPPenalty - (currGDPPenalty%1000000),
@@ -159,8 +183,8 @@ window.App = {
 
 			var msgObj = {
 				icon: "glyphicon glyphicon-globe",
-				titleTxt : this.randomSource() + ": Market " + this.marketAdjective() + " "+ againTxt + " in " + App.Models.nationStats.get(this.activeSide()).get('empName'),
-				msgTxt : "$" + this.addCommas(Math.round(formattedGDPPenalty)) + " wiped out from the economy in " + App.Models.nationStats.get('currentTurn') + ". Market fever blamed. Economists recommend raising taxes to stabilize nerves."
+				titleTxt : this.randomSource() + ": Market " + this.marketAdjective() + " "+ againTxt + " in&nbsp;" + App.Models.nationStats.get(this.activeSide()).get('empName'),
+				msgTxt : "$" + this.addCommas(Math.round(formattedGDPPenalty)) + " wiped out from the economy in " + App.Models.nationStats.get('currentTurn') + ". Market fever blamed. Economists recommend raising taxes to stabilize&nbsp;nerves."
 			};
 			App.Views.battleMap.notify(msgObj);
 
@@ -290,67 +314,67 @@ window.App = {
 			switch(highTaxTurnLength) {
 			    case 2:
 			    	msgTitle = "WaPo: Outrage Over High Taxes";
-			        msgText = "<p>Business leaders warn that high taxes will damage the " + this.getActiveEmpireName() + " economy over time.</p>";
+			        msgText = "<p>Business leaders warn that high taxes will damage the " + this.getActiveEmpireName() + " economy over&nbsp;time.</p>";
 			        showMsg = true;
 			        break;
 			    case 3:
 			        msgTitle = "Bloomberg: " + this.getActiveEmpireName() + " Shoppers Spend Less";
-			        msgText = "<p>Citizens across " + this.getActiveEmpireName() + " are spending less after tax hike. Business owners are nervous for the future.</p>";
+			        msgText = "<p>Citizens across " + this.getActiveEmpireName() + " are spending less after tax hike. Business owners are nervous for the&nbsp;future.</p>";
 			        showMsg = true;
 			        break;
 			    case 4:
 			        msgTitle = "WSJ: " + this.getActiveEmpireName() + " Businesses Flee";
-			        msgText = "<p>Recession fears as major employers close up shop and seek lower tax rates elsewhere. Citizens are scrambling to find work.</p>";
+			        msgText = "<p>Recession fears as major employers close up shop and seek lower tax rates elsewhere. Citizens are scrambling to find&nbsp;work.</p>";
 			        showMsg = true;
 			        break;
 			    case 5:
 			        msgTitle = "CNN: Citizens Demand Lower Taxes";
-			        msgText = "<p>Angry citizens pack town halls across " + this.getActiveEmpireName() + " demanding tax relief to combat shrinking economy.</p>";
+			        msgText = "<p>Angry citizens pack town halls across " + this.getActiveEmpireName() + " demanding tax relief to combat shrinking&nbsp;economy.</p>";
 			        showMsg = true;
 			        break;
 			    case 6:
 			        msgTitle = "NPR: Homelessness in " + this.getActiveEmpireName();
-			        msgText = "<p>Desperation across " + this.getActiveEmpireName() + " as high taxes drive jobs away. Community leaders urge tax relief.</p>";
+			        msgText = "<p>Desperation across " + this.getActiveEmpireName() + " as high taxes drive jobs away. Community leaders urge tax&nbsp;relief.</p>";
 			        showMsg = true;
 			        break;
 			    case 7:
 			        msgTitle = "MSNBC: Nationwide Protests Erupt";
-			        msgText = "<p>Protests disrupt peaceful communities across " + this.getActiveEmpireName() + " as angry citizens take to the streets over high taxes, scarce jobs, and unresponsive leaders.</p>";
+			        msgText = "<p>Protests disrupt peaceful communities across " + this.getActiveEmpireName() + " as angry citizens take to the streets over high taxes, scarce jobs, and unresponsive&nbsp;leaders.</p>";
 			        showMsg = true;
 			        break;
 			    case 8:
 			        msgTitle = "Fox: Riots Grip " + this.getActiveEmpireName();
-			        msgText = "<p>Thousands injured as demonstrations against failing economy grow violent. Hundreds arrested.</p>";
+			        msgText = "<p>Thousands injured as demonstrations against failing economy grow violent. Hundreds&nbsp;arrested.</p>";
 			        showMsg = true;
 			        break;
 			    case 9:
 			        msgTitle = "WSJ: " + this.getActiveEmpireName() + " Economy in Danger Zone";
-			        msgText = "<p>Economists warn tax relief needed soon or the " + this.getActiveEmpireName() + " economy may never recover.</p>";
+			        msgText = "<p>Economists warn tax relief needed soon or the " + this.getActiveEmpireName() + " economy may never&nbsp;recover.</p>";
 			        showMsg = true;
 			        break;
 			    case 10:
 			        msgTitle = "NPR: Citizens Leaving " + this.getActiveEmpireName();
-			        msgText = "<p>Long lines at the border as citizens flee " + this.getActiveEmpireName() + " to seek a better life elsewhere.</p>";
+			        msgText = "<p>Long lines at the border as citizens flee " + this.getActiveEmpireName() + " to seek a better life&nbsp;elsewhere.</p>";
 			        showMsg = true;
 			        break;
 			    case 11:
 			        msgTitle = "Fox: Crime Wave Strikes " + this.getActiveEmpireName();
-			        msgText = "<p>Murders, robberies, and gang violence on the increase as depression continues. Citizens desperate for help.</p>";
+			        msgText = "<p>Murders, robberies, and gang violence on the increase as depression continues. Citizens desperate for&nbsp;help.</p>";
 			        showMsg = true;
 			        break;
 			    case 12:
 			        msgTitle = "NYT: " + this.getActiveEmpireName() + " Economy Continues Plunge";
-			        msgText = "<p>No end in sight as the " + this.getActiveEmpireName() + " economy continues to shrink. Advisors recommend tax cuts.</p>";
+			        msgText = "<p>No end in sight as the " + this.getActiveEmpireName() + " economy continues to shrink. Advisors recommend tax&nbsp;cuts.</p>";
 			        showMsg = true;
 			        break;
 			    case 13:
 			        msgTitle = "AP: Depression Continues in " + this.getActiveEmpireName();
-			        msgText = "<p>Citizens desperate as crime and unemployment spiral out of control in " + this.getActiveEmpireName() + ". Business leaders urge tax cut.</p>";
+			        msgText = "<p>Citizens desperate as crime and unemployment spiral out of control in " + this.getActiveEmpireName() + ". Business leaders urge tax&nbsp;cut.</p>";
 			        showMsg = true;
 			        break;
 			    case 14:
 			        msgTitle = "NYT: Leaders Silent in " + this.getActiveEmpireName();
-			        msgText = "<p>Citizens furious as government officials refuse to take steps to save crashing economy.</p>";
+			        msgText = "<p>Citizens furious as government officials refuse to take steps to save crashing&nbsp;economy.</p>";
 			        showMsg = true;
 			        break;
 			    default:
@@ -422,14 +446,6 @@ window.App = {
 				return false;
 			}
 		},
-		smallScreenOnly: function() {
-
-			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
-				h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
-				smallScreen = w <= 1200 || (w < 1280 && h < 813);
-
-			return smallScreen;
-		},
 		isMobileDevice: function() {
 			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
 				h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
@@ -448,17 +464,6 @@ window.App = {
 				element.msRequestFullscreen();
 			}
 		},
-		console: function(msg) {
-			if(App.Constants.LOGGING) {
-				console.log(msg);
-			}
-		},
-		playVictoryTrack: function() {
-			$('#ambientMusic').attr('src', 'audio/victory.mp3');
-		    $('#ambientMusic')[0].pause();
-		    $('#ambientMusic')[0].load();
-		    $('#ambientMusic')[0].oncanplaythrough = $('#ambientMusic')[0].play();
-		},
 		lowTaxNotification: function(lowTaxTurnLength) {
 
 			var msgTitle = "",
@@ -469,8 +474,8 @@ window.App = {
 			switch(lowTaxTurnLength) {
 			    case 2:
 			    	var growthTxt = this.returnRecentCrash() ? 'growing' : 'recovering';
-			        msgTitle = "WaPo: Spending Up Across " + this.getActiveEmpireName();
-			        msgText = "<p>Shops stay open late as citizens open their wallets in the rapidly " + growthTxt + " economy.</p>";
+			        msgTitle = "WaPo: Spending Up Across&nbsp;" + this.getActiveEmpireName();
+			        msgText = "<p>Shops stay open late as citizens open their wallets in the rapidly " + growthTxt + "&nbsp;economy.</p>";
 			        showMsg = true;
 			        break;
 			    case 3:
@@ -487,66 +492,66 @@ window.App = {
 			        break;
 			    case 5:
 			    	var reTxt = this.returnRecentCrash() ? 'Soars' : 'Recovering';
-			        msgTitle = this.randomSource() + ": Real Estate Market "+reTxt+" in " + App.Models.nationStats.get('currentTurn');
-			        msgText = "<p>People are taking advantage of low interest rates and buying second and third homes across the empire.</p>";
+			        msgTitle = this.randomSource() + ": Real Estate Market "+reTxt+" in&nbsp;" + App.Models.nationStats.get('currentTurn');
+			        msgText = "<p>People are taking advantage of low interest rates and buying second and third homes across the&nbsp;empire.</p>";
 			        showMsg = true;
 			        break;
 			    case 6:
-			        msgTitle = "NPR: Infrastructure Crumbling Across " + this.getActiveEmpireName();
-			        msgText = "<p>Territories are struggling to maintain roads, bridges, and tunnels with less funding from the empire. Experts suggest raising taxes.</p>";
+			        msgTitle = "NPR: Infrastructure Crumbling Across&nbsp;" + this.getActiveEmpireName();
+			        msgText = "<p>Territories are struggling to maintain roads, bridges, and tunnels with less funding from the empire. Experts suggest raising&nbsp;taxes.</p>";
 			        showMsg = true;
 			        break;
 			    case 7:
-			    	var mktTxt = this.returnRecentCrash() ? 'Breaks Records' : 'Strengthening';
-			        msgTitle = this.randomSource() + ": " + this.getActiveEmpireName() + " Stock Market " + mktTxt;
-			        msgText = "<p>Stock traders rejoice as the " + this.getActiveEmpireName() + " stock market sets new records for growth in " + App.Models.nationStats.get('currentTurn') + ".</p>";
+			    	var mktTxt = this.returnRecentCrash() ? 'Breaks&nbsp;Records' : '&nbsp;Strengthening';
+			        msgTitle = this.randomSource() + ": " + this.getActiveEmpireName() + " Stock Market" + mktTxt;
+			        msgText = "<p>Stock traders rejoice as the " + this.getActiveEmpireName() + " stock market sets new records for growth in&nbsp;" + App.Models.nationStats.get('currentTurn') + ".</p>";
 			        showMsg = true;
 			        break;
 			    case 8:
-			    	var empTxt = this.returnRecentCrash() ? 'at All Time Lows' : 'Shrinking';
+			    	var empTxt = this.returnRecentCrash() ? ' at All Time&nbsp;Lows' : '&nbsp;Shrinking';
 			    	var ecTxt = this.returnRecentCrash() ? 'to boom' : 'strong recovery';
-			        msgTitle = "WaPo: " + this.getActiveEmpireName() + " Unemployment " + empTxt;
-			        msgText = "<p>Employers scramble to find workers as economy continues "+ecTxt+" in " + App.Models.nationStats.get('currentTurn') + ".</p>";
+			        msgTitle = "WaPo: " + this.getActiveEmpireName() + " Unemployment" + empTxt;
+			        msgText = "<p>Employers scramble to find workers as economy continues "+ecTxt+" in&nbsp;" + App.Models.nationStats.get('currentTurn') + ".</p>";
 			        showMsg = true;
 			        break;
 			    case 9:
-			        msgTitle = "NPR: Poverty Declines Across " + this.getActiveEmpireName();
+			        msgTitle = "NPR: Poverty Declines Across&nbsp;" + this.getActiveEmpireName();
 			        msgText = "<p>Citizens enjoying higher pay and higher standards of living all across the empire. Leaders credit business-friendly tax environment.</p>";
 			        showMsg = true;
 			        break;
 			    case 10:
-			    	var crashTxt = this.returnRecentCrash(4) ? 'a Thing of the Past?' : 'Here to Stay?';
-			    	var specTxt = this.returnRecentCrash(4) ? 'and self-regulation are the keys to a healthy economy' : 'are like gambling with the ' + this.getActiveEmpireName() + ' economy';
+			    	var crashTxt = this.returnRecentCrash(4) ? 'a Thing of the&nbsp;Past?' : 'Here to&nbsp;Stay?';
+			    	var specTxt = this.returnRecentCrash(4) ? 'and self-regulation are the keys to a healthy&nbsp;economy' : 'are like gambling with the ' + this.getActiveEmpireName() + '&nbsp;economy';
 			        msgTitle = this.randomSource() + ": Market Crashes " + crashTxt;
-			        msgText = "<p>Experts say low taxes "+specTxt+".</p>";
+			        msgText = "<p>Experts say low taxes&nbsp;"+specTxt+".</p>";
 			        showMsg = true;
 			        break;
 			    case 11:
-			        msgTitle = "AAA: Citizens On The Go";
-			        msgText = "<p>Citizens in " + this.getActiveEmpireName() + " planning longer vacations, more family trips in " + App.Models.nationStats.get('currentTurn') + ".</p>";
+			        msgTitle = "AAA: Citizens On The&nbsp;Go";
+			        msgText = "<p>Citizens in " + this.getActiveEmpireName() + " planning longer vacations, more family trips in&nbsp;" + App.Models.nationStats.get('currentTurn') + ".</p>";
 			        showMsg = true;
 			        break;
 			    case 12:
-			    	var strongTxt = this.returnRecentCrash() ? 'another strong year for the economy' : 'a strong economic recovery';
-			        msgTitle = this.randomSource() + ": Strong Growth Forecast in " + App.Models.nationStats.get('currentTurn');
-			        msgText = "<p>Low taxes mean big business in " + this.getActiveEmpireName() + ". Experts predict "+strongTxt+".</p>";
+			    	var strongTxt = this.returnRecentCrash() ? 'another strong year for the&nbsp;economy' : 'a strong economic&nbsp;recovery';
+			        msgTitle = this.randomSource() + ": Strong Growth Forecast in&nbsp;" + App.Models.nationStats.get('currentTurn');
+			        msgText = "<p>Low taxes mean big business in " + this.getActiveEmpireName() + ". Experts predict&nbsp;"+strongTxt+".</p>";
 			        showMsg = true;
 			        break;
 			    case 13:
-			        msgTitle = "WaPo: Higher Taxes Ahead?";
-			        msgText = "<p>Leaders seeking re-election in " + this.returnNextElectionYear() + " face increasing pressure to raise taxes to shore up crumbling infrastructure, fund the military, and stabilize the economy.</p>";
+			        msgTitle = "WaPo: Higher Taxes&nbsp;Ahead?";
+			        msgText = "<p>Leaders seeking re-election in " + this.returnNextElectionYear() + " face increasing pressure to raise taxes to shore up crumbling infrastructure, fund the military, and stabilize the&nbsp;economy.</p>";
 			        showMsg = true;
 			        break;
 			    case 14:
-			    	var extraTxt = this.returnRecentCrash() ? '' : ' despite recent hardships';
-			        msgTitle = "Fox News: Immigrants Flock to " + this.getActiveEmpireName();
-			        msgText = "<p>The Red Cross reports long lines at the border as immigrants come to " + this.getActiveEmpireName() + " seeking new opportunities"+extraTxt+".</p>";
+			    	var extraTxt = this.returnRecentCrash() ? '' : ' despite recent&nbsp;hardships';
+			        msgTitle = "Fox News: Immigrants Flock to&nbsp;" + this.getActiveEmpireName();
+			        msgText = "<p>The Red Cross reports long lines at the border as immigrants come to " + this.getActiveEmpireName() + " seeking new&nbsp;opportunities"+extraTxt+".</p>";
 			        showMsg = true;
 			        break;
 			    case 15:
-			    	var fraudAmt = App.Models.nationStats.get(this.activeSide()).get('treasury') > 100000000000 ? _.random(50, 250) + ' billion' : _.random(50, 250) + ' million';
-			        msgTitle = "MSNBC: Corporate Scandals Make Headlines";
-			        msgText = "<p>Industry titans face charges as investors seek damages following $"+fraudAmt+" financial fraud. Leaders promise stronger regulations.</p>";
+			    	var fraudAmt = App.Models.nationStats.get(this.activeSide()).get('treasury') > 100000000000 ? _.random(50, 250) + '&nbsp;billion' : _.random(50, 250) + '&nbsp;million';
+			        msgTitle = "MSNBC: Corporate Scandals Make&nbsp;Headlines";
+			        msgText = "<p>Industry titans face charges as investors seek damages following $"+fraudAmt+" financial fraud. Leaders promise stronger&nbsp;regulations.</p>";
 			        showMsg = true;
 			        break;
 			    default:
@@ -604,7 +609,6 @@ window.App = {
 				borderStartRight = smallScreen ? 3 : 5;
 
 			// Passing arbitrary value to territory names function to get the default territory names array
-			// Make World War the default by passing 'worldwar' here
 			var startingTerritories = App.Utilities.territoryNames('left', 'right');
 
 			for(var i = 1; i <= (eachSide * 2); ++i) {
@@ -620,7 +624,6 @@ window.App = {
 
 					var armyPopulation = App.Constants.TESTING_MODE ? 2500000 : App.Constants.START_ARMY_UNITS;
 					var xp = App.Constants.TESTING_MODE ? 99 : 0;
-					var mor = App.Constants.TESTING_MODE ? 20 : 80;
 
 					var fortLevel = counter === borderStartLeft ? 2 : 1;
 
@@ -632,7 +635,6 @@ window.App = {
 							'armyPopulation' : armyPopulation,
 							'startPopulation' : armyPopulation,
 							'armyXP' : xp,
-							'morale' : mor,
 							'fortLevel': fortLevel,
 							'small' : smallScreen,
 							'color' : App.Models.gameStartModel.get('p1Color'),
@@ -836,33 +838,22 @@ window.App = {
 
 			return newRank;
 		},
-		setNextTrack: function() {
-			var currSong = $('#ambientMusic')[0].currentSrc.substring($('#ambientMusic')[0].currentSrc.indexOf('audio/'));
-
-			var indexOfCurrSong = App.Constants.AMBIENT_MUSIC.indexOf(currSong);
-			var newSongArr;
-
-		 	if(indexOfCurrSong != -1) {
-			 	newSongArr = App.Constants.AMBIENT_MUSIC.slice();
-			 	newSongArr.splice(indexOfCurrSong, 1);
-		 	} else {
-		 		newSongArr = App.Constants.AMBIENT_MUSIC;
-		 	}
-
-		 	newSong = newSongArr[_.random(0, (newSongArr.length - 1))];
-
-			$('#ambientMusic').attr('src', newSong);
-		},
 		playNextTrack: function() {
-
 			App.Utilities.setNextTrack();
 
-		    /***************/
 		    $('#ambientMusic')[0].pause();
 		    $('#ambientMusic')[0].load();//suspends and restores all audio element
 
 		    $('#ambientMusic')[0].oncanplaythrough = $('#ambientMusic')[0].play();
 
+		},
+		playVictoryTrack: function() {
+			$('#ambientMusic').off()
+			$('#ambientMusic').attr('src', App.Utilities.victoryTrackSource());
+		    $('#ambientMusic')[0].pause();
+		    $('#ambientMusic')[0].load();
+		    $('#ambientMusic')[0].oncanplaythrough = $('#ambientMusic')[0].play();
+	    	$('#ambientMusic').bind('ended', App.Utilities.playVictoryTrack);
 		},
 		randomBattleOutcome: function(obj) {
 			// Rename to reflect it returns a message
@@ -963,6 +954,23 @@ window.App = {
 
 			return Math.min(affordMax, popMax); 
 		},
+		recruitUnitsModal: function(model) {
+			var spModalModel = new App.Models.Modal({
+					title: 'Recruit Army Units: ' + model.get('name'),
+					confBtnId: 'confNewRecruits',
+					modalMsg: '<p class="form-text">How many army units should ' + model.get('name') + ' recruit from the civilian population?</p>',
+					impactMsg: '<span>Cost $<span id="recruitCost">' + App.Utilities.addCommas( Math.round(10000 * App.Constants.COST_PER_RECRUIT)) + '</span></span><span class="pull-right"><span id="recruitCount">10,000</span> Units</span>',
+					impactClass: 'text-muted',
+					noTurnsMsg: 'Ends turn for ' + model.get('name') + '.',
+					confBtnClass: 'btn-danger',
+					showRange: true,
+					rangeMin: App.Constants.RECRUIT_ARMY_MINIMUM,
+					rangeMax: App.Utilities.recruitMax() - App.Utilities.recruitMax()%100,
+					rangeVal: 10000
+				});
+
+			var spModalView = new App.Views.SinglePromptModal({model: spModalModel});
+		},
 		removeClassName: function(className) {
 			if(typeof className == 'object') {
 				
@@ -975,13 +983,44 @@ window.App = {
 				$('.' + className).removeClass(className);
 			}
 		},
+		repairTerrFortStr: function(model) {
+
+			if(typeof model == "undefined") {
+				model = App.Models.selectedTerrModel;
+			}
+
+			var oldArmyMorale = model.get('morale'),
+				newArmyMorale = Math.round(oldArmyMorale + ((100 - model.get('fortStrength') / 2))),
+				newArmyMorale = Math.min(newArmyMorale, 100);
+
+			var econMorale = App.Utilities.updateEconMorale({
+				selectedFortStrength : 100,
+				newMorale: model.get('econMorale')
+			}),
+				updateGDP = App.Utilities.updateGDP({
+					newMorale : econMorale,
+					newEconStrength: model.get('econStrength'),
+					newEconPopulation : model.get('econPopulation'),
+					newLevel : model.get('econLevel'),
+					ecGrowthRate: model.get('econGrowthPct')
+				}); 
+
+			model.set({
+				'fortStrength' : 100,
+				'fortStrengthCost' : 0,
+				'economicOutput': updateGDP,
+				'econMorale' : econMorale,
+				'morale' : newArmyMorale
+			});
+		},
 		restartSkipBeginning: function() {
 
 			App.Models.battleMapModel = new App.Models.BattleZone({
 				'territories' : App.Models.battleMapModel.get('territories'),
 				'mobileMode' : App.Defaults.mobileMode,
 				'randomMap' : App.Models.battleMapModel.get('randomMap'),
-				'audio' : App.Models.battleMapModel.get('audio')
+				'audio' : App.Models.battleMapModel.get('audio'),
+				'tipsMode': App.Models.battleMapModel.get('tipsMode')
 			});
 			App.Views.battleMap = new App.Views.BattleZone({model: App.Models.battleMapModel});
 			$('#game').html(App.Views.battleMap.$el);
@@ -1033,6 +1072,46 @@ window.App = {
 		returnLowTaxLimit: function() {
 			return App.Constants.LOW_TAX_EC_CRASH_AMT * 100;
 		},
+		returnNewMoraleXpRank: function(arriving, reinforceAmt) {
+
+			if(_.isEmpty(App.Models.clickedTerrModel)) {
+				App.Models.clickedTerrModel = arriving;
+			}
+
+			if(_.isEmpty(App.Models.selectedTerrModel)) {
+				App.Models.selectedTerrModel = arriving;
+			}
+
+			// Rank + XP Factors
+			var startRecXP = App.Models.clickedTerrModel.get('armyRank') * 100 + App.Models.clickedTerrModel.get('armyXP'),
+				startSendXP = App.Models.selectedTerrModel.get('armyRank') * 100 + App.Models.selectedTerrModel.get('armyXP'),
+				recXPratio = App.Models.clickedTerrModel.get('armyPopulation') / (App.Models.clickedTerrModel.get('armyPopulation') + reinforceAmt),
+				sendXPratio = reinforceAmt / (reinforceAmt + App.Models.clickedTerrModel.get('armyPopulation')),
+				newXP = Math.round(startRecXP * recXPratio + startSendXP * sendXPratio),
+				newRank = App.Models.clickedTerrModel.get('armyRank') == 1 ? 1 : 0;
+
+			if(newXP >= 100) {
+				var newXPtot = newXP % 100;
+				newRank = (newXP - newXPtot) / 100;
+				newRank = Math.min(newRank, App.Constants.MAX_RANK);
+			} else {
+				newXPtot = newXP;
+			}
+
+			// Morale factors
+			var arriverReinforcementRatio = reinforceAmt / App.Models.clickedTerrModel.get('armyPopulation'),
+				leavingReinforcementRatio = reinforceAmt / App.Models.selectedTerrModel.get('armyPopulation'),
+				newArriveMorale = Math.min(Math.round(App.Models.clickedTerrModel.get('morale') + (50 * arriverReinforcementRatio)), 100),
+				newLeavingMorale = Math.max(Math.round(parseInt(App.Models.selectedTerrModel.get('morale')) - (50 * leavingReinforcementRatio)), 0);
+
+			return {
+				toMorale : newArriveMorale,
+				fromMorale : Math.max(Math.round(parseInt(App.Models.selectedTerrModel.get('morale')) - (50 * leavingReinforcementRatio)), 0),
+				toXP : newXPtot,
+				toRank : newRank
+			};
+
+		},
 		returnNextElectionYear: function() {
 			return App.Models.nationStats.get('currentTurn') - App.Models.nationStats.get('currentTurn')%4 + 4;
 		},
@@ -1044,6 +1123,35 @@ window.App = {
 			return App.Models.nationStats.get('currentTurn') - App.Models.nationStats.get(App.Utilities.activeSide()).get('econCrashTurnPrv') > turns;
 
 		},
+		returnRecruitMoraleXPRank: function(arriving, reinforceAmt) {
+
+			// Rank + XP Factors
+			var startRecXP = arriving.get('armyRank') * 100 + arriving.get('armyXP'),
+				startSendXP = 100,
+				recXPratio = arriving.get('armyPopulation') / (arriving.get('armyPopulation') + reinforceAmt),
+				sendXPratio = reinforceAmt / (reinforceAmt + arriving.get('armyPopulation')),
+				newXP = Math.round(startRecXP * recXPratio + startSendXP * sendXPratio),
+				newRank = arriving.get('armyRank') == 1 ? 1 : 0;
+
+			if(newXP >= 100) {
+				var newXPtot = newXP % 100;
+				newRank = (newXP - newXPtot) / 100;
+				newRank = Math.min(newRank, App.Constants.MAX_RANK);
+			} else {
+				newXPtot = newXP;
+			}
+
+			// Morale factors
+			var arriverReinforcementRatio = reinforceAmt / arriving.get('armyPopulation'),
+				newArriveMorale = Math.min(Math.round(arriving.get('morale') + (50 * arriverReinforcementRatio)), 100);
+
+			return {
+				toMorale : newArriveMorale,
+				fromMorale : 80,
+				toXP : newXPtot,
+				toRank : newRank
+			};
+		},
 		returnSelectedTerritoryIsLimited: function() {
 			var popLimit = this.enoughPopToAttack(App.Models.selectedTerrModel),
 				moraleLimit = this.enoughMoraleToAttack(App.Models.selectedTerrModel),
@@ -1053,10 +1161,10 @@ window.App = {
 
 		},
 		returnSelectedTerritoryLimits: function() {
-			var popLimit = this.enoughPopToAttack(App.Models.selectedTerrModel) ? "" : "Repair damaged infrastructure in the territory.",
-				popLimit = App.Models.selectedTerrModel.get('armyPopulation') < (2 * App.Constants.ATTACK_ARMY_MINIMUM) ? "Recruit more units or send reinforcements from another territory." : popLimit,
-				invLimit = this.enoughPopToInvade(App.Models.selectedTerrModel) ? "" : "Repair the infrastructure, recruit more units, or send reinforcements from another territory.",
-				moraleLimit = this.enoughMoraleToAttack(App.Models.selectedTerrModel) ? "" : "Improve morale by training units, repairing and upgrading forts, and by adding units to the army.",
+			var popLimit = this.enoughPopToAttack(App.Models.selectedTerrModel) ? "" : "Repair damaged infrastructure in the&nbsp;territory.",
+				popLimit = App.Models.selectedTerrModel.get('armyPopulation') < (2 * App.Constants.ATTACK_ARMY_MINIMUM) ? "Recruit more units or send reinforcements from another&nbsp;territory." : popLimit,
+				invLimit = this.enoughPopToInvade(App.Models.selectedTerrModel) ? "" : "Repair the infrastructure, recruit more units, or send reinforcements from another&nbsp;territory.",
+				moraleLimit = this.enoughMoraleToAttack(App.Models.selectedTerrModel) ? "" : "Improve morale by training units, repairing and upgrading forts, and by adding units to the&nbsp;army.",
 				limitsObj = {};
 
 			if(popLimit.length > 0) {
@@ -1074,11 +1182,109 @@ window.App = {
 			return limitsObj;
 
 		},
+		returnSimpleBarColors: function(model, property) {
+			if (model.get(property) > 80) {
+				return {
+					'background' : 'green',
+					'text': 'white'
+				}
+			} else if(model.get(property) > 25) {
+				return {
+					'background' : 'yellow',
+					'text': ''
+				}
+			} else {
+				return {
+					'background' : 'red',
+					'text' : 'red'
+				}
+			}
+		},
+		returnSimpleTerrBarColors: function(model, property) {
+			if (model.get(property) > 75) { 
+				return {
+					'background' : 'green',
+					'text' : 'white'
+				}
+			} else if(model.get(property) > 25) {
+				return {
+					'background' : 'yellow',
+					'text' : ''
+				}
+			} else {
+				return {
+					'background': 'red',
+					'text' : 'red'
+				}
+			}
+		},
+		returnStandardBarColors: function(model, property, startProperty) {
+			if ((model.get(property) / model.get(startProperty)) * 100 > 80) {
+				return {
+							'background' : 'green',
+							'text': 'white'
+						};
+			} else if((model.get(property) / model.get(startProperty)) * 100 > 25) {
+				return {
+						'background' : 'yellow',
+						'text' : ''
+					};
+			} else {
+				return {
+					'background' : 'red',
+					'text' : 'red'
+				};
+			}
+		},
 		returnTerrFortCost: function(model) {
 			return App.Constants.FORT_STR_COST * model.get('fortLevel') * (100 - model.get('fortStrength'));
 		},
 		returnTerrInfraCost: function(model) {
 			return Math.round(App.Constants.ECON_STR_COST * model.get('econLevel') * ((100 - model.get('econStrength')) / 10));
+		},
+		returnTerrWarnings: function(model) {
+
+			var warnings = [];
+
+			if(model.get('econGrowthPct') < 0) {
+				warnings.push('gdp_shrinking');
+			}
+					
+			if(model.get('econPopulationGrowthPct') < 0) {
+				warnings.push('pop_shrinking');
+			}
+
+			if((model.get('armyPopulation') * model.get('econStrength') / 100) < 2 * App.Constants.ATTACK_ARMY_MINIMUM) {
+				warnings.push('army_trapped');
+			}
+
+			if((model.get('armyPopulation') * model.get('econStrength') / 100) < 2 * App.Constants.ATTACK_INVADE_ARMY_MINIMUM && 
+				(model.get('armyPopulation') * model.get('econStrength') / 100) >= 2 * App.Constants.ATTACK_ARMY_MINIMUM) {
+				warnings.push('army_cant_invade');
+			}
+
+			if(model.get('armyPopulation') * (model.get('econStrength') / 100) < (2 * App.Constants.ATTACK_ARMY_MINIMUM)) {
+				warnings.push('below_min_army_units');
+			}
+
+			if(model.get('morale') < App.Constants.ATTACK_MORALE_MINIMUM) {
+				warnings.push('below_min_army_morale');
+			}
+
+			if(model.get('econStrength') < 25) {
+				warnings.push('below_25_infr_str');
+			}
+
+			if(model.get('fortStrength') < 25) {
+				warnings.push('below_25_fort_str');
+			}
+
+			if(model.get('econMorale') < 25) {
+				warnings.push('below_25_econ_mor');
+			}
+
+			return warnings;
+
 		},
 		selectOrFocus: function(inputId) {
 			var thisInput = $('#' + inputId);
@@ -1090,6 +1296,49 @@ window.App = {
 			}
 
 		},
+		setClickedTreasuryLimits: function() {
+
+			var currStr = App.Models.selectedTerrModel.get('econStrength'),
+				currLvl = App.Models.selectedTerrModel.get('econLevel'),
+				diffToNextEconStr = Math.round(App.Constants.ECON_STR_COST * currLvl * ((100 - currStr) / 10)),
+				currFortLvl = App.Models.selectedTerrModel.get('fortLevel'),
+				diffToNextFortLvl = App.Constants.FORT_LVL_COST * (1 + currFortLvl),
+				diffToFullFortStr = App.Constants.FORT_STR_COST * currFortLvl * (100 - App.Models.selectedTerrModel.get('fortStrength')),
+				diffToNextEconLvl = App.Constants.ECON_LVL_UP_AMT * (1 + currLvl),
+				diffToArmyTraining = ((100 - App.Models.selectedTerrModel.get('armyXP')) * 0.25) * (App.Constants.ARMY_TRAINING_COST * App.Models.selectedTerrModel.get('armyPopulation') / 1000);
+
+			App.Models.selectedTerrModel.set({
+				'currTreasury' : App.Utilities.getTreasury(),
+				'econStrengthCost' : diffToNextEconStr,
+				'fortLevelCost' : diffToNextFortLvl,
+				'fortStrengthCost' : diffToFullFortStr,
+				'econLevelCost' : diffToNextEconLvl,
+				'trainingArmyCost' : diffToArmyTraining
+			});
+
+			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+				'repairAllInfrastructureCost' : App.Collections.terrCollection.returnTotalCost('econStrength', App.Utilities.activeSide()),
+				'repairAllFortCost': App.Collections.terrCollection.returnTotalCost('fortStrength', App.Utilities.activeSide())
+			});
+
+		},
+		setNextTrack: function() {
+			var currSong = $('#ambientMusic')[0].currentSrc.substring($('#ambientMusic')[0].currentSrc.indexOf('audio/'));
+
+			var indexOfCurrSong = App.Constants.AMBIENT_MUSIC.indexOf(currSong);
+			var newSongArr;
+
+		 	if(indexOfCurrSong != -1) {
+			 	newSongArr = App.Constants.AMBIENT_MUSIC.slice();
+			 	newSongArr.splice(indexOfCurrSong, 1);
+		 	} else {
+		 		newSongArr = App.Constants.AMBIENT_MUSIC;
+		 	}
+
+		 	newSong = newSongArr[_.random(0, (newSongArr.length - 1))];
+
+			$('#ambientMusic').attr('src', newSong);
+		},
 		showModal: function() {
 			$('#oneModal').modal({
 				backdrop: 'static',
@@ -1100,6 +1349,14 @@ window.App = {
 				App.Views.battleMap.smoothScroll('.terr:first-child');
 			});
 
+		},
+		smallScreenOnly: function() {
+
+			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
+				h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0),
+				smallScreen = w <= 1200 || (w < 1280 && h < 813);
+
+			return smallScreen;
 		},
 		template: function(id){
 			return _.template( $('#' + id).html() );
@@ -1128,6 +1385,19 @@ window.App = {
 						'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin',
 						'Wyoming'
 					];
+					App.Models.battleMapModel.set('mapMode', namesTogether);
+					break;
+				case 'college':
+					terrNames = [
+						'NC State', 'Duke', 'UNC', 'Central Michigan', 'Kennesaw State', 'Pittsburgh', 'Full Sail', 'Kansas State', 'CUNY Manhattan',
+						'Connecticut', 'Oklahoma', 'SoCal', 'Riverside', 'Wisconsin', 'Oklahoma State', 'George Mason', 'James Madison', 'SUNY Buffalo',
+						'Oregon State', 'Oregon', 'Fresno State', 'Georgia State', 'Wake Forest', 'Kent State', 'East Carolina', 'Arkansas', 'Auburn', 'UNC Charlotte',
+						'Iowa', 'VCU', 'California St.', 'UCLA', 'Colorado State', 'Tennessee', 'West Virginia', 'Cincinnati', 'San Jose State', 'LSU', 'Virginia Tech',
+						'Virginia', 'Temple', 'Maryland', 'Texas Tech', 'Kentucky', 'Kansas', 'Michigan', 'Michigan State', 'Ohio', 'Ohio State', 'BYU', 'Liberty', 'UC Davis',
+						'Purdue', 'Alabama', 'Florida', 'Florida State', 'Georgia Tech', 'Georgia State', 'Arizona', 'Indiana', 'Rutgers', 'Central Florida', 'Arizona State',
+						'Penn State', 'Texas', 'Texas A M', 'Boston College', 'Syracuse', 'Clemson', 'Notre Dame', 'Army', 'Navy', 'Miami', 'Georgia', 'Louisville'
+					];
+
 					App.Models.battleMapModel.set('mapMode', namesTogether);
 					break;
 				case 'wallstreet':
@@ -1164,22 +1434,26 @@ window.App = {
 					break;
 				default:
 					App.Models.battleMapModel.set('mapMode', '');
-					// terrNames = [
-					// 	'America', 'United Kingdom', 'France', 'Germany', 'Poland', 'Estonia', 'Ukraine', 'Sweden', 'Norway', 'Iceland', 'Mexico', 'Brazil',
-					// 	'Finland', 'Ireland', 'Russia', 'India', 'Pakistan', 'Iran', 'Iraq', 'Libya', 'Kuwait', 'UAE', 'Yemen', 'Syria', 'Australia',
-					// 	'China', 'North Korea', 'South Korea', 'Vietnam', 'Egypt', 'Tunisia', 'Greece', 'Italy', 'Spain', 'Portugal', 'Denmark', 'Switzerland',
-					// 	'Japan', 'Turkey', 'Chile', 'Peru', 'Cameroon', 'Morocco', 'Jamaica', 'Senegal', 'Mozambique', 'Afghanistan', 'New Zealand',
-					// 	'Canada', 'Colombia', 'Honduras', 'Bolivia', 'Ecuador', 'Panama', 'South Africa', 'Sierra Leone', 'Saudi Arabia', 'Philippines',
-					// 	'Bolivia', 'Argentina', 'Paraguay', 'Uruguay', 'Latvia', 'Belarus', 'Belgium', 'Romania', 'Algeria', 'Chad', 'Nigeria', 'Nicaragua',
-					// 	'Niger', 'Israel', 'Georgia', 'Liberia', 'Gabon', 'Ghana', 'Lebanon', 'Jordan', 'Oman', 'Nepal', 'Madagascar', 'Luxembourg', 'Singapore',
-					// 	'Burma', 'Mongolia', 'Laos', 'Taiwan', 'Bangledash', 'Malaysia', 'Thailand', 'Togo', 'Argentina', 'Venezuela', 'Greenland', 'Indonesia'
-					// ];
-					// To Do: University and City territory names
 
 			}
 
 			return terrNames;
 
+		},
+		trainTerrArmy: function() {
+
+			var oldXP = App.Models.selectedTerrModel.get('armyXP'),
+				newXP = oldXP + Math.round((100 - oldXP) * 0.25),
+				oldMor = App.Models.selectedTerrModel.get('morale'),
+				newMor = Math.min(Math.round(oldMor + (newXP - oldXP)), 100);
+
+			App.Models.selectedTerrModel.set({
+				'armyXP' : newXP,
+				'morale' : newMor,
+				'remainingTurns': App.Models.selectedTerrModel.get('remainingTurns') - 1,
+				'selected' : false,
+				'trainingClicked' : true
+			});
 		},
 		updateEconMorale: function(econMorObj) {
 			// Returns a single territory's updated GDP when variables change within a turn
@@ -1234,9 +1508,10 @@ window.App = {
 				ecFortDrag = econMorObj.selectedFortStrength && selectedFortStrength < 50 ? fortDrag(selectedFortStrength) : 0,
 				ecPopulationDrag = econMorObj.econPopulation ? econMorObj.oldEconPop - econMorObj.econPopulation : 0,
 				ecPopulationDrag = ecPopulationDrag > 0 ? Math.round(ecPopulationDrag / 10000) : 0,
+				ecGovernorKilledDrag = econMorObj.governorCasualty ? 3 : 0;
 				ecHighTaxDrag = genTaxBonuses && econMorObj.selectedTaxRate && selectedTaxRate > App.Constants.HIGH_TAX_MORALE_AMT ? ecHighTaxManyTurnsDrag : 0,
 				ecRaisedTaxes = selectedTaxRate - oldTaxRate > 0 ? selectedTaxRate - oldTaxRate : 0,
-				ecMoraleDrags = ecStrengthDrag + ecArmyDrag + ecArmyLossesDrag + ecFortDrag + ecPopulationDrag + ecRaisedTaxes + ecHighTaxDrag;
+				ecMoraleDrags = ecStrengthDrag + ecArmyDrag + ecArmyLossesDrag + ecFortDrag + ecPopulationDrag + ecRaisedTaxes + ecHighTaxDrag + ecGovernorKilledDrag;
 
 			morale += ecMoraleBonuses - ecMoraleDrags + ecLowTaxTurnsImpact;
 			morale = Math.min(morale, 100);
@@ -1253,6 +1528,94 @@ window.App = {
 
 			return updateThisGDP;
 		},
+		upgradeTerrArmyFortLevel: function() {
+
+			var newLvl = 1 + App.Models.selectedTerrModel.get('fortLevel'),
+				armyMorale = App.Models.selectedTerrModel.get('morale'),
+				armyMorale = Math.round(armyMorale + (newLvl * 10)),
+				armyMorale = Math.min(armyMorale, 100),
+				econMorale = App.Utilities.updateEconMorale({
+					selectedFortLevel : newLvl,
+					newMorale : App.Models.selectedTerrModel.get('econMorale')
+				}),
+				updateThisGDP = App.Utilities.updateGDP({
+					newMorale : econMorale,
+					newEconStrength: App.Models.selectedTerrModel.get('econStrength'),
+					newEconPopulation : App.Models.selectedTerrModel.get('econPopulation'),
+					newLevel : App.Models.selectedTerrModel.get('econLevel'),
+					ecGrowthRate: App.Models.selectedTerrModel.get('econGrowthPct')
+
+				});
+
+			App.Models.selectedTerrModel.set({
+				'economicOutput' : updateThisGDP,
+				'fortLevel' : newLvl,
+				'econMorale' : econMorale,
+				'fortLeveledUp': true,
+				'morale' : armyMorale
+			});		
+
+		},
+		upgradeTerrEconLevel: function(model, policyMode) {
+
+			if(typeof model === "undefined") {
+				model = App.Models.selectedTerrModel;
+			}
+
+			var nextLvl = parseInt(model.get('econLevel')) + 1,
+				oldEconMorale = model.get('econMorale');
+
+			var newMorale = App.Utilities.updateEconMorale({
+				econLevel : nextLvl,
+				newMorale: oldEconMorale
+			}),
+			updateThisGDP = App.Utilities.updateGDP({
+				newLevel : nextLvl,
+				newMorale : newMorale,
+				newEconStrength: model.get('econStrength'),
+				newEconPopulation : model.get('econPopulation'),
+				ecGrowthRate: model.get('econGrowthPct')
+			});
+
+			var removeLevelUpButton = policyMode ? false : true;
+
+			model.set({
+				'economicOutput' : updateThisGDP,
+				'econLevel' : nextLvl,
+				'econLeveledUp' : removeLevelUpButton,
+				'econMorale' : newMorale,
+				'econLevelCost': App.Constants.ECON_LVL_UP_AMT * (1 + nextLvl)
+			});
+
+			App.Models.nationStats.get(model.get('side')).set('armyTechLvl', App.Collections.terrCollection.returnAvgTechLevel(model.get('side'))); 
+
+		},
+		upgradeTerrEconStr: function(model) {
+
+			if(typeof model === "undefined") {
+				model = App.Models.selectedTerrModel;
+			}
+
+			var econMorale = App.Utilities.updateEconMorale({
+					econStrength : 100,
+					newMorale: model.get('econMorale')
+				}),
+				updateThisGDP = App.Utilities.updateGDP({
+					newMorale : econMorale,
+					newEconStrength: 100,
+					newEconPopulation : model.get('econPopulation'),
+					newLevel : model.get('econLevel'),
+					ecGrowthRate: model.get('econGrowthPct')
+				});
+
+			model.set({
+				'economicOutput' : updateThisGDP,
+				'econStrength' : 100,
+				'econStrengthCost' : 0,
+				'econMorale' : econMorale
+			});
+
+		},
 		validateName: function(name, type) {
 
 			var maxLength = function() {
@@ -1267,16 +1630,16 @@ window.App = {
 
 			if(name.length > maxLength()) {
 				errMsgObj.errCode = 1;
-				errMsgObj.msg = 'Your ' + type + ' name can not exceed ' + maxLength() + ' characters.';
+				errMsgObj.msg = 'Your ' + type + ' name can not exceed ' + maxLength() + '&nbsp;characters.';
 			} else if (name.length < 2) {
 				errMsgObj.errCode = 2;
-				errMsgObj.msg = 'Your ' + type + ' name must contain at least 2 characters.';
+				errMsgObj.msg = 'Your ' + type + ' name must contain at least 2&nbsp;characters.';
 			} else if(!name.match(/^[a-zA-Z_ \.]*$/)) {
 				errMsgObj.errCode = 3;
-				errMsgObj.msg = 'Your ' + type + ' name must contain only letters and spaces.';
+				errMsgObj.msg = 'Your ' + type + ' name must contain only letters and&nbsp;spaces.';
 			} else if(App.Collections.terrCollection.duplicateNameCheck(name, type)) {
 				errMsgObj.errCode = 4;
-				errMsgObj.msg = 'Your ' + type + ' name must be unique.';
+				errMsgObj.msg = 'Your ' + type + ' name must be&nbsp;unique.';
 			} else {
 				errMsgObj.errCode = 0;
 				errMsgObj.msg = '';
@@ -1287,12 +1650,37 @@ window.App = {
 		},
 		validName: function(name, maxLength) {
 			// Regex matches letters & spaces only
-
 			if(name.length > maxLength || name.length < 2 || !name.match(/^[a-zA-Z_ \.]*$/)) {
 				return false;
 			} else {
 				return true;
 			}
+		},
+		victoryTrackSource: function() {
+			var mode = App.Models.battleMapModel.get('mapMode');
+			switch (mode) {
+
+				case 'civilwar':
+					if(App.Utilities.activeSide() == 'left') {
+						return App.Constants.VICTORY_MUSIC[0]['union'];
+					} else {
+						return App.Constants.VICTORY_MUSIC[0]['rebels'];
+					}
+					break;
+				case 'wargames':
+					return App.Constants.VICTORY_MUSIC[0]['wargames'];
+					break;
+				case 'college':
+					return App.Constants.VICTORY_MUSIC[0]['college']
+					break;
+				case 'wallstreet':
+					return App.Constants.VICTORY_MUSIC[0]['wallstreet'];
+					break;
+				default:
+					return App.Constants.VICTORY_MUSIC[0]['def'];
+
+			}
+
 		},
 		warpEls: function(els) {
 			for(var i = 0; i < els.length; i++) {

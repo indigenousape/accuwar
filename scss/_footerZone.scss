@@ -53,7 +53,8 @@
 			@include buttonBeforeHover();
 
 			&:hover,
-			&focus {
+			&:focus,
+			&:hover:focus {
 				@include buttonHover();
 			}
 

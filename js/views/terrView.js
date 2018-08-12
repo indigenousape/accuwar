@@ -116,8 +116,8 @@ App.Views.Terr = Backbone.View.extend({
 				// Own territory is out of turns
 				App.Views.battleMap.notify({
 					icon: 'glyphicon glyphicon-exclamation-sign',
-					titleTxt : name + " is out of turns.",
-					msgTxt : "Select another territory from your empire, or click the End Turn button.",
+					titleTxt : name + " is out of&nbsp;turns.",
+					msgTxt : "Select another territory from your empire, or click the End Turn&nbsp;button.",
 					msgType: "warning",
 					delay: App.Constants.DELAY_SHORTEST
 				});
@@ -128,8 +128,8 @@ App.Views.Terr = Backbone.View.extend({
 				// Enemy territory, not selectable
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-exclamation-sign",
-					titleTxt : name + " belongs to the enemy.",
-					msgTxt : "You must invade this territory with units from a territory of your own.",
+					titleTxt : name + " belongs to the&nbsp;enemy.",
+					msgTxt : "You must invade this territory with units from a territory of your&nbsp;own.",
 					msgType : "warning",
 					delay: App.Constants.DELAY_SHORTEST
 				});
@@ -172,7 +172,7 @@ App.Views.Terr = Backbone.View.extend({
 				App.Views.battleMap.notify({
 					icon: 'glyphicon glyphicon-ok-sign',
 					titleTxt : App.Models.clickedTerrModel.get('name') + " selected.",
-					msgTxt : "Select a territory in "+App.Utilities.getEnemyEmpireName()+" to attack or in "+App.Utilities.getActiveEmpireName()+" to send units.",
+					msgTxt : "Select a territory in "+App.Utilities.getEnemyEmpireName()+" to attack or in "+App.Utilities.getActiveEmpireName()+" to send&nbsp;units.",
 					delay: App.Constants.DELAY_SHORTEST
 				});
 
@@ -180,7 +180,7 @@ App.Views.Terr = Backbone.View.extend({
 
 				var selectedTerrObj = App.Utilities.returnSelectedTerritoryLimits(),
 					len = selectedTerrObj.length,
-					titleTxt = App.Models.clickedTerrModel.get('name') + ' selected.',
+					titleTxt = App.Models.clickedTerrModel.get('name') + '&nbsp;selected.',
 					msgTxt = '';
 
 				if( (selectedTerrObj.moraleLimit && !selectedTerrObj.popLimit) ) {
@@ -210,9 +210,7 @@ App.Views.Terr = Backbone.View.extend({
 
 			}
 
-
-
-			App.Models.selectedTerrModel.setClickedTreasuryLimits(); // Sets the current treasury and upgrade costs to the model
+			App.Utilities.setClickedTreasuryLimits(); // Sets the current treasury and upgrade costs to the model
 			App.Views.selectedTerrView = this;
 			App.Views.battleMap.model.set('selectedMode', true);
 			App.Models.clickedTerrModel.set('selected', true);
@@ -244,9 +242,9 @@ App.Views.Terr = Backbone.View.extend({
 
 		// Do the clicked territory and previously selected territory's sides match
 		var sidesMatch = App.Models.selectedTerrModel.get('side') == App.Models.clickedTerrModel.get('side');
-		var needsReinfStr = "Send reinforcements from another territory and try again.",
-			needsMor = "send reinforcements from another territory and try again."
-		var rebuildFortStr = "Repair damaged forts and upgrade damaged forts.";
+		var needsReinfStr = "Send reinforcements from another territory and try&nbsp;again.",
+			needsMor = "send reinforcements from another territory and try&nbsp;again."
+		var rebuildFortStr = "Repair damaged forts and upgrade damaged&nbsp;forts.";
 
 		if(App.Models.selectedTerrModel.get('fortStrength') < 100) {
 			needsMor = "Repair your fort and try again.";
@@ -266,7 +264,7 @@ App.Views.Terr = Backbone.View.extend({
 				// Out of range
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-exclamation-sign",
-					titleTxt : name + " is out of range.",
+					titleTxt : name + " is out of&nbsp;range.",
 					msgType: "warning",
 					delay: App.Constants.DELAY_SHORTEST
 				});
@@ -275,14 +273,14 @@ App.Views.Terr = Backbone.View.extend({
 			} else if(!hasPop) {
 				var text = "";
 				if(App.Models.selectedTerrModel.get('armyPopulation') > App.Constants.ATTACK_ARMY_MINIMUM) {
-					text = "Rebuild the damaged infrastructure in " + selectedName + " so that your units can travel and attack other territories.";
+					text = "Rebuild the damaged infrastructure in " + selectedName + " so that your units can travel and attack other&nbsp;territories.";
 				} else {
-					text = selectedName + " does not have enough units ("+App.Constants.ATTACK_ARMY_MINIMUM+" min) to attack " +name+ ".\n\n" + needsReinfStr;
+					text = selectedName + " does not have enough units ("+App.Constants.ATTACK_ARMY_MINIMUM+" min) to attack&nbsp;" +name+ ".\n\n" + needsReinfStr;
 				}
 
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-exclamation-sign",
-					titleTxt : selectedName + " can not attack.",
+					titleTxt : selectedName + " can not&nbsp;attack.",
 					msgTxt : text,
 					msgType: "warning"
 				});
@@ -292,11 +290,11 @@ App.Views.Terr = Backbone.View.extend({
 				return false;
 			} else if(!hasMor) {
 
-				text = "The " + selectedName + " army does not have enough morale ("+ App.Constants.ATTACK_MORALE_MINIMUM + " min) to attack " +name+ ".\n\n" + needsMor;
+				text = "The " + selectedName + " army does not have enough morale ("+ App.Constants.ATTACK_MORALE_MINIMUM + " min) to attack&nbsp;" +name+ ".\n\n" + needsMor;
 
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-exclamation-sign",
-					titleTxt : selectedName + " can not attack.",
+					titleTxt : selectedName + " can not&nbsp;attack.",
 					msgTxt : text,
 					msgType: "warning"
 				});
@@ -330,14 +328,14 @@ App.Views.Terr = Backbone.View.extend({
 					
 					var text = "";
 					if(App.Models.selectedTerrModel.get('armyPopulation') > App.Constants.ATTACK_ARMY_MINIMUM) {
-						text = "Rebuild the damaged infrastructure in " + selectedName + " so that your units can travel and attack other territories.";
+						text = "Rebuild the damaged infrastructure in " + selectedName + " so that your units can travel and attack other&nbsp;territories.";
 					} else {
-						text = selectedName + " does not have enough units ("+App.Constants.ATTACK_ARMY_MINIMUM+" min) to attack " +clickedName+ ".\n\n" + needsReinfStr;
+						text = selectedName + " does not have enough units ("+App.Constants.ATTACK_ARMY_MINIMUM+" min) to attack&nbsp;" +clickedName+ ".\n\n" + needsReinfStr;
 					}
 
 					App.Views.battleMap.notify({
 						icon: "glyphicon glyphicon-exclamation-sign",
-						titleTxt : selectedName + " can not attack.",
+						titleTxt : selectedName + " can not&nbsp;attack.",
 						msgTxt : text,
 						msgType: "warning"
 					});
@@ -347,11 +345,11 @@ App.Views.Terr = Backbone.View.extend({
 					return false;
 
 				} else if (App.Models.selectedTerrModel.get('morale') <= App.Constants.ATTACK_MORALE_MINIMUM) {
-					text = selectedName + " does not have enough morale ("+ App.Constants.ATTACK_MORALE_MINIMUM + " min) to attack " +clickedName+ ".\n\n" + needsReinfStr;
+					text = selectedName + " does not have enough morale ("+ App.Constants.ATTACK_MORALE_MINIMUM + " min) to attack&nbsp;" +clickedName+ ".\n\n" + needsReinfStr;
 					
 					App.Views.battleMap.notify({
 						icon: "glyphicon glyphicon-exclamation-sign",
-						titleTxt : selectedName + " can not attack.",
+						titleTxt : selectedName + " can not&nbsp;attack.",
 						msgTxt : text,
 						msgType: "warning"
 					});
@@ -373,14 +371,14 @@ App.Views.Terr = Backbone.View.extend({
 
 					var text = "";
 					if(App.Models.selectedTerrModel.get('armyPopulation') > App.Constants.ATTACK_ARMY_MINIMUM) {
-						text = "Rebuild the damaged infrastructure in " + selectedName + " so that your units can travel and attack other territories.";
+						text = "Rebuild the damaged infrastructure in " + selectedName + " so that your units can travel and attack other&nbsp;territories.";
 					} else {
-						text = selectedName + " does not have enough units ("+App.Constants.ATTACK_ARMY_MINIMUM+" min) to send reinforcements to " +App.Models.clickedTerrModel.get('name')+ ".\n\n" + needsReinfStr;
+						text = selectedName + " does not have enough units ("+App.Constants.ATTACK_ARMY_MINIMUM+" min) to send reinforcements to&nbsp;" +App.Models.clickedTerrModel.get('name')+ ".\n\n" + needsReinfStr;
 					}
 
 					App.Views.battleMap.notify({
 						icon: "glyphicon glyphicon-exclamation-sign",
-						titleTxt : selectedName + " can not reinforce.",
+						titleTxt : selectedName + " can not&nbsp;reinforce.",
 						msgTxt : text,
 						msgType: "warning"
 					});
@@ -436,8 +434,8 @@ App.Views.Terr = Backbone.View.extend({
 	reinforceTerr: function() {
 		var reinforceMax = (App.Models.selectedTerrModel.get('armyPopulation') - App.Constants.ATTACK_ARMY_MINIMUM) * (App.Models.selectedTerrModel.get('econStrength') / 100),
 			reinforceMax = Math.round(reinforceMax),
-			infraWarningHTML = App.Models.selectedTerrModel.get('econStrength') < 100 ? '<small class="text-danger text-center center-block">Only '+App.Utilities.addCommas(reinforceMax)+' reinforcements available due to ' + App.Models.selectedTerrModel.get('econStrength') + '% infrastructure in ' + App.Models.selectedTerrModel.get('name') + '.</small>' : '',
-			newVals = App.Models.selectedTerrModel.returnNewMoraleXpRank(App.Models.clickedTerrModel, Math.round(reinforceMax/2)),
+			infraWarningHTML = App.Models.selectedTerrModel.get('econStrength') < 100 ? '<small class="text-danger text-center center-block">Only '+App.Utilities.addCommas(reinforceMax)+' reinforcements available due to ' + App.Models.selectedTerrModel.get('econStrength') + '% infrastructure in&nbsp;' + App.Models.selectedTerrModel.get('name') + '.</small>' : '',
+			newVals = App.Utilities.returnNewMoraleXpRank(App.Models.clickedTerrModel, Math.round(reinforceMax/2)),
 			toStr = '<div class="pull-right"><span class="glyphicon glyphicon-user"></span> ('+App.Models.clickedTerrModel.get('armyWins') +' - '+ App.Models.clickedTerrModel.get('armyLosses') + ')</div>' +
 						'<div><label class="top-label">To: '+App.Models.clickedTerrModel.get('name')+'</label></div><div><label>Army:</label> <span id="toUnits">' + App.Utilities.addCommas(App.Models.clickedTerrModel.get('armyPopulation') + Math.round(reinforceMax/2)) + '</span> Units</div>' +
 						'<div><label>Rank: <span id="toRank">' + App.Utilities.makeStarGroup({newRank: newVals.toRank, armyPromoted: false}) + '</span></label></div>' +
@@ -449,13 +447,13 @@ App.Views.Terr = Backbone.View.extend({
 				'<div><label>Rank: ' + App.Utilities.makeStarGroup({newRank: App.Models.selectedTerrModel.get('armyRank'), armyPromoted: false}) +  '</label></div>' + 
 				'<div><label>Experience:</label> ' + App.Models.selectedTerrModel.get('armyXP') + ' XP</div>' +
 				'<div><label>Morale:</label> <span id="fromMorale">' + newVals.fromMorale + '</span>%</div>',
-			messageHTML = '<div class="modal-two-terr-container '+App.Models.selectedTerrModel.get('color')+'"><div class="col-xs-6 reinf-col pull-left '+App.Models.selectedTerrModel.get('color')+' modal-side-container">' + fromStr + '</div><div class="col-xs-6 reinf-col pull-right '+App.Models.clickedTerrModel.get('color')+' modal-side-container">' + toStr + '</div><div class="clearfix"></div></div>' + infraWarningHTML + '<p class="form-text">How many army units would you like to send to ' + App.Models.clickedTerrModel.get('name') + '?</p>';
+			messageHTML = '<div class="modal-two-terr-container '+App.Models.selectedTerrModel.get('color')+'"><div class="col-xs-6 reinf-col pull-left '+App.Models.selectedTerrModel.get('color')+' modal-side-container">' + fromStr + '</div><div class="col-xs-6 reinf-col pull-right '+App.Models.clickedTerrModel.get('color')+' modal-side-container">' + toStr + '</div><div class="clearfix"></div></div>' + infraWarningHTML + '<p class="form-text">How many army units would you like to send to&nbsp;' + App.Models.clickedTerrModel.get('name') + '?</p>';
 
 		var spModalModel = new App.Models.Modal({
-			title: 'Send Army Units from ' + App.Models.selectedTerrModel.get('name') + ' to ' + App.Models.clickedTerrModel.get('name'),
+			title: 'Send Army Units from ' + App.Models.selectedTerrModel.get('name') + ' to&nbsp;' + App.Models.clickedTerrModel.get('name'),
 			confBtnId: 'confReinforce',
 			modalMsg: messageHTML,
-			impactMsg: 'Strengthens army and citizen morale in '+App.Models.clickedTerrModel.get('name')+'. Weakens both in '+App.Models.selectedTerrModel.get('name')+'. Impacts army XP in ' + App.Models.clickedTerrModel.get('name') + '.',
+			impactMsg: 'Strengthens army and citizen morale in '+App.Models.clickedTerrModel.get('name')+'. Weakens both in '+App.Models.selectedTerrModel.get('name')+'. Impacts army XP in&nbsp;' + App.Models.clickedTerrModel.get('name') + '.',
 			impactClass: 'text-muted',
 			noTurnsMsg: 'Ends turn for ' + App.Models.selectedTerrModel.get('name') + '.',
 			confBtnClass: 'btn-danger',
@@ -475,7 +473,7 @@ App.Views.Terr = Backbone.View.extend({
 			transferringUnitsMax = (App.Models.selectedTerrModel.get('armyPopulation') - App.Constants.ATTACK_ARMY_MINIMUM) * (App.Models.selectedTerrModel.get('econStrength') / 100),
 			transferringUnitsMax = transferringUnitsMax - transferringUnitsMax%100,
 			transferringUnits = Math.min(Math.round(transferringUnitsMax/2) - Math.round(transferringUnitsMax/2)%100, App.Constants.ATTACK_INVADE_ARMY_MINIMUM),
-			infraWarningHTML = App.Models.selectedTerrModel.get('econStrength') < 100 ? '<small class="text-danger text-center center-block">Only '+App.Utilities.addCommas(transferringUnitsMax)+' units available to invade due to '+App.Models.selectedTerrModel.get('econStrength') +'% infrastructure in ' + App.Models.selectedTerrModel.get('name') + '.</small>' : '',
+			infraWarningHTML = App.Models.selectedTerrModel.get('econStrength') < 100 ? '<small class="text-danger text-center center-block">Only '+App.Utilities.addCommas(transferringUnitsMax)+' units available to invade due to '+App.Models.selectedTerrModel.get('econStrength') +'% infrastructure in&nbsp;' + App.Models.selectedTerrModel.get('name') + '.</small>' : '',
 			toStr = '<div class="pull-right"><span class="glyphicon glyphicon-user"></span> ('+App.Models.clickedTerrModel.get('armyWins') +' - '+ App.Models.clickedTerrModel.get('armyLosses') + ')</div>' +
 					'<div><label class="top-label">To: <span class="newTerrName">'+App.Models.clickedTerrModel.get('name')+'</span></label></div>' +
 					'<div><label>Army:</label> <span id="invadedUnits">' + App.Utilities.addCommas(transferringUnits) + '</span> units</div>' +
@@ -491,7 +489,7 @@ App.Views.Terr = Backbone.View.extend({
 
 			messageHTML = '<div class="modal-two-terr-container '+App.Models.clickedTerrModel.get('color')+'"><div class="col-xs-6 reinf-col pull-' + App.Models.selectedTerrModel.get('side') + ' '+App.Models.selectedTerrModel.get('color')+' modal-side-container">' + fromStr + '</div>' +
 			'<div class="col-xs-6 reinf-col pull-' + App.Models.clickedTerrModel.get('side') + ' '+App.Models.clickedTerrModel.get('color')+' modal-side-container">' + toStr + '</div><div class="clearfix"></div></div><div class="clearfix"></div>' + infraWarningHTML +
-			'<p class="form-text">How many army units would you like to send from ' + App.Models.selectedTerrModel.get('name') + ' to secure <span class="newTerrName">' + App.Models.clickedTerrModel.get('name') + '</span>?</p>';
+			'<p class="form-text">How many army units would you like to send from ' + App.Models.selectedTerrModel.get('name') + ' to secure&nbsp;<span class="newTerrName">' + App.Models.clickedTerrModel.get('name') + '</span>?</p>';
 
 		var tpModalModel = new App.Models.Modal({
 			title: '<span>'  + App.Models.clickedTerrModel.get('name') + '</span> invaded<span id="renameMsg"></span>!',

@@ -35,7 +35,6 @@
 	// Create the collection to store the territories
 	App.Collections.terrCollection = new App.Collections.Territories();
 
-
 	// Build the territories and display them
 	App.Utilities.makeTerritories();
 

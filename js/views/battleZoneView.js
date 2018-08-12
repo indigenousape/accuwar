@@ -402,17 +402,26 @@ App.Views.BattleZone = Backbone.View.extend({
 
 			App.Models.nationStats.get(defSide).set('fortsLost', newFortsLostArr);
 
-
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-globe',
-				titleTxt : "Fort destroyed at " + App.Models.clickedTerrModel.get('name') + "!",
+				titleTxt : "Fort destroyed at&nbsp;" + App.Models.clickedTerrModel.get('name') + "!",
 				msgType: "success"
 			});
 
 		}
 
-		//Defender Civilian morale
+		// Defender Governor Casualty?
+		// If more than 1% of the civilian population dies, the governor has a 10% chance of being among them
+		
+		var governorDead = false;
+		if(!defending.get('isCapital') && !defending.get('governorKilled') &&  1 - (newEconPopulation / oldEconPop) > 0.01 && Math.random() < 0.1) {
+			governorDead = true;
+			defending.set('governorKilled', true);
+		}
+
+		// Defender Civilian morale
 		var newEconMorale = App.Utilities.updateEconMorale({
+			governorCasualty: governorDead,
 			selectedArmyPop: newDefPop,
 			selectedFortStrength: newDefFortStr,
 			econLevel: newEconLvl,
@@ -532,7 +541,7 @@ App.Views.BattleZone = Backbone.View.extend({
 
 				var killEnemyLeader = Math.random() > 0.5;
 				
-				enemyLeaderMsg = killEnemyLeader ? 'The notorious leader of '+ loseNationName +' refused to surrender and was killed in battle. The remaining enemy forces quickly surrendered in the aftermath.' : 'The notorious leader of '+ loseNationName +' was captured attempting to escape and has ordered the unconditional surrender of all enemy forces.';
+				enemyLeaderMsg = killEnemyLeader ? 'The notorious leader of '+ loseNationName +' refused to surrender and was killed in battle. All remaining enemy forces quickly surrendered in the&nbsp;aftermath.' : 'The notorious leader of '+ loseNationName +' was captured attempting to escape the capital and has ordered the unconditional surrender of all enemy&nbsp;forces.';
 				
 				// If the capital has been invaded, automatically move units and skip renaming
 
@@ -562,17 +571,46 @@ App.Views.BattleZone = Backbone.View.extend({
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-globe",
 					titleTxt : "Game Over" ,
-					msgTxt : nationName + " defeats " + loseNationName + "!",
+					msgTxt : nationName + " defeats&nbsp;" + loseNationName + "!",
 					msgType : 'success'
 				});
 
 				//Delay the alert so last territory will render first (remove when we go to another approach)
 				setTimeout(function() {
 
+					var timeText = '';
+					if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN === 1) {
+						timeText = ' 1 year ';
+					} else if (App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN === 0) {
+						timeText = ' months ';
+					} else if (App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN > 1) {
+						timeText = App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN + ' years ';
+					}
+
+					var locationText = '';
+					if(App.Models.battleMapModel.get('mapMode').indexOf('college') != -1) {
+						locationText = ' the ' + defending.get('name') + ' campus';
+					} else if(App.Models.battleMapModel.get('mapMode').indexOf('wallstreet') != -1) {
+						locationText = ' the trading floor of ' + defending.get('name');
+					} else {
+						locationText = ' the streets of '+ defending.get('name');
+					}
+
+					var resultText = '';
+					if(App.Models.battleMapModel.get('mapMode').indexOf('college') != -1) {
+						resultText = ' secured the future for your athletic&nbsp;association';
+					} else if(App.Models.battleMapModel.get('mapMode').indexOf('wallstreet') != -1) {
+						resultText = ' driven your competition from the&nbsp;marketplace';
+					} else if (App.Models.battleMapModel.get('mapMode').indexOf('civilwar') != -1) {
+						resultText = ' secured the future for your great&nbsp;nation';
+					} else {
+						resultText = ' secured the future for your glorious&nbsp;empire';
+					}
+
 					var titleText = nationName + ' Victory!',
-						messageHTML = '<p>Your forces march through the streets of '+ defending.get('name') + '! After ' + (App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN) + ' years of bloodshed and countless lives lost, the ' + attacking.get('color') + ' flag has been raised over the ' + loseNationName + ' capital!</p>' 
+						messageHTML = '<p>Your forces march through ' + locationText + '! After ' + timeText + ' of bloodshed and countless lives lost, the ' + attacking.get('color') + ' flag has been raised over the ' + loseNationName + '&nbsp;capital!</p>' 
 						+'<p>' + enemyLeaderMsg + '</p>'
-				 		+'<p>Your triumph has brought glory to the people of ' + nationName + ' and secured the future of your great empire.</p>';
+				 		+'<p>Your triumph has brought glory to the people of ' + nationName + ' and ' + resultText + '.</p>';
 
 					var confModalModel = new App.Models.Modal({
 						title: nationName + ' Victory!',
@@ -588,7 +626,7 @@ App.Views.BattleZone = Backbone.View.extend({
 						$('#oneModal').off();
 						App.Views.battleMap.deselect();
 						App.Models.nationStats.set('sideTurn', 'left');
-						App.Views.nationStatsView.restartGame();
+						App.Views.nationStatsView.restartGame(false);
 					});
 
 				}, 600);
@@ -689,6 +727,7 @@ App.Views.BattleZone = Backbone.View.extend({
 				defenderCivilianMoraleImpact: oldEconMorale - newEconMorale,
 				defenderGDPImpact: oldDefGDP - updateDefGDP,
 				defenderRankUp: defRankUp,
+				defGovCas: governorDead,
 				oldAttMorale: oldAttMorale,
 				oldDefMorale: oldDefMorale,
 				invasion: false,
@@ -742,6 +781,7 @@ App.Views.BattleZone = Backbone.View.extend({
 				defenderCivilianMoraleImpact: oldEconMorale - newEconMorale,
 				defenderGDPImpact: oldDefGDP - updateDefGDP,
 				defenderRankUp: defRankUp,
+				defGovCas: governorDead,
 				oldAttMorale: oldAttMorale,
 				oldDefMorale: oldDefMorale,
 				invasion: false,
@@ -973,7 +1013,7 @@ App.Views.BattleZone = Backbone.View.extend({
 			newObj : newObj,
 			animationOver: false,
 			notification: resultObj.battleNotification,
-
+			govKilled: resultObj.defGovCas
 		});
 
 		var confModalView = new App.Views.ConfModal({model: confModalModel});

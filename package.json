@@ -1,12 +1,10 @@
 {
   "name": "accuwar",
-  "version": "2.9.2",
+  "version": "3.0.0",
   "description": "Turn based strategy game and war simulator.",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build-css": "node-sass --include-path scss scss/styles.scss css/styles.css",
-    "watch": "node-sass --watch scss -o css"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",

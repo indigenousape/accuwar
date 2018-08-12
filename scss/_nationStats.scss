@@ -380,6 +380,34 @@
 			}
 		}
 
+		.btn-default {
+			@include buttonBeforeHover();
+
+			&:hover,
+			&:focus,
+			&:hover:focus {		
+				@include buttonHover();
+			}
+		}
+
+		.warning-sublist {
+			padding-left: 18px;
+			list-style-type: none;
+			margin: 8px 0;
+			font-size: 13px;
+
+			> li {
+				margin: 4px 0;
+			}
+		}
+
+		.sidebar-recruit-menu {
+			width: auto;
+			display: inline-block;
+			position: relative;
+			top: 1px;
+		}
+
 		.glyphicon-chevron-up,
 		.glyphicon-remove-sign {
 			display: inline-block;

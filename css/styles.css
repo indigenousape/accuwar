@@ -1001,34 +1001,17 @@ input[type=range] {
   .terr-slider-control .active {
     font-weight: bold; }
 
-.audio-control,
-.map-control {
-  margin: 16px 0 8px;
-  display: inline-block;
-  float: left;
-  width: 50%; }
-
-.audio-control {
-  text-align: left;
-  padding-left: 10px; }
-
-.map-control {
-  text-align: right;
-  padding-right: 10px; }
-
-.audio-control label,
-.map-control label,
-.tips-control label {
-  margin-right: 5px;
-  margin-bottom: 0; }
-
-.audio-control input,
-.map-control input,
-.tips-control input {
-  zoom: 1.25;
-  margin-top: 0;
-  position: relative;
-  top: 3px; }
+.game-controls {
+  margin: 16px 0 8px; }
+  .game-controls label {
+    margin: 0 5px 0 20px; }
+  .game-controls > label:first-child {
+    margin-left: 0; }
+  .game-controls input {
+    zoom: 1.25;
+    margin-top: 0;
+    position: relative;
+    top: 3px; }
 
 .error ~ .terr-slider-control {
   margin: 0 auto; }
@@ -1372,6 +1355,24 @@ input[type=range] {
       #nationStats .sidebar a .glyphicon {
         font-size: 12px;
         margin-right: 5px; }
+    #nationStats .sidebar .btn-default {
+      box-shadow: 1px 1px 3px #333;
+      will-change: box-shadow;
+      transition: all 0.4s; }
+      #nationStats .sidebar .btn-default:hover, #nationStats .sidebar .btn-default:focus, #nationStats .sidebar .btn-default:hover:focus {
+        box-shadow: 2px 2px 6px #333; }
+    #nationStats .sidebar .warning-sublist {
+      padding-left: 18px;
+      list-style-type: none;
+      margin: 8px 0;
+      font-size: 13px; }
+      #nationStats .sidebar .warning-sublist > li {
+        margin: 4px 0; }
+    #nationStats .sidebar .sidebar-recruit-menu {
+      width: auto;
+      display: inline-block;
+      position: relative;
+      top: 1px; }
     #nationStats .sidebar .glyphicon-chevron-up,
     #nationStats .sidebar .glyphicon-remove-sign {
       display: inline-block; }
@@ -1554,7 +1555,7 @@ input[type=range] {
       box-shadow: 1px 1px 3px #333;
       will-change: box-shadow;
       transition: all 0.4s; }
-      #footerZone section button:hover, #footerZone section buttonfocus {
+      #footerZone section button:hover, #footerZone section button:focus, #footerZone section button:hover:focus {
         box-shadow: 2px 2px 6px #333; }
       #footerZone section button .glyphicon {
         color: #000000; }
@@ -2062,6 +2063,10 @@ input[type=range] {
     display: none; }
   .show-mob {
     display: inline-block; } }
+
+@media screen and (max-width: 580px) {
+  .small-ph {
+    display: none; } }
 
 /* Color classes */
 .blue {

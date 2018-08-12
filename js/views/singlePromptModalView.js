@@ -85,9 +85,9 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 			if(cancelRename)
 				return false;
 
-			if (!App.Utilities.validName(thisName, 8)) {
+			if (App.Utilities.validateName($('#spInput').val(), 'empire').errCode != 0) {
 				
-				$('#error-message').text('Your empire\'s new name must contain between two and eight letters or spaces.');
+				this.nameValidation('empire');
 				$('#spInput').addClass("invalid").select();
 				return false;
 
@@ -96,7 +96,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 				// Announce the update
 				App.Views.battleMap.notify({
 						icon: "glyphicon glyphicon-globe",
-						titleTxt : App.Utilities.getActiveEmpireName() + " empire renamed to " + thisName + ".",
+						titleTxt : App.Utilities.getActiveEmpireName() + " empire renamed to&nbsp;" + thisName + ".",
 						msgType : 'success'
 				});
 
@@ -139,8 +139,8 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 					ecQualifier = 'downward';
 				}
 
-				var msgHTML = 'Citizens across the empire are ' + msgQualifier + ' with the news. Economic forecasts revised ' + ecQualifier + '.',
-					confTitleText = App.Utilities.getActiveEmpireName() + " empire tax rate " + titleQualifier + " to " + Math.round(updatedTaxRate * 100) + "%.";
+				var msgHTML = 'Citizens across the empire are ' + msgQualifier + ' with the news. Economic forecasts revised&nbsp;' + ecQualifier + '.',
+					confTitleText = App.Utilities.getActiveEmpireName() + " empire tax rate " + titleQualifier + " to&nbsp;" + Math.round(updatedTaxRate * 100) + "%.";
 
 				App.Models.nationStats.setTaxRate(updatedTaxRate);
 				$('.' + App.Utilities.activeSide() + '-stats .changeTax').removeClass('tada').addClass('tada');
@@ -182,9 +182,9 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 			if(cancelRename)
 				return false;
 
-			if (!App.Utilities.validName(thisName, 15)) {
+			if (App.Utilities.validateName($('#spInput').val(), 'territory').errCode != 0) {
 				
-				$('#error-msg').text('Your territory\'s new name must contain between two and fifteen letters or spaces.');
+				this.nameValidation('territory');
 				thisInput.addClass("invalid").select();
 				return false;
 
@@ -200,7 +200,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 				App.Views.battleMap.notify({
 						icon: "glyphicon glyphicon-globe",
-						titleTxt : oldName + " territory renamed to " + App.Models.selectedTerrModel.get('name') + ".",
+						titleTxt : oldName + " territory renamed to&nbsp;" + App.Models.selectedTerrModel.get('name') + ".",
 						msgType : 'success'
 				});
 
@@ -301,7 +301,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 		var newUnitCount = parseInt(thisInputVal),
 			newToUnitDisplay = App.Utilities.addCommas(App.Models.clickedTerrModel.get('armyPopulation') + newUnitCount),
 			newFromUnitDisplay = App.Utilities.addCommas(thisInputVal),
-			newVals = App.Models.selectedTerrModel.returnNewMoraleXpRank(App.Models.clickedTerrModel, newUnitCount),
+			newVals = App.Utilities.returnNewMoraleXpRank(App.Models.clickedTerrModel, newUnitCount),
 			newRemaining = App.Utilities.addCommas(App.Models.selectedTerrModel.get('armyPopulation') - newUnitCount);
 
 		$('#remainingUnits').text(newRemaining);
@@ -326,9 +326,9 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 		if(thisVal != currTaxRate) {
 
 			if(thisVal > App.Utilities.returnHighTaxLimit()) {
-				$('#error-message').html('Tax rates above ' + App.Utilities.returnHighTaxLimit() + '% will greatly anger your citizens and damage your economy over time until you lower them.');
+				$('#error-message').html('Tax rates above ' + App.Utilities.returnHighTaxLimit() + '% will greatly anger your citizens and damage your economy over time until you lower&nbsp;them.');
 			} else if (thisVal < App.Utilities.returnLowTaxLimit()) {
-				$('#error-message').html('Tax rates below ' + App.Utilities.returnLowTaxLimit() + '% will rapidly grow your economy, but at the risk of random market crashes until taxes are raised again.');
+				$('#error-message').html('Tax rates below ' + App.Utilities.returnLowTaxLimit() + '% will rapidly grow your economy, but at the risk of random market crashes until taxes are raised&nbsp;again.');
 			} else {
 				$('#error-message').html('');
 			}
@@ -341,11 +341,11 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 			if(thisVal > (100 * App.Models.nationStats.getTaxRate())) {
 				moraleImpactNumber = thisVal - Math.round(100 * App.Models.nationStats.getTaxRate());
-				$('#impact-msg').attr('class', 'text-danger').text('-' + moraleImpactNumber + ' civilian morale each territory. Shrinks the economy.');
+				$('#impact-msg').attr('class', 'text-danger').html('-' + moraleImpactNumber + ' civilian morale each territory. Shrinks the&nbsp;economy.');
 			} else {
 				moraleImpactNumber =  Math.round(100 * App.Models.nationStats.getTaxRate()) - thisVal;
-				var rapidlyTxt = thisVal < 15 ? " rapidly" : "";
-				$('#impact-msg').attr('class', 'text-success').text('+' + moraleImpactNumber + ' civilian morale each territory. Grows the economy' + rapidlyTxt + '.');
+				var rapidlyTxt = thisVal < 15 ? "&nbsp;rapidly" : "";
+				$('#impact-msg').attr('class', 'text-success').html('+' + moraleImpactNumber + ' civilian morale each territory. Grows the&nbsp;economy' + rapidlyTxt + '.');
 			}
 
 			$('#projTaxRate').text(thisVal);
@@ -356,7 +356,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 			$('#projTaxRate').text(currTaxRate);
 			$('#projTaxes').text(App.Utilities.addCommas(estNextTaxes));
 			$('#projTreasury').text(newTreasuryEst);
-			$('#impact-msg').text(this.model.get('impactMsg')).removeClass('text-danger text-success').addClass(this.model.get('impactClass'));
+			$('#impact-msg').html(this.model.get('impactMsg')).removeClass('text-danger text-success').addClass(this.model.get('impactClass'));
 		}
 
 	},
@@ -381,8 +381,8 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-user',
-				titleTxt : "Uncle " + App.Utilities.getActiveEmpireName() + " Wants You",
-				msgTxt: "Drill sergeants at Ft. " + App.Models.selectedTerrModel.get('name') + " give " + App.Utilities.addCommas(recruitedUnits) + " citizen recruits a warm welcome.",
+				titleTxt : "Uncle " + App.Utilities.getActiveEmpireName() + " Wants&nbsp;You",
+				msgTxt: "Drill sergeants at Ft. " + App.Models.selectedTerrModel.get('name') + " give " + App.Utilities.addCommas(recruitedUnits) + " citizen recruits a warm&nbsp;welcome.",
 				msgType:'success'
 			});
 			App.Views.battleMap.deselect();
@@ -409,7 +409,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 			App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-user",
-					titleTxt : App.Utilities.addCommas(newUnits) + " units sent to " + App.Models.clickedTerrModel.get('name')
+					titleTxt : App.Utilities.addCommas(newUnits) + " units sent to&nbsp;" + App.Models.clickedTerrModel.get('name')
 			});
 
 			App.Views.battleMap.deselect();

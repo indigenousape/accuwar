@@ -75,7 +75,7 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 			newUnitCount = parseInt(thisInput.val()),
 			newToUnitDisplay = App.Utilities.addCommas(App.Models.clickedTerrModel.get('armyPopulation') + newUnitCount),
 			newFromUnitDisplay = App.Utilities.addCommas(newUnitCount),
-			newVals = App.Models.selectedTerrModel.returnNewMoraleXpRank(App.Models.clickedTerrModel, newUnitCount),
+			newVals = App.Utilities.returnNewMoraleXpRank(App.Models.clickedTerrModel, newUnitCount),
 			dispFromRemaining = App.Utilities.addCommas(App.Models.selectedTerrModel.get('armyPopulation') - newUnitCount);
 
 		$('#remainingUnits').text(dispFromRemaining);
@@ -176,8 +176,8 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 
 				App.Views.battleMap.notify({
 					icon: 'glyphicon glyphicon-globe',
-					titleTxt : nationName + " Invades " + defending.get('name'),
-					msgTxt : "The army defending " + defending.get('name') + " was defeated. " + attacking.get('name') + " army divisions have taken control of the territory"+newNameText+". The empire celebrates your victory!",
+					titleTxt : nationName + " Invades&nbsp;" + defending.get('name'),
+					msgTxt : "The army defending " + defending.get('name') + " was defeated. " + attacking.get('name') + " army divisions have taken control of the territory"+newNameText+". The empire celebrates your&nbsp;victory!",
 					msgType: "success"
 				});
 
@@ -300,8 +300,8 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 
 					App.Views.battleMap.notify({
 						icon: 'glyphicon glyphicon-globe',
-						titleTxt : "Army Stuck in " + defending.get('name'),
-						msgTxt : "The roads and bridges in " + defending.get('name') + " are badly damaged and need to be repaired for your army units to move to other territories.",
+						titleTxt : "Army Stuck in&nbsp;" + defending.get('name'),
+						msgTxt : "The roads and bridges in " + defending.get('name') + " are badly damaged and need to be repaired for your army units to move to other&nbsp;territories.",
 						msgType: "success"
 					});
 

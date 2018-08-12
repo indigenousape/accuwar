@@ -202,7 +202,7 @@ App.Views.Footer = Backbone.View.extend({
 			confBtnId: 'trainTerrArmyXP',
 			noTurnsMsg: 'Ends turn for ' + this.model.get('name') +'.',
 			impactMsg: '+' + Math.round((100 - this.model.get('armyXP')) * 0.25) + ' XP',
-			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' training the army stationed at ' + this.model.get('name') + '?</p>',
+			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' training the army stationed at&nbsp;' + this.model.get('name') + '?</p>',
 			diffToNext: diffToNext
 		});
 
@@ -231,13 +231,13 @@ App.Views.Footer = Backbone.View.extend({
 		var diffToNext = App.Utilities.returnTerrInfraCost(this.model),
 			allTxt = App.Collections.terrCollection.getSideTerritoriesWithTurns(App.Utilities.activeSide()).length === App.Collections.terrCollection.getSideTerritories(App.Utilities.activeSide()).length ? '' : ' with turns&nbsp;remaining',
 			showAffordAll = App.Collections.terrCollection.returnTotalCost('econStrength') < App.Utilities.getTreasury() && App.Collections.terrCollection.returnTotalCost('econStrength') > 0 && App.Collections.terrCollection.returnTotalCost('econStrength') != App.Utilities.returnTerrInfraCost(App.Models.selectedTerrModel),
-			affordAllMsg = showAffordAll ? '<p>Or spend $' + App.Utilities.addCommas(App.Collections.terrCollection.returnTotalCost('econStrength')) + ' to repair damaged infrastructure in all territories'+allTxt+'?</p>' : '',
+			affordAllMsg = showAffordAll ? '<p>Or spend $' + App.Utilities.addCommas(App.Collections.terrCollection.returnTotalCost('econStrength')) + ' to repair damaged infrastructure in all&nbsp;territories'+allTxt+'?</p>' : '',
 			confBtnTxt = showAffordAll ? 'Repair ' + this.model.get('name') : 'Confirm';
 
 		var confModalModel = new App.Models.Modal({
 			title: 'Repair Infrastructure',
 			confBtnId: 'rebuildInfrastructure',
-			impactMsg: 'Strengthens citizen morale, population growth, and GDP.',
+			impactMsg: 'Strengthens citizen morale, population growth, and&nbsp;GDP.',
 			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' to repair damaged infrastructure in ' + this.model.get('name') + ' (Tech Level&nbsp;' + (this.model.get('econLevel')) + ')?</p>'
 							+ affordAllMsg,
 			diffToNext: diffToNext,
@@ -256,8 +256,8 @@ App.Views.Footer = Backbone.View.extend({
 		var confModalModel = new App.Models.Modal({
 			title: 'Upgrade Fort Level',
 			confBtnId: 'upgradeTerrFortLevel',
-			impactMsg: '+' + newLvl + '0% Defense Strength bonus at full strength. Strengthens army and citizen morale.',
-			modalMsg: '<p>Spend $' + App.Utilities.addCommas(App.Constants.FORT_LVL_COST * newLvl) + ' to upgrade the defenses at ' + this.model.get('name') + ' to Level ' + newLvl + '?</p>',
+			impactMsg: '+' + newLvl + '0% Defense Strength bonus at full strength. Strengthens army and citizen&nbsp;morale.',
+			modalMsg: '<p>Spend $' + App.Utilities.addCommas(App.Constants.FORT_LVL_COST * newLvl) + ' to upgrade the defenses at ' + this.model.get('name') + ' to Level&nbsp;' + newLvl + '?</p>',
 			diffToNext: App.Constants.FORT_LVL_COST * newLvl
 		});
 
@@ -274,8 +274,8 @@ App.Views.Footer = Backbone.View.extend({
 		var confModalModel = new App.Models.Modal({
 			title: 'Repair Fort',
 			confBtnId: 'repairTerrFort',
-			impactMsg: 'Up to ' + this.model.get('fortLevel') + '0% Defense Strength bonus. Impacts citizen and army morale.',
-			modalMsg: '<p>Spend $' + App.Utilities.addCommas(App.Utilities.returnTerrFortCost(this.model)) + ' to repair the damage at Ft. ' + this.model.get('name') + ' (Level ' + this.model.get('fortLevel') + ')?</p>'
+			impactMsg: 'Up to ' + this.model.get('fortLevel') + '0% Defense Strength bonus. Impacts citizen and army&nbsp;morale.',
+			modalMsg: '<p>Spend $' + App.Utilities.addCommas(App.Utilities.returnTerrFortCost(this.model)) + ' to repair the damage at Ft. ' + this.model.get('name') + ' (Level&nbsp;' + this.model.get('fortLevel') + ')?</p>'
 							+ affordAllMsg,
 			diffToNext: App.Utilities.returnTerrFortCost(this.model),
 			affordAll: showAffordAll,
@@ -287,23 +287,7 @@ App.Views.Footer = Backbone.View.extend({
 
 	},
 	recruitUnits: function() {
-
-		var spModalModel = new App.Models.Modal({
-				title: 'Recruit Army Units: ' + App.Models.selectedTerrModel.get('name'),
-				confBtnId: 'confNewRecruits',
-				modalMsg: '<p class="form-text">How many army units should ' + App.Models.selectedTerrModel.get('name') + ' recruit from the civilian population?</p>',
-				impactMsg: '<span>Cost $<span id="recruitCost">' + App.Utilities.addCommas( Math.round(10000 * App.Constants.COST_PER_RECRUIT)) + '</span></span><span class="pull-right"><span id="recruitCount">10,000</span> Units</span>',
-				impactClass: 'text-muted',
-				noTurnsMsg: 'Ends turn for ' + this.model.get('name') + '.',
-				confBtnClass: 'btn-danger',
-				showRange: true,
-				rangeMin: App.Constants.RECRUIT_ARMY_MINIMUM,
-				rangeMax: App.Utilities.recruitMax() - App.Utilities.recruitMax()%100,
-				rangeVal: 10000
-			});
-
-		var spModalView = new App.Views.SinglePromptModal({model: spModalModel});
-
+		App.Utilities.recruitUnitsModal(this.model);
 	},
 	investEcon: function() {
 		var nextLvl = parseInt(this.model.get('econLevel')) + 1,
@@ -313,7 +297,7 @@ App.Views.Footer = Backbone.View.extend({
 		var confModalModel = new App.Models.Modal({
 			title: 'Upgrade Economy Tech Level',
 			confBtnId: 'upgradeTerrEcon',
-			impactMsg: 'Strengthens citizen morale, population growth, and GDP.',
+			impactMsg: 'Strengthens citizen morale, population growth, and&nbsp;GDP.',
 			modalMsg: messageHTML,
 			diffToNext: diffToNext
 		});

@@ -1,0 +1,16 @@
+{
+    "name": "[accuwar]",
+    "short_name": "[accuwar]",
+    "start_url": "/",
+    "description": "Turn-based strategy game and war simulator. Play free.",
+    "icons": [
+        {
+            "src": "/android-chrome-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#fff",
+    "background_color": "#fff",
+    "display": "standalone"
+}

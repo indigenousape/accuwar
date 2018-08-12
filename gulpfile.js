@@ -46,9 +46,9 @@ gulp.task('distcss', function(done) {
   done();
 });
 
-// Move Robots.txt file
-gulp.task('robots', function(done) {
-  return gulp.src(['./robots.txt'])
+// Move Robots.txt and other txt files
+gulp.task('txt', function(done) {
+  return gulp.src(['./robots.txt', './backlog.txt', './releasenotes.txt'])
     .pipe(useref())
     .pipe(gulp.dest('dist'));
 
@@ -90,4 +90,4 @@ gulp.task('audio', function(done) {
 
 // Production build
 
-gulp.task('prodbuild', gulp.series('distjs', 'distcss', 'fonts', 'images', 'rootImages', 'audio', 'robots'));
+gulp.task('prodbuild', gulp.series('distjs', 'distcss', 'fonts', 'images', 'rootImages', 'audio', 'txt'));

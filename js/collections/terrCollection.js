@@ -153,7 +153,7 @@ App.Collections.Territories = Backbone.Collection.extend({
             if(App.Utilities.getTreasuryAuto(s) > model.get('econLevelCost')) {
                 var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('econLevelCost');
                 App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('econLevelCost'), s, policyCosts);
-                model.upgradeTerrEconLevel(model, true);
+                App.Utilities.upgradeTerrEconLevel(model, true);
             }
 
         });
@@ -174,7 +174,7 @@ App.Collections.Territories = Backbone.Collection.extend({
             if(App.Utilities.getTreasuryAuto(s) > model.get('fortStrengthCost')) {
                 var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('fortStrengthCost');
                 App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('fortStrengthCost'), s, policyCosts);
-                model.repairTerrFortStr(model);
+                App.Utilities.repairTerrFortStr(model);
                 App.Models.nationStats.get(s).set('repairAllFortCost', App.Collections.terrCollection.returnTotalCost('fortStrength'));
             }
 
@@ -220,7 +220,7 @@ App.Collections.Territories = Backbone.Collection.extend({
             if(App.Utilities.getTreasuryAuto(s) > model.get('econStrengthCost')) {
                 var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('econStrengthCost');
                 App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('econStrengthCost'), s, policyCosts);
-                model.upgradeTerrEconStr(model);
+                App.Utilities.upgradeTerrEconStr(model);
             }
 
         });
@@ -236,7 +236,7 @@ App.Collections.Territories = Backbone.Collection.extend({
                     .value();
 
         _.each(array, function(model) {
-            model.upgradeTerrEconStr(model);
+            App.Utilities.upgradeTerrEconStr(model);
         });
 
     },
@@ -251,7 +251,7 @@ App.Collections.Territories = Backbone.Collection.extend({
                     .value();
 
     	_.each(this.models, function(model) {
-    		model.repairTerrFortStr(model);
+    		App.Utilities.repairTerrFortStr(model);
     	});
     },
     returnTotalCost: function(type, s) { 
@@ -302,43 +302,17 @@ App.Collections.Territories = Backbone.Collection.extend({
 
     },
     getSideCasualties: function(side, type) {
-        // Refactor to the returnSideTotal function
 
-    	var casualties = 0,
-    		econCasualties = 0,
-    		isLeft = side === 'left';
+        var casualties = _.chain(this.models)
+                        .filter(function(model) { return model.get('side') === side })
+                        .reduce(function(memo, model){ return memo + model.get(type + 'Casualties'); }, 0)
+                        .value();
 
-    	if(type === 'army') {
-
-	    	_.each(this.models, function(model){
-	    		
-	    		if (model.get('side') === 'left' && isLeft) {
-	    			casualties += model.get('armyCasualties');
-	    		} else if (model.get('side') === 'right' && !isLeft) {
-	    			casualties += model.get('armyCasualties');
-	    		}
-
-	    	});
-
-	    	 casualties += App.Models.nationStats.get(side).get('invasionArmyCasualties');
-
-    	} else if (type === 'econ') {
-
-	    	_.each(this.models, function(model){
-	    		
-	    		if (model.get('side') === 'left' && isLeft) {
-	    			casualties += model.get('econCasualties');
-	    		} else if (model.get('side') === 'right' && !isLeft) {
-	    			casualties += model.get('econCasualties');
-	    		}
-
-	    	});
-
-	    	casualties += App.Models.nationStats.get(side).get('invasionEconCasualties');
-
-    	}
-
-    	return casualties;
+        if(type === 'army') {
+            return (casualties + App.Models.nationStats.get(side).get('invasionArmyCasualties'));
+        } else if (type === 'econ') {
+            return (casualties + App.Models.nationStats.get(side).get('invasionEconCasualties'));
+        }
 
     },
     getSideTerritories: function(s) {
@@ -707,7 +681,6 @@ App.Collections.Territories = Backbone.Collection.extend({
 				});
 
 				var afterTurnFortStr = Math.min(Math.round(beforeTurnFortStr + (model.get('armyPopulation') / 10000)), 100);
-				var afterTurnPop = Math.round(beforeTurnPop * App.Constants.LEVEL_0_POP_PER_TURN_MULT);
 				var beforeTurnMor = model.get('morale');
                 var crashMoraleDrag = model.get('side') === 'left' && leftLowTaxCrash || model.get('side') === 'right' && rightLowTaxCrash,
                     crashMoraleDrag = crashMoraleDrag ? 10 : 0;
@@ -742,13 +715,14 @@ App.Collections.Territories = Backbone.Collection.extend({
 
 				model.set( {
 					'armyCasualties' : 0,
-					'armyPopulation' : afterTurnPop,
+					'armyPopulation' : beforeTurnPop,
 					'armyRecruits' : newArmyRecruits,
-					'prvPopulation' : afterTurnPop,
-					'startPopulation' : afterTurnPop,
+					'prvPopulation' : beforeTurnPop,
+					'startPopulation' : beforeTurnPop,
 					'morale' : afterTurnMor,
 					'fortStrength' : afterTurnFortStr,
 					'economicOutput' : afterTurnGDP,
+                    'governorKilled' : false,
 					'startEconomicOutput' : afterTurnGDP,
 					'econCasualties' : 0,
 					'econPopulation' : afterTurnEconPop,

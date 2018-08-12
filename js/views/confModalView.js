@@ -76,6 +76,14 @@ App.Views.ConfModal = Backbone.View.extend({
 	},
 	battleNotification: function() { 
 
+		if(this.model.get('govKilled')) {
+			App.Views.battleMap.notify({
+				icon: 'glyphicon glyphicon-globe',
+				titleTxt : "Governor of " + App.Models.clickedTerrModel.get('name') + " Killed",
+				msgTxt : "Flags lowered as citizens gather to pay respects for local&nbsp;leader.",
+				msgType: "success"
+			});
+		}
 		App.Views.battleMap.notify(this.model.get('notification'));
 		App.Views.battleMap.deselect();
 		App.Utilities.warpEls(['.treasury-tot', '.changeTax']);
@@ -131,7 +139,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			if(App.Models.nationStats.get(App.Utilities.activeSide()).changedAttributes().activePolicyCount != undefined) {
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-globe",
-					titleTxt : "Polices Updated in " + App.Utilities.getActiveEmpireName(),
+					titleTxt : "Polices Updated in&nbsp;" + App.Utilities.getActiveEmpireName(),
 					msgType: 'left'
 				});
 			}
@@ -199,7 +207,7 @@ App.Views.ConfModal = Backbone.View.extend({
 				diff = 100 - App.Models.selectedTerrModel.get('econStrength'),
 				newSideInfraspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('infrastructureSpend');
 
-			App.Models.selectedTerrModel.upgradeTerrEconStr();
+			App.Utilities.upgradeTerrEconStr();
 			App.Utilities.flipEls(['.econStrength-bar', '.econMorale-bar', '.econMorale-bar', '.economicOutput-bar']);
 			App.Models.nationStats.get(App.Utilities.activeSide()).set('repairAllInfrastructureCost', App.Collections.terrCollection.returnTotalCost('econStrength'));
 			App.Models.nationStats.payForUpgrade(treasury);
@@ -217,7 +225,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Views.battleMap.notify({
 				icon: "glyphicon glyphicon-wrench",
 				titleTxt: "Infrastructure Repaired",
-				msgTxt : infraMsgsArr[msgArrNum][0] +" "+infraMsgsArr[msgArrNum][1]+"% "+infraMsgsArr[msgArrNum][2]+" "+ App.Models.selectedTerrModel.get('name') +" after completion of $" + App.Utilities.addCommas(cost) + " reconstruction project.",
+				msgTxt : infraMsgsArr[msgArrNum][0] +" "+infraMsgsArr[msgArrNum][1]+"% "+infraMsgsArr[msgArrNum][2]+" "+ App.Models.selectedTerrModel.get('name') +" after completion of $" + App.Utilities.addCommas(cost) + " reconstruction&nbsp;project.",
 				msgType: 'left'
 			});
 
@@ -256,7 +264,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Views.battleMap.notify({
 				icon: "glyphicon glyphicon-wrench",
 				titleTxt : "Infrastructure Repaired",
-				msgTxt: allInfraMsgsArr[allMsgArrNum][0] +" "+allInfraMsgsArr[allMsgArrNum][1]+"% "+allInfraMsgsArr[allMsgArrNum][2]+" "+ App.Utilities.getActiveEmpireName() +" after completion of $" + App.Utilities.addCommas(cost) + " national reconstruction project.",
+				msgTxt: allInfraMsgsArr[allMsgArrNum][0] +" "+allInfraMsgsArr[allMsgArrNum][1]+"% "+allInfraMsgsArr[allMsgArrNum][2]+" "+ App.Utilities.getActiveEmpireName() +" after completion of $" + App.Utilities.addCommas(cost) + " national reconstruction&nbsp;project.",
 				msgType: 'left'
 			});
 
@@ -317,11 +325,11 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			App.Views.battleMap.notify({
 				titleTxt : "+" + (100 - App.Models.selectedTerrModel.get('fortStrength')) + "% Fort Strength",
-				msgTxt : "Spirits lifted by $" + App.Utilities.addCommas(this.model.get('diffToNext')) + " investment in repairs at Fort " + App.Models.selectedTerrModel.get('name') + ".",
+				msgTxt : "Spirits lifted by $" + App.Utilities.addCommas(this.model.get('diffToNext')) + " investment in repairs at Fort&nbsp;" + App.Models.selectedTerrModel.get('name') + ".",
 				msgType:'success'
 			});
 
-			App.Models.selectedTerrModel.repairTerrFortStr();
+			App.Utilities.repairTerrFortStr();
 			App.Models.nationStats.payForUpgrade(treasury);
 			App.Models.nationStats.get(App.Utilities.activeSide()).set('fortSpend', (newSideFortspend + this.model.get('diffToNext')));
 			App.Utilities.displayInRange();
@@ -355,7 +363,7 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			App.Views.battleMap.notify({
 				icon: "glyphicon glyphicon-wrench",
-				titleTxt : "All Forts Repaired in " + App.Utilities.getActiveEmpireName(),
+				titleTxt : "All Forts Repaired in&nbsp;" + App.Utilities.getActiveEmpireName(),
 				msgTxt: "Cost: $" + App.Utilities.addCommas(cost),
 				msgType: 'left'
 			});
@@ -375,11 +383,11 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			App.Models.nationStats.payForUpgrade(treasury);
 			App.Models.nationStats.get(App.Utilities.activeSide()).set('armyTrainingSpend', (newSideTrainingspend + this.model.get('diffToNext')));
-			App.Models.selectedTerrModel.trainTerrArmy();
+			App.Utilities.trainTerrArmy();
 
 
 			App.Views.battleMap.notify({
-				titleTxt : "+" + (App.Models.selectedTerrModel.get('armyXP') - startXP) + " Army XP in " + App.Models.selectedTerrModel.get('name'),
+				titleTxt : "+" + (App.Models.selectedTerrModel.get('armyXP') - startXP) + " Army XP in&nbsp;" + App.Models.selectedTerrModel.get('name'),
 				msgType:'success',
 				delay: App.Constants.DELAY_SHORTEST,
 				icon: 'glyphicon glyphicon-signal'
@@ -399,7 +407,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			var treasury = Math.round(App.Utilities.getTreasury() - this.model.get('diffToNext')),
 				newSideLevelspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('econLevelSpend');
 
-			App.Models.selectedTerrModel.upgradeTerrEconLevel();
+			App.Utilities.upgradeTerrEconLevel();
 
 			App.Utilities.flipEls(['.econMorale-bar', '.econMorale-bar', '.econLevel-bar', '.economicOutput-bar']);
 
@@ -408,7 +416,7 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-education',
-				titleTxt : "Tech Level Upgraded in " + App.Models.selectedTerrModel.get('name'),
+				titleTxt : "Tech Level Upgraded in&nbsp;" + App.Models.selectedTerrModel.get('name'),
 				msgType:'success',
 				delay: App.Constants.DELAY_SHORTEST,
 			});
@@ -425,7 +433,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			var treasury = App.Utilities.getTreasury() - this.model.get('diffToNext'),
 				newSideFortLevelspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('fortLevelSpend');
 
-			App.Models.selectedTerrModel.upgradeTerrArmyFortLevel();
+			App.Utilities.upgradeTerrArmyFortLevel();
 			App.Utilities.flipEls(['.econMorale-bar', '.econMorale-bar', '.fortStrength-main', '.economicOutput-bar']);
 			App.Models.nationStats.payForUpgrade(treasury);
 			App.Models.nationStats.get(App.Utilities.activeSide()).set('fortLevelSpend', (newSideFortLevelspend + this.model.get('diffToNext')));
@@ -433,8 +441,8 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-signal',
-				titleTxt : "Fort Upgraded: Level " + App.Models.selectedTerrModel.get('fortLevel'),
-				msgTxt : "Everyone feels safer in " + App.Models.selectedTerrModel.get('name') + " after installation of new $" + App.Utilities.addCommas(this.model.get('diffToNext')) + " defenses.",
+				titleTxt : "Fort Upgraded: Level&nbsp;" + App.Models.selectedTerrModel.get('fortLevel'),
+				msgTxt : "Everyone feels safer in " + App.Models.selectedTerrModel.get('name') + " after installation of new $" + App.Utilities.addCommas(this.model.get('diffToNext')) + "&nbsp;defenses.",
 				msgType:'success'
 			});
 

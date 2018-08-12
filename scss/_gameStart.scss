@@ -86,38 +86,25 @@
 	}
 }
 
-.audio-control,
-.map-control {
+.game-controls {
 	margin: 16px 0 8px;
-	display: inline-block;
-	float: left;
-	width: 50%;
-}
 
-.audio-control {
-	text-align: left;
-	padding-left: 10px;
-}
+	label {
+		margin: 0 5px 0 20px;
+	}
 
-.map-control {
-	text-align: right;
-	padding-right: 10px;
-}
+	> label {
+		&:first-child {
+			margin-left: 0;
+		}
+	}
 
-.audio-control label,
-.map-control label,
-.tips-control label {
-	margin-right: 5px;
-	margin-bottom: 0;
-}
-
-.audio-control input,
-.map-control input,
-.tips-control input {
-	zoom: 1.25;
-	margin-top: 0;
-	position: relative;
-	top: 3px;
+	input {
+		zoom: 1.25;
+		margin-top: 0;
+		position: relative;
+		top: 3px;
+	}
 }
 
 .error ~ .terr-slider-control {

@@ -99,7 +99,8 @@ App.Views.NationStats = Backbone.View.extend({
 		'click .policy' : 'policyClick',
 		'click .disableTips' : 'disableTips',
 		'click .sidebarTerr' : 'selectTerr',
-		'click .budget' : 'budgetModal'
+		'click .budget' : 'budgetModal',
+		'click #recruitSidebar' : 'recruitSidebar'
 	},
 	selectTerr: function(e) {
 
@@ -119,7 +120,7 @@ App.Views.NationStats = Backbone.View.extend({
 		// User can't update enemy empire name
 		if(!canUpdate) {
 			App.Views.battleMap.notify({
-				titleTxt : "You can't rename your enemy's empire.",
+				titleTxt : "You can't rename your enemy's&nbsp;empire.",
 				msgType: "danger",
 				icon: 'glyphicon glyphicon-remove-sign'
 			});
@@ -143,7 +144,7 @@ App.Views.NationStats = Backbone.View.extend({
 
 		if(!canUpdate) {
 			App.Views.battleMap.notify({
-				titleTxt : "You can't update your enemy's tax rate.",
+				titleTxt : "You can't update your enemy's tax&nbsp;rate.",
 				msgType: "danger",
 				icon: 'glyphicon glyphicon-remove-sign'
 			});
@@ -166,7 +167,7 @@ App.Views.NationStats = Backbone.View.extend({
 			title: 'Change Tax Rate: ' + empNam,
 			confBtnId: 'confNewTaxRate',
 			modalMsg: messageHTML,
-			impactMsg: 'Changing tax rates will impact citizen morale.',
+			impactMsg: 'Changing tax rates will impact citizen&nbsp;morale.',
 			impactClass: 'text-muted',
 			rangeMax: 100,
 			rangeMin: 0,
@@ -211,6 +212,7 @@ App.Views.NationStats = Backbone.View.extend({
 		var clickedPolIndex = _.pluck(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'), 'id');
 		var clickedPolIndex = _.indexOf(clickedPolIndex, clickedPolicy);
 
+		// TO DO Keeping commented construction below for use with AI
 		// if(!confirmFirst) {
 		// 	App.Views.nationStatsView.updater();
 		// } else {
@@ -224,15 +226,15 @@ App.Views.NationStats = Backbone.View.extend({
 
 			modalHTML += '<h3>Available Policies</h3>';
 
-			modalHTML += '<p>Policies are tasks that can be carried out in your empire automatically before the start of each year when funds are available.</p>';
+			modalHTML += '<p>Policies are tasks that can be carried out in your empire automatically before the start of each year when funds are&nbsp;available.</p>';
 
 			modalHTML += '<div class="available-policies-container">';
 			for (var m = 0; m < policiesArr.length; m++) {
 
 				if(policiesArr[m].priority != 0 && policiesArr[m].side === App.Utilities.activeSide()) {
-					modalHTML += '<label><input type="checkbox" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies" checked> '+policiesArr[m].title+ '</label>';
+					modalHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies" checked> '+policiesArr[m].title+'</label>';
 				} else if(policiesArr[m].side === App.Utilities.activeSide()) {
-					modalHTML += '<label><input type="checkbox" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies"> '+policiesArr[m].title+ '</label>';
+					modalHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies"> '+policiesArr[m].title+ '</label>';
 				}
 			}
 
@@ -254,7 +256,6 @@ App.Views.NationStats = Backbone.View.extend({
 			App.Views.policiesView = new App.Views.PolicyView({model: App.Models.nationStats.get(App.Utilities.activeSide())});
 			$('#enactedPolicies').html(App.Views.policiesView.$el);
 
-
 		// }
 
 	},
@@ -270,7 +271,7 @@ App.Views.NationStats = Backbone.View.extend({
 				title: 'End Turn: Year ' + App.Models.nationStats.get('currentTurn'),
 				confBtnId: 'confNewTurn',
 				modalMsg: '<p>End turn for '+App.Utilities.getActiveEmpireName() + '?</p>',
-				impactMsg: App.Collections.terrCollection.getSideTerritoriesWithTurns(App.Utilities.activeSide()).length + '/' +  App.Collections.terrCollection.getSideTerritories(App.Utilities.activeSide()).length + ' territory turns remaining.',
+				impactMsg: App.Collections.terrCollection.getSideTerritoriesWithTurns(App.Utilities.activeSide()).length + '/' +  App.Collections.terrCollection.getSideTerritories(App.Utilities.activeSide()).length + ' territory turns&nbsp;remaining.',
 				impactClass: 'text-muted',
 				confBtnClass: 'btn-danger'
 			});
@@ -291,6 +292,13 @@ App.Views.NationStats = Backbone.View.extend({
 	launchFullScreen: function() {
 		App.Utilities.launchFullScreen(document.documentElement);
 		this.model.set('fullScreen', true);
+	},
+	recruitSidebar: function() {
+		var modelCid = $('.sidebar-recruit-menu').val();
+		var modelParentView = App.Collections.terrCollection.returnSelectedView(modelCid);
+		modelParentView.terrClick();
+		App.Utilities.recruitUnitsModal(App.Models.selectedTerrModel);
+		App.Views.selectedFooterView.raiseFooter();
 	},
 	startMusic: function() {
 		App.Models.battleMapModel.set('audio', true);
@@ -343,14 +351,14 @@ App.Views.NationStats = Backbone.View.extend({
 				casTotal = App.Utilities.addCommas(casTotal);
 				App.Views.battleMap.notify({
 					icon: 'glyphicon glyphicon-globe',
-					titleTxt : 'WAR RAGES ON, ' + totalCas + ' DEAD',
+					titleTxt : 'WAR RAGES ON, ' + totalCas + '&nbsp;DEAD',
 					msgTxt : messageHTML,
 					msgType: 'info'
 				});
 
 				App.Views.battleMap.notify({
 					icon: 'glyphicon glyphicon-globe',
-					titleTxt: 'Start of Year ' + (1 + App.Models.nationStats.get('currentTurn')) + ' for ' + App.Models.nationStats.get('left').get('empName'),
+					titleTxt: 'Start of Year ' + (1 + App.Models.nationStats.get('currentTurn')) + ' for&nbsp;' + App.Models.nationStats.get('left').get('empName'),
 					msgType: 'info',
 					delay: 3,
 					vert: 'bottom',
@@ -360,7 +368,7 @@ App.Views.NationStats = Backbone.View.extend({
 	 		} else {
 	 			App.Views.battleMap.notify({
 					icon: 'glyphicon glyphicon-globe',
-					titleTxt: 'Start of Year ' + (1 + App.Models.nationStats.get('currentTurn')) + ' for ' + App.Models.nationStats.get('left').get('empName'),
+					titleTxt: 'Start of Year ' + (1 + App.Models.nationStats.get('currentTurn')) + ' for&nbsp;' + App.Models.nationStats.get('left').get('empName'),
 					msgType: 'info',
 					delay: 3,
 					vert: 'bottom',
@@ -371,7 +379,7 @@ App.Views.NationStats = Backbone.View.extend({
 		} else {
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-globe',
-				titleTxt: 'Start of Year ' + App.Models.nationStats.get('currentTurn') + ' for ' + App.Models.nationStats.get('right').get('empName'),
+				titleTxt: 'Start of Year ' + App.Models.nationStats.get('currentTurn') + ' for&nbsp;' + App.Models.nationStats.get('right').get('empName'),
 				msgType: 'info',
 				delay: 3,
 				vert: 'bottom',
@@ -462,7 +470,7 @@ App.Views.NationStats = Backbone.View.extend({
 		var confModalModel = new App.Models.Modal({
 			title: 'Repair All Infrastructure: ' + App.Utilities.getActiveEmpireName(),
 			confBtnId: 'repairAllInfrastructure',
-			impactMsg: 'Strengthens citizen morale, population growth, and GDP.',
+			impactMsg: 'Strengthens citizen morale, population growth, and&nbsp;GDP.',
 			modalMsg: messageHTML,
 			affordAll: false,
 			confBtnTxt: 'Repair All',
@@ -478,7 +486,7 @@ App.Views.NationStats = Backbone.View.extend({
 		var confModalModel = new App.Models.Modal({
 			title: 'Repair All Forts: ' + App.Utilities.getActiveEmpireName(),
 			confBtnId: 'repairAllFortStr',
-			impactMsg: 'Improves defense Strength bonus. Impacts citizen and army morale.',
+			impactMsg: 'Improves defense Strength bonus. Impacts citizen and army&nbsp;morale.',
 			modalMsg: messageHTML,
 			affordAll: false,
 			repairAllId: '',
@@ -487,13 +495,18 @@ App.Views.NationStats = Backbone.View.extend({
 
 		var confModalView = new App.Views.ConfModal({model: confModalModel});
 	},
-	restartGame: function() {
+	restartGame: function(showCancelBtnFlag) {
+
+		if(typeof showCancelBtnFlag == 'undefined') {
+			showCancelBtnFlag = true;
+		}
 
 		var confModalModel = new App.Models.Modal({
 			title: 'Restart Game',
 			confBtnId: 'confNewGame',
 			modalMsg: '<p>Start a new game?</p>',
-			confBtnClass: 'btn-danger'
+			confBtnClass: 'btn-danger',
+			showCancelBtn: showCancelBtnFlag
 		});
 
 		var confModalView = new App.Views.ConfModal({model: confModalModel});

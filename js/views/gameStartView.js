@@ -120,7 +120,7 @@ App.Views.GameStart = Backbone.View.extend({
 			invalidName = newValidationObj.errCode != 0;
 
 		if(invalidName) {
-			errorEl.text(newValidationObj.msg);
+			errorEl.html(newValidationObj.msg);
 			$(e.currentTarget).addClass('invalid');
 			$(errorEl).insertBefore($('.terr-slider-control'));
 			$('#declareWar').prop('disabled', true);
@@ -250,24 +250,38 @@ App.Views.GameStart = Backbone.View.extend({
 		if(App.Views.gameStartView.isSpecialMode(leftNameVal, rightNameVal)) {
 			// Special Map Mode
 			App.Collections.terrCollection.specialMap(leftNameVal, rightNameVal);
+
+			var newClass = '';
+			if(!App.Models.battleMapModel.get('randomMap')
+				 && ( (leftNameVal.toLowerCase() + rightNameVal.toLowerCase()).indexOf('civilwar') != -1 || (leftNameVal.toLowerCase() + rightNameVal.toLowerCase()).indexOf('college') != -1)) {
+					newClass = 'civil-war';
+					var oldClassIndex = App.Views.battleMap.$el.attr('class').indexOf('world-war') != -1 ? App.Views.battleMap.$el.attr('class').indexOf('world-war') : App.Views.battleMap.$el.attr('class').indexOf('texture');
+					var newClasses = classes.substring(0 , oldClassIndex) + newClass;
+					if(!App.Models.battleMapModel.get('randomMap')) {
+						App.Views.battleMap.$el.attr('class', newClasses);
+					}
+			}
+
 		}
 
 		this.$el.parent().addClass('fadeout');
 		$('#game').addClass('fadein').attr('tabindex', '');
 		$('.restart').attr('tabindex', '');
 
-		var specialModeText = "<p>The world is in crisis! Citizens gripped by fear and fury as rival alliances wage war for world domination.</p>";
+		var specialModeText = "<p>The world is in crisis! Citizens gripped by fear and fury as rival alliances wage war for world&nbsp;domination.</p>";
 
 		if (App.Models.battleMapModel.get('mapMode').length > 0) {
 
 			var	worldWarMode = App.Models.battleMapModel.get('mapMode') === 'joshua' || App.Models.battleMapModel.get('mapMode') === 'wargames',
 				civilWarMode = App.Models.battleMapModel.get('mapMode') === 'civilwar',
 				marketWarMode = App.Models.battleMapModel.get('mapMode') === 'wallstreet',
-				fictionWarMode = App.Models.battleMapModel.get('mapMode') === 'makebelieve';
+				fictionWarMode = App.Models.battleMapModel.get('mapMode') === 'makebelieve',
+				collegeWarMode = App.Models.battleMapModel.get('mapMode') === 'college';
 			
-			specialModeText = fictionWarMode ? "<p>The fictional universe is in crisis! Rival empires have joined forces and declared war for control of the human imagination.</p>" : specialModeText,
-			specialModeText = civilWarMode ? "<p>The United States is in crisis! A powerful confederation of rebel states has seceded from the Union and declared war on America.</p>" : specialModeText,
-			specialModeText = marketWarMode ? "<p>The world economy is in crisis! Millions in fear as rival companies declare war in battle to control the global market.</p>" : specialModeText;
+			specialModeText = fictionWarMode ? "<p>The fictional universe is in crisis! Empires have joined forces and declared war on each other for control of the human&nbsp;imagination.</p>" : specialModeText,
+			specialModeText = civilWarMode ? "<p>The Union is in crisis! A powerful confederation of rebel states has seceded from the Union and declared war on the United&nbsp;States.</p>" : specialModeText,
+			specialModeText = marketWarMode ? "<p>The world economy is in crisis! Millions in fear as price wars between rival companies turn bloody in battle for precious&nbsp;marketshare.</p>" : specialModeText;
+			specialModeText = collegeWarMode ? "<p>The university system is in crisis! Dorms are barricaded across the nation as a new alliance of schools fight to establish a new college athletic&nbsp;association.</p>" : specialModeText;
 
 			leftNameVal = worldWarMode ? "Allies" : leftNameVal,
 			rightNameVal = worldWarMode ? "Axis" : rightNameVal,
@@ -277,6 +291,8 @@ App.Views.GameStart = Backbone.View.extend({
 			rightNameVal = marketWarMode ? "NASDAQ" : rightNameVal,
 			leftNameVal = fictionWarMode ? "Light" : leftNameVal,
 			rightNameVal = fictionWarMode ? "Dark" : rightNameVal;
+			leftNameVal = collegeWarMode ? "NCAA" : leftNameVal;
+			rightNameVal = collegeWarMode ? "Alliance" : rightNameVal;
 
 		}
 
@@ -301,7 +317,7 @@ App.Views.GameStart = Backbone.View.extend({
 		App.Views.battleMap.notify({
 			icon: "glyphicon glyphicon-globe",
 			titleTxt : "War Declared!",
-			msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the game.</p><p>To change tax rates, enact policies, and see details about your empire, click the menu button at the top corner of your screen.</p><p>Invest wisely in your economy and your military for the best chance of victory. Good luck!</p>",
+			msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire, click the menu button at the top corner of your&nbsp;screen.</p><p>Invest wisely in your economy and your military for the best chance of victory. Good&nbsp;luck!</p>",
 			msgType: "info",
 			delay: App.Constants.DELAY_INFINITE
 		});
@@ -320,7 +336,7 @@ App.Views.GameStart = Backbone.View.extend({
 	isSpecialMode: function(name1, name2) {
 		var name1Lower = name1.toLowerCase(),
 			name2Lower = name2.toLowerCase(),
-			specialModes = ['civilwar', 'wargames', 'joshua', 'wallstreet', 'makebelieve'];
+			specialModes = ['civilwar', 'wargames', 'joshua', 'wallstreet', 'makebelieve', 'college'];
 
 		if(specialModes.indexOf(name1Lower + name2Lower) != -1) {
 			return true;

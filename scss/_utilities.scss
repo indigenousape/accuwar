@@ -113,6 +113,12 @@
  	}
 }
 
+@media #{$smallPhones} {
+	.small-ph {
+		display: none;
+	}
+}
+
 /* Color classes */
 
 .blue {

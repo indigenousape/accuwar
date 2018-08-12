@@ -1,0 +1,405 @@
+Next Release: 3.1 Alpha
+
+Release Priorities
+ - Finish remaining features 
+ - Explore AI
+
+
+ Long Term First Release Priorities
+ - Playable version with army units as only military type
+ - 1 player vs CPU
+ - Bug reports / suggestions - steal form security code from Phil's contact form
+
+ Pre-Beta Must Haves
+ - Easy way to report bugs and make suggestions (web form)
+ - Social Integration? Easy way to like and share. Forget Add This.
+
+
+===========================================================================
+RELEASE 3.1
+
+
+
+DONE
+
+
+
+
+STORIES
+
+1. UX: Economics - Random market crashes/booms.
+	- These crashes should be less frequent than with low taxes
+	- Low taxes crashes should never happen at the same time as these crashes (can't have two crashes in the same year by game logic)
+	- Booms should mimic low tax impact but be short lived (no more than 5 years in a row)
+
+//  AI DEPENDENCY, END GAME EXPERIENCE DEPENDENCY
+2. UX/UI Side Menu: Overall Battle Record & Overall Stats
+	- To mirror the statistics kept by current turn battle record
+
+		Battle record - Store total battle wins/losses on Emp after each battle
+		Invasions
+			- Store on Emp models after each invasion (duplicates become 2, 3rd, 4th invasions, no difference for invasions of territories once owned)
+		Lost territories
+			- Store on emp models after each invasion (no duplicates, removed if re-invaded)
+		
+		Army + Civilian casualties - store after each battle, including invasion casualties
+		Recruited units - store after every recruit (just need to store volunteers)
+		Armies ranked above 1 - updated after every battle
+		Forts with levels above 1
+		Forts destroyed - store each time a fort is destroyed (remove duplicates)
+		Territories with movement warnings -- Create function on terrModel: canMove
+		Territories with morale warnings -- Ditto: hasWarnings
+
+	- Once tracked, add summary of kills and casualties to the end game window
+		- Qualify the victory?
+		- Quantify with a score?
+			All factors:
+				Territories
+				Ranks
+				Morales
+				GDP
+				Ec Level
+				Infra Strength
+				Tax Income 
+
+3. Accessibility: Keyboard Accessibility
+	-- Add basic keyboard accessibility for:
+		 - Tax projection
+		 - Empire name
+		 - Side menu
+
+	Side Menu
+	-- Add button labels for menu and close menu buttons (done)
+	-- Make Actions button into a primary button (done)
+		- Make options keyboard accessible
+	-- Make change tax rate icon into a button
+	-- Make See Budget icon into a button
+	-- Make policies into links
+	-- Add form label for recruit units menu and button
+	-- Items nested within sidebar lists
+
+	Modals
+	-- Change tax rate -- live region for messages
+	-- Change Territory / Empire name -- live region for error messages
+	-- Policies description and priority buttons
+	-- Budget modal collapse menu
+
+	Footer
+	-- Button labels
+	-- Military tab
+	-- Rename territory
+
+	Map
+	-- Territories when focused
+	-- Territories when looking for targets or unit transfer destinations
+
+
+
+
+===============================================================
+BACKLOG BY EFFORT
+
+
+STORIES
+
+
+
+SMALL EFFORT
+
+1. Safari Bugs:
+	Med Can't click the growth rate icons in the footer
+	Small Can see tooltips for the other side - Don't render the tooltips when it's not the active side
+
+ 	High Scroll first army into view on game start and after battles
+ 		-- May be related to scrolling selected terr into view?
+
+// On hold until AI is developed
+2. UI: Create Game Settings menu for home screen
+	- Cog wheel icon with text "More Settings"
+	- Launches modal
+	- Modal has controls for random map, music, tips
+	- WILL CONTROL (future):
+		- Difficulty
+		- 1P vs 2P
+
+
+MEDIUM
+
+1. Tech Debt: Refactor territory model property for army "morale"
+	Should be named "armyMorale"
+
+
+LARGE
+
+1. UX: Add an easy way to send feedback. Ideas, suggestions, bug reports.
+	- PHP form? Is there a better way?
+	- Steal security PHP from Phil's contact form
+
+2. UX: End Game Experience *
+	* Dependency on overall details feature
+	At end of game user can choose to restart the game OR view the War Details screen
+	War details screen shows for each side:
+		Number of battles won and lost
+		Battle kills and casualties
+		Highest ranks achieved and by which two territories
+			- Details about those territories/armies
+		End civilian populations
+		End GDP
+		Taxes collected
+		Idea - Graphs?
+	Play sound / victory music (Done)
+	Do some animation
+
+
+
+
+==========================================
+RELEASE BACKLOG (Unfiltered/Unsorted)
+
+
+=======================================================================
+BUGS
+
+Try to find it:
+ 	1. Validation Error: Paragraph markup in modals.
+ 	2. Clicking to reinforce a territory somehow transfers the same exact XP level?
+
+
+
+=======================================================================
+Tech Debt
+
+1. Territory model should be subdivided into classes like we did for nationStats model
+	-- military
+		-- army
+		-- fort
+	-- econ
+	-- start
+	-- prv
+	-- ui
+
+2. Refactor arrays stored on models into classes like was done for nationStats model (eg, policies)
+
+=======================================================================
+AI EPIC
+
+1. On a time delay, AI will select territories and carry out attacks and reinforcements.
+
+	- Dependencies:
+		- Learning AI
+		- Finishing Side Menu (In progress)
+		- Policy enhancement (DONE)
+		- Programmatically selecting a view (SOLVED) App.Views.allViews.terrClick();
+			- Make it better
+				- Store CIDs into an array
+		- Establishing difficulty settings (DONE)
+
+GENERAL NOTES
+	- AI will act in territories with warnings first
+
+DIFFICULTY SETTINGS
+	- Can be set from the game start view
+
+	1. Easy
+		- Enacts up to 2 policies at a time
+		- Less aggression
+
+	2. Normal
+		- Enacts up to 3 policies at a time
+		- Can change tax rate 
+		- Medium aggression
+		- Can "manually" change territory values
+
+	3. Hard
+		- Enacts up to 4 policies at a time
+		- Can change tax rate
+		- High aggression
+		- Can "manually" recruit, upgrade, repair
+		- Makes smartest strategic decisions
+	
+- Notes:
+	Under no circumstances should one side be able to do anything based on what it "knows" about the other BEYOND what can be seen on the territories or in the attack modals
+
+	AI will (depending on circumstance) operate on territories with alerts FIRST
+
+
+=======================================================================
+Enhancements
+(empty)
+
+=======================================================================
+// Economy Epic
+(empty)
+
+
+=======================================================================
+// Turns Epic
+
+1. Add AI turn.
+	- Big step done. Can update policies to do the heavy lifting.
+
+=======================================================================
+// UX/UI Epic
+
+		
+1. Play options:
+ 	2 player online (spike) // BACKLOG
+ 	1 player vs CPU (spike) // FINAL ALPHA RELEASE
+
+// FINAL ALPHA RELEASE
+2. Gameplay Modes:
+	- Sandbox - 1 v 0
+	- Side-by-side mode: 1 v 1
+	- 2 player - 1 v 1 over socket
+	- vs CPU - 1 v CPU
+
+
+=======================================================================
+// PAID VERSION BACKLOG
+
+// Unit Types Epic
+
+	1. Add spy units
+		- Reveal enemy territory
+		- Can be clicked to attack
+
+		Notifications:
+			* Army (Over a million units) amassed in (name)
+				- Note: Spies can reveal?
+			* Spy Activity In (Name), (THING) Destroyed/Damaged
+			* Governor Assassinated In (territory), (Empire) Officials Deny Responsibility
+
+	2. Add air force units
+
+	3. Add navy units
+
+	4. Add Guerilla attack type for Army unit
+
+// Attack & Battle Window Epic
+	Dependency: Unit Types
+
+	1. UX/UI: Update attack logic so that you select the Army unit to attack with and what you are attacking
+		Use button group inside the tab? Army / Navy / Air Force, etc
+
+	2. UX/UI: Design Attack/Reinforce Modal
+		- Tab concept
+				Left column: Attacker
+					Military unit types in checkbox groups for selection
+						Shows Rank, XP, units, and morale for each type
+					Selected unit types populate a panel showing attacking forces
+
+				Right column: Defender
+					Tabs for Miltary / Economic might 
+
+				ATTACK button sets off the attack
+
+		- Attack Modal
+			- Includes name of attacker and defender
+			- Attacker:
+				- Buttons to select units
+				- Army population
+				- Army strength bar
+					- Expand to see XP, Rank, Morale
+				- Include special attack (Guerilla assault)
+			- Defender:
+				- Army population and strength
+				- Strength bar breaks down to XP, Rank, Morale
+				- Fort strength and level
+				- Also includes civilian population, GDP, and economy strength
+
+		- Reinforce Modal
+			- Includes name of sending and receiving territory
+			- Sender:
+				- Input to show units being transferred (max amount pre-filled, and selected)
+				- Shows unit's metrics - Population, strength (w/breakdown)
+			
+			- Receiver:
+				- Fort level and strength
+				- Army units and strength (w/breakdown)
+
+	3. UX/UI: Window will house results from attacks
+		Includes:
+			Impact on attacking and defending territories
+			Economic and Military impacts can be shown in tabs
+			Idea: Progress bars for most metrics based on values RIGHT BEFORE battle (before battle = 100%)
+			Other idea: Bar charts comparing casualties
+			Other idea: Bar charts show starting (background) and ending values for morale, XP
+
+	For New Unit Updates see: https://getbootstrap.com/docs/3.3/components/#btn-groups
+		Answers How to present in Footer and Attack windows
+
+
+=======================================================================
+PERMANENT BACKLOG
+(Unsorted)
+
+1. UI: Army Units: Add a helmet to the army guy // Tricky due to limitation of alerts plugin (one HTML element)
+
+2. Desktop Mode Enhancement
+	Side menu: Civilian population section + data table
+	- Add growth rate icon and tooltip to starting population
+	- Large modal launched from an icon near population
+	
+	//Add to button popovers?
+	- Displays summary of population, what impacts it directly, what drives growth rate, how population relates to GDP
+	
+	- Displays sortable table of territories with:
+		- Starting Population
+		- Casualties
+		- Recruits
+		- Growth rate
+		- Current Population
+
+3. Desktop Enhancement
+	Side menu: Economy section & data table
+	- Shows current and starting national GDP // Done
+	- Shows national GDP growth rate with icon and tooltip beside starting GDP
+	- Large modal launched from icon near GDP
+	- Displays summary of GDP, major factors, taxes, and how they all contribute to treasury and the growth rate
+	- Displays sortable table of territories with:
+		- Current GDP
+		- Growth rate
+		- Contribution to national tax income
+		- Infrastructure
+		- Tech level
+		- Morale
+		- Population
+
+4. Desktop Mode Enhancement
+	Side menu: Army data table  
+	- Large modal launched from icon near army population
+	- Displays summary of army, how they work, how they are protected, and what things limit them
+	- Displays sortable table of territories with:
+		- units
+		- morale
+		- xp
+		- rank
+		- recruited units
+		- fort strength
+		- fort level
+		- overall battle record
+		- army/civilian kills
+		- casualties
+		- number of turns left
+		- travel limits
+
+5. Side menu: Data tables
+	- Views to be injected into confirmation modals
+	- Allow users to see sortable data for empire economics and armies at a glance
+	- Will have alternate presentation in mobile view
+
+6. UI: Data Tables (Duplicate of 5?)
+	Add menu panel on each side to include national statistics
+		- Overall battle record/stats
+
+7. UX: Natural disasters (map isn't currently intelligent enough to know what disasters are possible)
+	- Like market crashes. They come along once in awhile and damage the economy and infrastructure at random, small number of civilian deaths
+	- Hurricanes, Earthquakes, Floods, Fires, Tsunamis
+	- Small impacts on morale
+
+
+ Marketinging Release
+ - Facebook forum page
+ - Twitter
+ 	Regular posts @accuwar
+ 	Have backlog of posts in the queue 
