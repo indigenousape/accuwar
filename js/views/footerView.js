@@ -30,10 +30,10 @@ App.Views.Footer = Backbone.View.extend({
 
 		// Initializes and reinitializes tooltips when footer is updated
 		$(function () {
-			$('[data-toggle="tooltip"]').tooltip('destroy');
-			$('[data-toggle="tooltip"]').tooltip();
-			$('[data-toggle="popover"]').popover('destroy');
-			$('[data-toggle="popover"]').popover();
+			$('#footerZone [data-toggle="tooltip"]').tooltip('destroy');
+			$('#footerZone [data-toggle="tooltip"]').tooltip();
+			$('#footerZone [data-toggle="popover"]').popover('destroy');
+			$('#footerZone [data-toggle="popover"]').popover();
 		});
 
 		// Start of detail rotator feature
@@ -311,7 +311,6 @@ App.Views.Footer = Backbone.View.extend({
 	raiseFooter: function() {
 		$('#dropFooter').addClass('drop').removeClass('raise');
 		$('#footerZone').toggleClass('lift');
-
 	},
 	dropFooter: function() {
 		$('#dropFooter').removeClass('drop').addClass('raise');
@@ -319,14 +318,14 @@ App.Views.Footer = Backbone.View.extend({
 	},
 	closeView: function() {
 	 	$('#footerZone').removeClass('lift');
-	 	$('[data-toggle="tooltip"]').off();
+	 	$('#footerZone [data-toggle="tooltip"]').off();
 	 	$('#footerZone [data-toggle="popover"]').off();
+    	this.unbind();
+    	this.undelegateEvents();
+    	this.remove();
 	 	clearTimeout(App.Timers.main);
 	 	clearTimeout(App.Timers.inner);
 	 	App.Timers.main = 0;
 	 	App.Views.selectedFooterView = {};
-    	this.unbind();
-    	this.undelegateEvents();
-    	this.remove();
 	}
 });

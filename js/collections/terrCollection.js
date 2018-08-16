@@ -70,10 +70,13 @@ App.Collections.Territories = Backbone.Collection.extend({
     	});
 
     },
-    changeColors: function() {
+    changeColorsTerrNames: function() {
 
         _.each(this.models, function(model) {
-            model.set('color', App.Models.nationStats.get(model.get('side')).get('color') )
+            model.set({
+                'color': App.Models.nationStats.get(model.get('side')).get('color'),
+                'empName' : App.Models.nationStats.get(model.get('side')).get('empName')
+            } )
         });
 
     },
@@ -157,7 +160,29 @@ App.Collections.Territories = Backbone.Collection.extend({
             }
 
         });
-    },    
+    },
+    updgradeAllFortsPolicy: function(s) {
+
+        // Create an array from the collection
+        // Filter out only the models that match the side passed to the function
+        // and those with econ strength equal to 100 and levels below the maximum
+        // then sort by the levels in ascending order
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === s && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL && model.get('fortStrength') === 100; })
+                    .sortBy(function(model){ return model.get('fortLevel'); })
+                    .value();
+
+        _.each(array, function(model) {
+
+            if(App.Utilities.getTreasuryAuto(s) > model.get('fortLevelCost')) {
+                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('fortLevelCost');
+                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('fortLevelCost'), s, policyCosts);
+                App.Utilities.upgradeTerrArmyFortLevel(model, true);
+            }
+
+        });
+    },  
     repairAllFortsPolicy: function(s) {
 
         // Create an array from the collection
@@ -492,16 +517,20 @@ App.Collections.Territories = Backbone.Collection.extend({
 		 	newLeftEconStartPop = 0,
 		 	newRightEconStartPop = 0;
 
-		 var leftLowTaxCrash = !currLeftTurn ? App.Models.nationStats.get('left').get('lowTaxTurnLength') > 4 && Math.random() < 0.25 : App.Models.nationStats.get('left').get('econCrash'),
-			 rightLowTaxCrash = !currLeftTurn ? App.Models.nationStats.get('right').get('lowTaxTurnLength') > 4 && Math.random() < 0.25 : App.Models.nationStats.get('right').get('econCrash'),
+		 var leftLowTaxCrash = !currLeftTurn ? (App.Models.nationStats.get('left').get('lowTaxTurnLength') > 3 && Math.random() < 0.25) : App.Models.nationStats.get('left').get('econCrash'),
+			 rightLowTaxCrash = !currLeftTurn ? (App.Models.nationStats.get('right').get('lowTaxTurnLength') > 3 && Math.random() < 0.25) : App.Models.nationStats.get('right').get('econCrash'),
+             leftRegCrash = !currLeftTurn ? !leftLowTaxCrash && (Math.random() < 0.15 && App.Models.nationStats.get('left').get('taxRate') < Math.random()) : false,
+             rightRegCrash = !currLeftTurn ? !rightLowTaxCrash && (Math.random() < 0.15 && App.Models.nationStats.get('right').get('taxRate') < Math.random()) : false,
 			 isCrash = false,
 			 lowTaxPenalty,
-             leftLowTaxPenalty = leftLowTaxCrash ? App.Constants.GDP_PENALTY_LOW_TAX + (Math.random() / 20) : 1,
-             rightLowTaxPenalty = rightLowTaxCrash ? App.Constants.GDP_PENALTY_LOW_TAX + (Math.random() / 20) : 1,
+             leftCrashGDPPenalty = leftLowTaxCrash ? App.Constants.GDP_PENALTY_LOW_TAX + (Math.random() / 20) : 1,
+             leftCrashGDPPenalty = leftRegCrash ? App.Constants.GDP_PENALTY_REG_CRASH + (Math.random() / 20) : leftCrashGDPPenalty,
+             rightCrashGDPPenalty = rightLowTaxCrash ? App.Constants.GDP_PENALTY_LOW_TAX + (Math.random() / 20) : 1,
+             rightCrashGDPPenalty = rightRegCrash ? App.Constants.GDP_PENALTY_REG_CRASH + (Math.random() / 20) : rightCrashGDPPenalty,
 			 leftGDPPenalty = 0,
 			 rightGDPPenalty = 0;
 
-		if(leftLowTaxCrash && !currLeftTurn) {
+		if((leftLowTaxCrash || leftRegCrash) && !currLeftTurn) {
 			App.Models.nationStats.get('left').set('econCrash', true);
 
             if(App.Models.nationStats.get('left').get('econCrashTurn') === (App.Models.nationStats.get('currentTurn') - 1)) {
@@ -518,7 +547,7 @@ App.Collections.Territories = Backbone.Collection.extend({
 			App.Models.nationStats.get('left').set('econCrashTurn', 0);
 		}
 
-		if(rightLowTaxCrash && !currLeftTurn) {
+		if((rightLowTaxCrash || rightRegCrash) && !currLeftTurn) {
 			App.Models.nationStats.get('right').set('econCrash', true);
             if(App.Models.nationStats.get('right').get('econCrashTurn') === (App.Models.nationStats.get('currentTurn') - 1)) {
 			    App.Models.nationStats.get('right').set('econCrashTurnPrv', App.Models.nationStats.get('right').get('econCrashTurn'));
@@ -582,6 +611,9 @@ App.Collections.Territories = Backbone.Collection.extend({
                             case 'upgrade_tech':
                                 App.Collections.terrCollection.updgradeAllTechLevelsPolicy(side);
                                 break;
+                            case 'upgrade_forts':
+                                App.Collections.terrCollection.updgradeAllFortsPolicy(side);
+                                break;
                             case 'recruit_army':
                                 App.Collections.terrCollection.recruitPolicy(side);
                                 break;
@@ -604,7 +636,7 @@ App.Collections.Territories = Backbone.Collection.extend({
 				beforeTurnFortLvl = model.get('fortLevel'),
 				newRemainingTurns = 0,
 				leftSideTerr = side === 'left',
-                lowTaxPenalty = leftSideTerr ? leftLowTaxPenalty : rightLowTaxPenalty;
+                lowTaxPenalty = leftSideTerr ? leftCrashGDPPenalty : rightCrashGDPPenalty;
 
 			model.set('prvPopulation', model.get('armyPopulation'));
 			
@@ -758,6 +790,9 @@ App.Collections.Territories = Backbone.Collection.extend({
 
         if(!currLeftTurn) {
 
+            var leftFortsDestroyedThisTurn = App.Models.nationStats.get('right').get('fortsLost').length;
+            var rightFortsDestroyedThisTurn = App.Models.nationStats.get('left').get('fortsLost').length;
+
             var leftRecruits = 0;
             var leftTerrWithRecruits = [];
             if (App.Models.nationStats.get('left').get('recruitsAuto') > 0) {
@@ -782,6 +817,14 @@ App.Collections.Territories = Backbone.Collection.extend({
 				invadedThisTurn: [],
 				invasionArmyCasualties: 0,
 				invasionEconCasualties: 0,
+                overallArmyCasualties: App.Models.nationStats.get('left').get('overallArmyCasualties') + App.Models.nationStats.get('left').get('armyCasualties'),
+                overallArmyPromotions: App.Models.nationStats.get('left').get('overallArmyPromotions') + App.Models.nationStats.get('left').get('armiesPromoted').length,
+                overallEconCasualties: App.Models.nationStats.get('left').get('overallEconCasualties') + App.Models.nationStats.get('left').get('econCasualties'),
+                overallFortsDestroyed: App.Models.nationStats.get('left').get('overallFortsDestroyed') + leftFortsDestroyedThisTurn,
+                overallFortsLost: App.Models.nationStats.get('left').get('overallFortsLost') + rightFortsDestroyedThisTurn,
+                overallInvasions: App.Models.nationStats.get('left').get('overallInvasions') + App.Models.nationStats.get('left').get('invadedThisTurn').length,
+                overallLostTerrs: App.Models.nationStats.get('left').get('overallLostTerrs') + App.Models.nationStats.get('left').get('terrLostThisTurn').length,
+                overallRecruits: App.Models.nationStats.get('left').get('overallRecruits') + App.Models.nationStats.get('left').get('recruitsThisTurn'),
                 recruitsAuto: 0,
 				recruitsThisTurn: leftRecruits,
 				terrLostThisTurn: [],
@@ -814,6 +857,14 @@ App.Collections.Territories = Backbone.Collection.extend({
 				invadedThisTurn: [],
 				invasionArmyCasualties: 0,
 				invasionEconCasualties: 0,
+                overallArmyCasualties: App.Models.nationStats.get('right').get('overallArmyCasualties') + App.Models.nationStats.get('right').get('armyCasualties'),
+                overallArmyPromotions: App.Models.nationStats.get('right').get('overallArmyPromotions') + App.Models.nationStats.get('right').get('armiesPromoted').length,
+                overallEconCasualties: App.Models.nationStats.get('right').get('overallEconCasualties') + App.Models.nationStats.get('right').get('econCasualties'),
+                overallFortsDestroyed: App.Models.nationStats.get('right').get('overallFortsDestroyed') + rightFortsDestroyedThisTurn,
+                overallFortsLost: App.Models.nationStats.get('right').get('overallFortsLost') + leftFortsDestroyedThisTurn,
+                overallInvasions: App.Models.nationStats.get('right').get('overallInvasions') + App.Models.nationStats.get('right').get('invadedThisTurn').length,
+                overallLostTerrs: App.Models.nationStats.get('right').get('overallLostTerrs') + App.Models.nationStats.get('right').get('terrLostThisTurn').length,
+                overallRecruits: App.Models.nationStats.get('right').get('overallRecruits') + App.Models.nationStats.get('right').get('recruitsThisTurn'),
                 recruitsAuto: 0,
 				recruitsThisTurn: rightRecruits,
 				terrLostThisTurn: [],

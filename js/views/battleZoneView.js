@@ -387,6 +387,15 @@ App.Views.BattleZone = Backbone.View.extend({
 			newEconStrength = 0;
 		}
 
+		// If attacking army was promoted, announce the alert
+		if(attRankUp) {
+			App.Views.battleMap.notify({
+				icon: 'glyphicon glyphicon-globe',
+				titleTxt : "Army promoted at " + App.Models.selectedTerrModel.get('name') + "!",
+				msgType: "success"
+			});
+		}
+
 		var fortDestroyed = false,
 			startFortLevel = oldDefFortLvl;
 		//If fort strength falls below 5, destroy the fort's tech level so it will have to be rebuilt
@@ -508,7 +517,8 @@ App.Views.BattleZone = Backbone.View.extend({
 				'armyPopulationNow' : App.Collections.terrCollection.returnSideTotal(attackingSide, 'armyPopulation'),
 				'battleWins' : newAttWins,
 				'invadedThisTurn' : newAttInvadedArr,
-				'econPopulationNow' : App.Collections.terrCollection.returnSideTotal(attackingSide, 'armyPopulation')
+				'econPopulationNow' : App.Collections.terrCollection.returnSideTotal(attackingSide, 'armyPopulation'),
+				'overallBattleWins': App.Models.nationStats.get(attackingSide).get('overallBattleWins') + 1
 			});
 
 			App.Models.nationStats.get(defendingSide).set({
@@ -516,7 +526,8 @@ App.Views.BattleZone = Backbone.View.extend({
 				'battleLosses' : newDefLosses,
 				'terrLostThisTurn' : newDefLost,
 				'invasionEconCasualties' : newDefNtlInvEconCas,
-				'invasionArmyCasualties' : newDefNtlInvArmyCas
+				'invasionArmyCasualties' : newDefNtlInvArmyCas,
+				'overallBattleLosses': App.Models.nationStats.get(defendingSide).get('overallBattleLosses') + 1
 			});
 
 			// Update console
@@ -705,13 +716,15 @@ App.Views.BattleZone = Backbone.View.extend({
 			
 			App.Models.nationStats.get(attSide).set({
 				'armyPopulationNow' : App.Collections.terrCollection.returnSideTotal(attSide, 'armyPopulation'),
-				'battleWins': (App.Models.nationStats.get(attSide).get('battleWins') + 1)
+				'battleWins': (App.Models.nationStats.get(attSide).get('battleWins') + 1),
+				'overallBattleWins': App.Models.nationStats.get(attSide).get('overallBattleWins') + 1
 			});
 
 			App.Models.nationStats.get(defSide).set({
 				'armyPopulationNow' : App.Collections.terrCollection.returnSideTotal(defSide, 'armyPopulation'),
 				'battleLosses': (App.Models.nationStats.get(defSide).get('battleLosses') + 1),
-				'econPopulationNow': App.Collections.terrCollection.returnSideTotal(defSide, 'econPopulation')
+				'econPopulationNow': App.Collections.terrCollection.returnSideTotal(defSide, 'econPopulation'),
+				'overallBattleLosses': App.Models.nationStats.get(defSide).get('overallBattleLosses') + 1
 			});
 
 			App.Views.battleMap.battleResultWindow({
@@ -759,12 +772,14 @@ App.Views.BattleZone = Backbone.View.extend({
 			
 			App.Models.nationStats.get(attSide).set({
 				'armyPopulationNow' : App.Collections.terrCollection.returnSideTotal(attSide, 'armyPopulation'),
-				'battleLosses': (App.Models.nationStats.get(attSide).get('battleLosses') + 1)
+				'battleLosses': (App.Models.nationStats.get(attSide).get('battleLosses') + 1),
+				'overallBattleLosses': App.Models.nationStats.get(attSide).get('overallBattleLosses') + 1
 			});
 
 			App.Models.nationStats.get(defSide).set({
 				'armyPopulationNow' : App.Collections.terrCollection.returnSideTotal(defSide, 'armyPopulation'),
 				'battleWins': (App.Models.nationStats.get(defSide).get('battleWins') + 1),
+				'overallBattleWins': App.Models.nationStats.get(defSide).get('overallBattleWins') + 1,
 				'econPopulationNow': App.Collections.terrCollection.returnSideTotal(defSide, 'econPopulation')
 			});
 
@@ -826,7 +841,6 @@ App.Views.BattleZone = Backbone.View.extend({
 			});
 
 		}
-
 
 		App.Collections.terrCollection.nextTreasury();
 
@@ -948,6 +962,8 @@ App.Views.BattleZone = Backbone.View.extend({
 
 		while (i < barsArr.length) {
 
+			var sideName = barsArr[i][0] === 'def' ? defending.get('name') : attacking.get('name');
+
 			barObj = {
 				barid: barsArr[i][0] + barsArr[i][1] + 'Bar',
 				widthVal: barsArr[i][2],
@@ -988,7 +1004,7 @@ App.Views.BattleZone = Backbone.View.extend({
 		messageHTML += App.Utilities.isMobile() ? '<p class="br-alert text-center">Tap each bar to see the impact from the battle.</p>' : '';
 
 		function progBarObjHTML(barObj) {
-			return 	'<button class="fort-label no-btn current">' + 
+			return 	'<button class="fort-label no-btn current" aria-label="'+ sideName + ' '+barObj.labelText+' Before Attack: ' + barObj.textVal + ' After Attack: ' + barObj.updatedTextVal + '">' + 
 					'<div id="'+ barObj.barid + '" class="prog-bar '+barObj.color+'" data-start-val="'+barObj.widthVal+'" data-end-val="'+barObj.updateWidthVal + '" style="width: ' + barObj.widthVal + '%"></div>' + 			
 					'<div class="prog-txt"><strong>'+barObj.labelText+' <span class="prog-bar-text-val" id="'+barObj.textid+'" data-start-val="' + barObj.textVal + '" data-end-val="' + barObj.updatedTextVal + '">' + barObj.textVal + '</span></strong></div>' + 
 					'</button>';
@@ -1154,8 +1170,8 @@ App.Views.BattleZone = Backbone.View.extend({
 			onClosed: null,
 			icon_type: 'class',
 			template: '<div data-notify="container" class="' + colClass + ' game-alert alert alert-{0} '+App.Models.nationStats.get(App.Utilities.activeSide()).get('color') +'" role="alert">' +
-				'<button type="button" aria-hidden="true" class="close" data-notify="dismiss"><span class="glyphicon glyphicon-remove"></span></button>' +
-				'<span data-notify="icon"></span> ' +
+				'<button type="button" class="close" aria-label="Dismiss notification." data-notify="dismiss"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
+				'<span data-notify="icon" aria-hidden="true"></span> ' +
 				'<label data-notify="title">{1}</label> ' +
 				'<p data-notify="message">{2}</p>' +
 				'<div class="progress" data-notify="progressbar">' +

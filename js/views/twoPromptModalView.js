@@ -7,6 +7,7 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 	template: App.Utilities.template('tpModal'),
 	initialize: function() {
 		var thisView = this;
+		$('#modalLiveRegion').html('');
 		this.render();
 
 		$('#modalTarget').html(this.$el);
@@ -84,6 +85,11 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 		$('#invadedXP').text(newVals.toXP);
 		$('#invadedUnits').text(newToUnitDisplay);
 		$('#invadedMorale').text(newVals.toMorale);
+
+		var liveRegionTxt = 'Attacker: ' + App.Models.selectedTerrModel.get('name') + '.\nArmy: ' + dispFromRemaining + '.\nRank: ' + App.Models.selectedTerrModel.get('armyRank') + '.\nExperience: ' + App.Models.selectedTerrModel.get('armyXP') + '.\nMorale: ' + newVals.fromMorale + '%. '
+							 + 'Defender: ' + App.Models.clickedTerrModel.get('name') + '.\nArmy: ' + newToUnitDisplay + '.\nRank: ' + App.Models.clickedTerrModel.get('armyRank') + '.\nExperience: ' + newVals.toXP + '.\nMorale: ' + newVals.toMorale + '%.';
+
+		$('#modalLiveRegion').html(liveRegionTxt);
 
 	},
 	nameValidator: function(e) {

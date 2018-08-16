@@ -225,6 +225,16 @@
 		display: inline-block;
 	}
 
+	.spending-toggle {
+		width: 100%;
+
+		> span {
+			&:nth-child(2) {
+				float: right;
+			}
+		}
+	}
+
 	ul {
 		list-style-type: none;
 		padding-left: 0;
@@ -234,10 +244,12 @@
 		&:first-child {
 			width: 50%;
 			float: left;
+			text-align: right;
 		}
 
 		&:nth-child(2) {
 			width: 50%;
+			text-align: right;
 		}
 
 		&.glyphicon {

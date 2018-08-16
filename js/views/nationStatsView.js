@@ -55,7 +55,21 @@ App.Views.NationStats = Backbone.View.extend({
 				},
 				sidebar: {
 					width: width
-				}
+				},
+			    events: {
+			        callbacks: {
+			            animation: {
+			                open: function() {
+			                	$('.sidebar-container button, .sidebar-container select, .sidebar-container a, .sidebar-container, .quitter').attr('tabindex', 0);
+			                	$('.quitter').focus();
+			                },
+			                close: function() {
+			                	$('.sidebar-container button, .sidebar-container select, .sidebar-container a, .sidebar-container, .quitter').attr('tabindex', -1);
+			                	$('#sidebar-main-trigger').focus();
+			                }
+			            }
+			        }
+			    }
 			} );
 
 		} else {
@@ -71,7 +85,23 @@ App.Views.NationStats = Backbone.View.extend({
 				},
 				sidebar: {
 					width: width
-				}
+				},
+			    events: {
+			        callbacks: {
+			            animation: {
+			                open: function() {
+			                	$('.sidebar-container button, .sidebar-container select, .sidebar-container a').attr('tabindex', 0);
+			                	$('.quitter').attr('tabindex', 0);
+			                	$('.quitter').focus();
+			                },
+			                close: function() {
+			                	$('.sidebar-container button, .sidebar-container select, .sidebar-container a').attr('tabindex', -1);
+			                	$('.quitter').attr('tabindex', -1);
+			                	$('#sidebar-secondary-trigger').focus();
+			                }
+			            }
+			        }
+			    }
 			});
 
 		}
@@ -107,6 +137,12 @@ App.Views.NationStats = Backbone.View.extend({
 		var modelCid = $(e.currentTarget).attr('data-cid');
 		var modelParentView = App.Collections.terrCollection.returnSelectedView(modelCid);
 		modelParentView.terrClick();
+
+		var raise = $(e.currentTarget).attr('data-raise') === 'true';
+
+		if(modelParentView.model.get('remainingTurns') > 0 && raise) {
+			App.Views.selectedFooterView.raiseFooter();
+		}
 
 	},
 	closeMenu: function() {
@@ -226,7 +262,7 @@ App.Views.NationStats = Backbone.View.extend({
 
 			modalHTML += '<h3>Available Policies</h3>';
 
-			modalHTML += '<p>Policies are tasks that can be carried out in your empire automatically before the start of each year when funds are&nbsp;available.</p>';
+			modalHTML += '<p>Policies are tasks that can be carried out automatically throughout your empire with any leftover funds before the start of the next year.</p>';
 
 			modalHTML += '<div class="available-policies-container">';
 			for (var m = 0; m < policiesArr.length; m++) {
@@ -240,7 +276,7 @@ App.Views.NationStats = Backbone.View.extend({
 
 			modalHTML += '</div>';
 
-			modalHTML += '<div id="enactedPolicies"></div>';
+			modalHTML += '<div id="enactedPolicies" role="status" aria-live="assertive"></div>';
 
 
 			var confModalModel = new App.Models.Modal({
@@ -353,7 +389,8 @@ App.Views.NationStats = Backbone.View.extend({
 					icon: 'glyphicon glyphicon-globe',
 					titleTxt : 'WAR RAGES ON, ' + totalCas + '&nbsp;DEAD',
 					msgTxt : messageHTML,
-					msgType: 'info'
+					msgType: 'info',
+					delay: App.Constants.DELAY_INFINITE
 				});
 
 				App.Views.battleMap.notify({

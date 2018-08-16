@@ -14,45 +14,34 @@ Release Priorities
  - Easy way to report bugs and make suggestions (web form)
  - Social Integration? Easy way to like and share. Forget Add This.
 
-
 ===========================================================================
 RELEASE 3.1
 
+Do a full test in Chrome, FF, IE. Play through. Just for sanity's sake.
 
-
-DONE
-
-
-
+===========================================================================
+RELEASE 3.2
 
 STORIES
-
-1. UX: Economics - Random market crashes/booms.
-	- These crashes should be less frequent than with low taxes
-	- Low taxes crashes should never happen at the same time as these crashes (can't have two crashes in the same year by game logic)
-	- Booms should mimic low tax impact but be short lived (no more than 5 years in a row)
-
-//  AI DEPENDENCY, END GAME EXPERIENCE DEPENDENCY
-2. UX/UI Side Menu: Overall Battle Record & Overall Stats
-	- To mirror the statistics kept by current turn battle record
-
-		Battle record - Store total battle wins/losses on Emp after each battle
-		Invasions
-			- Store on Emp models after each invasion (duplicates become 2, 3rd, 4th invasions, no difference for invasions of territories once owned)
-		Lost territories
-			- Store on emp models after each invasion (no duplicates, removed if re-invaded)
-		
-		Army + Civilian casualties - store after each battle, including invasion casualties
-		Recruited units - store after every recruit (just need to store volunteers)
-		Armies ranked above 1 - updated after every battle
-		Forts with levels above 1
-		Forts destroyed - store each time a fort is destroyed (remove duplicates)
-		Territories with movement warnings -- Create function on terrModel: canMove
-		Territories with morale warnings -- Ditto: hasWarnings
-
-	- Once tracked, add summary of kills and casualties to the end game window
+1. UX: End Game Experience
+	At end of game user can choose to restart the game OR view the War Details screen
+	War details screen shows for each side:
+		Number of battles won and lost
+		Battle kills and casualties
+		Highest ranking armies from each side
+		Forts destroyed, armies promoted, territories lost and invaded
+		Average tech levels
+		End civilian populations
+		End GDP
+	Play sound / victory music (Done)
+	Do some animation
+	- Add summary of kills and casualties to the end game window
 		- Qualify the victory?
-		- Quantify with a score?
+			Overwhelming/Dominant
+			Close/Narrow
+			Quick
+			Long
+		- Quantify with a score
 			All factors:
 				Territories
 				Ranks
@@ -61,38 +50,9 @@ STORIES
 				Ec Level
 				Infra Strength
 				Tax Income 
+				All stored overall stats
 
-3. Accessibility: Keyboard Accessibility
-	-- Add basic keyboard accessibility for:
-		 - Tax projection
-		 - Empire name
-		 - Side menu
-
-	Side Menu
-	-- Add button labels for menu and close menu buttons (done)
-	-- Make Actions button into a primary button (done)
-		- Make options keyboard accessible
-	-- Make change tax rate icon into a button
-	-- Make See Budget icon into a button
-	-- Make policies into links
-	-- Add form label for recruit units menu and button
-	-- Items nested within sidebar lists
-
-	Modals
-	-- Change tax rate -- live region for messages
-	-- Change Territory / Empire name -- live region for error messages
-	-- Policies description and priority buttons
-	-- Budget modal collapse menu
-
-	Footer
-	-- Button labels
-	-- Military tab
-	-- Rename territory
-
-	Map
-	-- Territories when focused
-	-- Territories when looking for targets or unit transfer destinations
-
+DONE
 
 
 
@@ -108,7 +68,6 @@ SMALL EFFORT
 
 1. Safari Bugs:
 	Med Can't click the growth rate icons in the footer
-	Small Can see tooltips for the other side - Don't render the tooltips when it's not the active side
 
  	High Scroll first army into view on game start and after battles
  		-- May be related to scrolling selected terr into view?
@@ -125,31 +84,12 @@ SMALL EFFORT
 
 MEDIUM
 
-1. Tech Debt: Refactor territory model property for army "morale"
-	Should be named "armyMorale"
-
 
 LARGE
 
 1. UX: Add an easy way to send feedback. Ideas, suggestions, bug reports.
 	- PHP form? Is there a better way?
 	- Steal security PHP from Phil's contact form
-
-2. UX: End Game Experience *
-	* Dependency on overall details feature
-	At end of game user can choose to restart the game OR view the War Details screen
-	War details screen shows for each side:
-		Number of battles won and lost
-		Battle kills and casualties
-		Highest ranks achieved and by which two territories
-			- Details about those territories/armies
-		End civilian populations
-		End GDP
-		Taxes collected
-		Idea - Graphs?
-	Play sound / victory music (Done)
-	Do some animation
-
 
 
 
@@ -190,6 +130,7 @@ AI EPIC
 		- Finishing Side Menu (In progress)
 		- Policy enhancement (DONE)
 		- Programmatically selecting a view (SOLVED) App.Views.allViews.terrClick();
+			- Also created leftViews and rightViews to make the work easier
 			- Make it better
 				- Store CIDs into an array
 		- Establishing difficulty settings (DONE)
@@ -206,15 +147,14 @@ DIFFICULTY SETTINGS
 
 	2. Normal
 		- Enacts up to 3 policies at a time
-		- Can change tax rate 
+		- Can change tax rate
 		- Medium aggression
-		- Can "manually" change territory values
+		- Addresses territories with warnings first
 
 	3. Hard
 		- Enacts up to 4 policies at a time
 		- Can change tax rate
 		- High aggression
-		- Can "manually" recruit, upgrade, repair
 		- Makes smartest strategic decisions
 	
 - Notes:
@@ -236,7 +176,7 @@ Enhancements
 // Turns Epic
 
 1. Add AI turn.
-	- Big step done. Can update policies to do the heavy lifting.
+	- Big step done. Policies and warnings to do the heavy lifting. Scoring to give the decisions weight.
 
 =======================================================================
 // UX/UI Epic
@@ -397,6 +337,8 @@ PERMANENT BACKLOG
 	- Hurricanes, Earthquakes, Floods, Fires, Tsunamis
 	- Small impacts on morale
 
+8. Tech Debt: Refactor territory model property for army "morale"
+	Should be named "armyMorale"
 
  Marketinging Release
  - Facebook forum page

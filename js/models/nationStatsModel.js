@@ -44,11 +44,22 @@ var Emp = Backbone.Model.extend({
 		highTaxTurnLength: 0,
 		infrastructureSpend: 0,
 		fortSpend: 0,
+		fortLevelSpend: 0,
 		invadedThisTurn: [],
 		invasionArmyCasualties: 0,
 		invasionEconCasualties: 0,
 		lowTaxTurnLength: 0,
 		nextTreasuryAddedEst: initTreasury,
+		overallArmyCasualties: 0,
+		overallArmyPromotions: 0,
+		overallEconCasualties: 0,
+		overallBattleWins: 0,
+		overallBattleLosses: 0,
+		overallFortsDestroyed: 0,
+		overallFortsLost: 0,
+		overallInvasions: 0,
+		overallLostTerrs: 0,
+		overallRecruits: 0,
 		policyCosts: 0,
 		recruitsThisTurn: 0,
 		recruitsAuto: 0,
@@ -84,7 +95,8 @@ App.Models.NationStats = Backbone.Model.extend({
 		sideTurn: 'left',
 		left: LeftModel,
 		right: RightModel,
-		fullScreen: false
+		fullScreen: false,
+		gameStarted: false
 	},
 	setPolicies: function() {
 		App.Collections.leftPolCollection = new App.Collections.Policies();
@@ -139,7 +151,7 @@ App.Models.NationStats = Backbone.Model.extend({
 		});
 
 		if(!_.isEmpty(App.selectedTerrModel)) {
-			App.Models.selectedTerrModel.setClickedTreasuryLimits();
+			App.Utilities.setClickedTreasuryLimits();
 		}
 
 	},

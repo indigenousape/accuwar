@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: -2.9.2 Pre-Alpha
+	Release: 3.1 Alpha
 	Author: Josh Harris
-	8/8/2018
+	8/17/2018
 */
 
 var startYear = new Date();
@@ -34,18 +34,20 @@ window.App = {
 		COLOR_OPTIONS: ['blue', 'orange', 'green', 'purple', 'pink'],
 		COLOR_OPTIONS_DISP: ['Blue', 'Orange', 'Green', 'Purple', 'Pink'],
 		COST_PER_RECRUIT: 50000,
-		DELAY_SHORTEST: 4, // Notification delays (in seconds)
+		DELAY_SHORTEST: 3, // Notification delays (in seconds)
 		DELAY_DEFAULT: 6,
 		DELAY_INFINITE: 0,
 		ECON_LVL_UP_AMT: 10000000000,
 		ECON_STR_COST: 1000000000, // Per 10 strength added
 		FORT_LVL_COST: 10000000000, // Per fort level, per territory
 		FORT_STR_COST: 500000000, // Per 10 strength added
-		GDP_PENALTY_LOW_TAX: 0.9,
+		GDP_PENALTY_LOW_TAX: 0.86,
+		GDP_PENALTY_REG_CRASH: 0.88,
 		HIGH_TAX_MORALE_AMT: 0.5,
 		LEVEL_0_MOR_PER_TURN_MULT: 1.05, // Army morale growth rate
 		LOGGING: false, // Sets whether console messages are logged
 		LOW_TAX_EC_CRASH_AMT: 0.15,
+		MAX_FORT_LEVEL: 10,
 		MAX_RANK: 5,
 		MAX_TECH_LEVEL: 10,
 		MIN_ARMY_FOR_MORALE: 250000,
@@ -78,6 +80,12 @@ window.App = {
 				title: 'Upgrade technology',
 				priority: 0
 			},
+			{
+				side: 'left',
+				id: 'upgrade_forts',
+				title: 'Upgrade forts',
+				priority: 0
+			},
 			{ 
 				side: 'right',
 				id: 'repair_infra',
@@ -102,9 +110,15 @@ window.App = {
 				id: 'upgrade_tech',
 				title: 'Upgrade technology',
 				priority: 0
+			},
+			{
+				side: 'right',
+				id: 'upgrade_forts',
+				title: 'Upgrade forts',
+				priority: 0
 			}
 		],
-		RECRUIT_ARMY_MINIMUM: 1000, // Minimum army units available to recruit
+		RECRUIT_ARMY_MINIMUM: 1000, // Minimum army units that can be recruited
 		START_TURN: startYear,
 		START_ARMY_UNITS: 250000,
 		STARTING_TERRITORIES: 25,
@@ -114,7 +128,7 @@ window.App = {
 		TERR_WARNINGS: [
 			{
 				army_cant_invade: 'Not enough units to invade.',
-				army_trapped: 'Army units unable to mobilize.',
+				army_trapped: 'Army unable to mobilize due to damaged infrastructure.',
 				gdp_shrinking: 'Economy shrinking.',
 				pop_shrinking: 'Population shrinking.',
 				below_min_army_units: 'Not enough army units to attack.',
@@ -135,7 +149,7 @@ window.App = {
 				wargames: 'audio/victory_wargames.mp3'
 			}
 		],
-		XP_PER_BATTLE: 5
+		XP_PER_BATTLE: 5 // Base XP per battle. Actual XP earned is computed based on this value.
 	},
 	Defaults: {
 		mobileMode: true
@@ -286,6 +300,9 @@ window.App = {
 				}
 			}, 1250);
 
+		},
+		getEmpireName: function(side) {
+			return App.Models.nationStats.get(side).get('empName') ? App.Models.nationStats.get(side).get('empName') : '';
 		},
 		getActiveEmpireName: function() {
 			return App.Models.nationStats.get(App.Utilities.activeSide()).get('empName');
@@ -487,7 +504,7 @@ window.App = {
 			    case 4:
 			    	var riskTxt = this.returnRecentCrash() ? 'Red Hot' : 'Recovering';
 			        msgTitle = this.randomSource() + ": "+riskTxt+" Economy At Risk?";
-			        msgText = "<p>Experts warn keeping taxes too low for too long risks market crashes in " + this.getActiveEmpireName() + ".</p>";
+			        msgText = "<p>Experts warn keeping taxes too low for too long risks frequent market crashes in " + this.getActiveEmpireName() + ".</p>";
 			        showMsg = true;
 			        break;
 			    case 5:
@@ -503,7 +520,7 @@ window.App = {
 			        break;
 			    case 7:
 			    	var mktTxt = this.returnRecentCrash() ? 'Breaks&nbsp;Records' : '&nbsp;Strengthening';
-			        msgTitle = this.randomSource() + ": " + this.getActiveEmpireName() + " Stock Market" + mktTxt;
+			        msgTitle = this.randomSource() + ": " + this.getActiveEmpireName() + " Stock Market " + mktTxt;
 			        msgText = "<p>Stock traders rejoice as the " + this.getActiveEmpireName() + " stock market sets new records for growth in&nbsp;" + App.Models.nationStats.get('currentTurn') + ".</p>";
 			        showMsg = true;
 			        break;
@@ -569,9 +586,9 @@ window.App = {
 		},
 		makeStarGroup: function(newRankObj) {
 
-			var starGroup = newRankObj.updateRank ? '<span class="rank-stars"><strong>' : '<span class="rank-stars"><strong>',
-				emptyStarHTML = '<span class="glyphicon glyphicon-star-empty" aria-hidden="true"></span>',
-				filledStarHTML = '<span class="glyphicon glyphicon-star" aria-hidden="true"></span>';
+			var starGroup = newRankObj.updateRank ? '<span class="rank-stars" aria-hidden="true"><strong>' : '<span class="rank-stars" aria-hidden="true"><strong>',
+				emptyStarHTML = '<span class="glyphicon glyphicon-star-empty"></span>',
+				filledStarHTML = '<span class="glyphicon glyphicon-star"></span>';
 			// Start counter at one since rank starts at one
 			for(var i = 1; i <= newRankObj.newRank; i++) {
 				starGroup += filledStarHTML;
@@ -958,7 +975,7 @@ window.App = {
 			var spModalModel = new App.Models.Modal({
 					title: 'Recruit Army Units: ' + model.get('name'),
 					confBtnId: 'confNewRecruits',
-					modalMsg: '<p class="form-text">How many army units should ' + model.get('name') + ' recruit from the civilian population?</p>',
+					modalMsg: '<p class="form-text" id="recruit-label">How many army units should ' + model.get('name') + ' recruit from the civilian population?</p>',
 					impactMsg: '<span>Cost $<span id="recruitCost">' + App.Utilities.addCommas( Math.round(10000 * App.Constants.COST_PER_RECRUIT)) + '</span></span><span class="pull-right"><span id="recruitCount">10,000</span> Units</span>',
 					impactClass: 'text-muted',
 					noTurnsMsg: 'Ends turn for ' + model.get('name') + '.',
@@ -966,7 +983,8 @@ window.App = {
 					showRange: true,
 					rangeMin: App.Constants.RECRUIT_ARMY_MINIMUM,
 					rangeMax: App.Utilities.recruitMax() - App.Utilities.recruitMax()%100,
-					rangeVal: 10000
+					rangeVal: 10000,
+					ariaLabel: 'recruit-label'
 				});
 
 			var spModalView = new App.Views.SinglePromptModal({model: spModalModel});
@@ -1196,7 +1214,7 @@ window.App = {
 			} else {
 				return {
 					'background' : 'red',
-					'text' : 'red'
+					'text' : ''
 				}
 			}
 		},
@@ -1214,7 +1232,7 @@ window.App = {
 			} else {
 				return {
 					'background': 'red',
-					'text' : 'red'
+					'text' : ''
 				}
 			}
 		},
@@ -1232,7 +1250,7 @@ window.App = {
 			} else {
 				return {
 					'background' : 'red',
-					'text' : 'red'
+					'text' : ''
 				};
 			}
 		},
@@ -1254,7 +1272,7 @@ window.App = {
 				warnings.push('pop_shrinking');
 			}
 
-			if((model.get('armyPopulation') * model.get('econStrength') / 100) < 2 * App.Constants.ATTACK_ARMY_MINIMUM) {
+			if((model.get('armyPopulation') * model.get('econStrength') / 100) < 2 * App.Constants.ATTACK_ARMY_MINIMUM && (model.get('armyPopulation') > (2 * App.Constants.ATTACK_ARMY_MINIMUM))) {
 				warnings.push('army_trapped');
 			}
 
@@ -1263,7 +1281,7 @@ window.App = {
 				warnings.push('army_cant_invade');
 			}
 
-			if(model.get('armyPopulation') * (model.get('econStrength') / 100) < (2 * App.Constants.ATTACK_ARMY_MINIMUM)) {
+			if(model.get('armyPopulation') < (2 * App.Constants.ATTACK_ARMY_MINIMUM)) {
 				warnings.push('below_min_army_units');
 			}
 
@@ -1528,31 +1546,38 @@ window.App = {
 
 			return updateThisGDP;
 		},
-		upgradeTerrArmyFortLevel: function() {
+		upgradeTerrArmyFortLevel: function(model, policyMode) {
 
-			var newLvl = 1 + App.Models.selectedTerrModel.get('fortLevel'),
-				armyMorale = App.Models.selectedTerrModel.get('morale'),
+			if(typeof model === "undefined") {
+				model = App.Models.selectedTerrModel;
+			}
+
+			var newLvl = 1 + model.get('fortLevel'),
+				armyMorale = model.get('morale'),
 				armyMorale = Math.round(armyMorale + (newLvl * 10)),
 				armyMorale = Math.min(armyMorale, 100),
 				econMorale = App.Utilities.updateEconMorale({
 					selectedFortLevel : newLvl,
-					newMorale : App.Models.selectedTerrModel.get('econMorale')
+					newMorale : model.get('econMorale')
 				}),
 				updateThisGDP = App.Utilities.updateGDP({
 					newMorale : econMorale,
-					newEconStrength: App.Models.selectedTerrModel.get('econStrength'),
-					newEconPopulation : App.Models.selectedTerrModel.get('econPopulation'),
-					newLevel : App.Models.selectedTerrModel.get('econLevel'),
-					ecGrowthRate: App.Models.selectedTerrModel.get('econGrowthPct')
+					newEconStrength: model.get('econStrength'),
+					newEconPopulation : model.get('econPopulation'),
+					newLevel : model.get('econLevel'),
+					ecGrowthRate: model.get('econGrowthPct')
 
 				});
 
-			App.Models.selectedTerrModel.set({
+			var removeLevelUpButton = policyMode ? false : true;
+
+			model.set({
 				'economicOutput' : updateThisGDP,
 				'fortLevel' : newLvl,
 				'econMorale' : econMorale,
-				'fortLeveledUp': true,
-				'morale' : armyMorale
+				'fortLeveledUp': removeLevelUpButton,
+				'morale' : armyMorale,
+				'diffToNextFortLvl' : App.Constants.FORT_LVL_COST * (1 + newLvl)
 			});		
 
 		},

@@ -7,6 +7,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 	template: App.Utilities.template('spModal'),
 	initialize: function() {
 		var thisView = this;
+		$('#modalLiveRegion').html('');
 		this.render();
 
 		$('#modalTarget').html(this.$el);
@@ -102,6 +103,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 				// Change name nation stats model function
 				App.Models.nationStats.setEmpName(thisName);
+				App.Collections.terrCollection.changeColorsTerrNames();
 
 				$('.' + App.Utilities.activeSide() + '-stats .sideName').removeClass('tada').addClass('tada');
 
@@ -258,10 +260,10 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 		if(App.Utilities.validateName($('#spInput').val(), beingNamed).errCode === 0) {
 			$('#spInput').removeClass("invalid");
-			$('#error-message').html('');
+			$('#error-message, #modalLiveRegion').html('');
 		} else {
 			$('#spInput').addClass("invalid");
-			$('#error-message').html(App.Utilities.validateName($('#spInput').val(), beingNamed).msg);
+			$('#error-message, #modalLiveRegion').html(App.Utilities.validateName($('#spInput').val(), beingNamed).msg);
 		}
 
 	},
@@ -286,6 +288,8 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 		$('#recruitCost').text(App.Utilities.addCommas(recruitCost));
 		$('#recruitCount').text(App.Utilities.addCommas(thisInputVal));
+
+		$('#modalLiveRegion').html(App.Utilities.addCommas(thisInputVal) + ' Units. Cost $' + App.Utilities.addCommas(recruitCost));
 		
 	},
 	showReinforcementsResult: function() {
@@ -312,6 +316,9 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 		$('#toUnits').text(newToUnitDisplay);
 		$('#toMorale').text(newVals.toMorale);
 
+		$('#modalLiveRegion').html('From: ' + App.Models.selectedTerrModel.get('name') + '. Army: ' + newRemaining + ' units remaining.\nRank: ' + App.Models.selectedTerrModel.get('armyRank') + '.\nExperience: ' + App.Models.selectedTerrModel.get('armyXP') + '.\nMorale: ' + newVals.fromMorale + '%.\n'
+			+ 'To: ' + App.Models.clickedTerrModel.get('name') + '. Army: ' + newToUnitDisplay + ' units. Rank: ' + newVals.toRank + '. Experience: ' + newVals.toXP + '. Morale: ' + newVals.toMorale + '%.');
+
 	},
 	showTaxResult: function() {
 
@@ -325,10 +332,14 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 		if(thisVal != currTaxRate) {
 
+			var errorMsg = '';
+
 			if(thisVal > App.Utilities.returnHighTaxLimit()) {
-				$('#error-message').html('Tax rates above ' + App.Utilities.returnHighTaxLimit() + '% will greatly anger your citizens and damage your economy over time until you lower&nbsp;them.');
+				errorMsg = 'Tax rates above ' + App.Utilities.returnHighTaxLimit() + '% will greatly anger your citizens and damage your economy over time until you lower&nbsp;them.';
+				$('#error-message').html(errorMsg);
 			} else if (thisVal < App.Utilities.returnLowTaxLimit()) {
-				$('#error-message').html('Tax rates below ' + App.Utilities.returnLowTaxLimit() + '% will rapidly grow your economy, but at the risk of random market crashes until taxes are raised&nbsp;again.');
+				errorMsg = 'Tax rates below ' + App.Utilities.returnLowTaxLimit() + '% will rapidly grow your economy, but at the risk of more frequent market crashes until taxes are raised&nbsp;again.';
+				$('#error-message').html(errorMsg);
 			} else {
 				$('#error-message').html('');
 			}
@@ -337,20 +348,25 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 				dispProjNextTaxes = App.Utilities.addCommas(estNextTaxes),
 				projNextTreasury = App.Utilities.getTreasury() + estNextTaxes,
 				dispProjNextTreasury = App.Utilities.addCommas(projNextTreasury),
-				moraleImpactNumber;
+				moraleImpactNumber,
+				impactMsg = '';
 
 			if(thisVal > (100 * App.Models.nationStats.getTaxRate())) {
 				moraleImpactNumber = thisVal - Math.round(100 * App.Models.nationStats.getTaxRate());
-				$('#impact-msg').attr('class', 'text-danger').html('-' + moraleImpactNumber + ' civilian morale each territory. Shrinks the&nbsp;economy.');
+				impactMsg = '-' + moraleImpactNumber + ' civilian morale each territory. Shrinks the&nbsp;economy.';
+				$('#impact-msg').attr('class', 'text-danger').html(impactMsg);
 			} else {
 				moraleImpactNumber =  Math.round(100 * App.Models.nationStats.getTaxRate()) - thisVal;
 				var rapidlyTxt = thisVal < 15 ? "&nbsp;rapidly" : "";
-				$('#impact-msg').attr('class', 'text-success').html('+' + moraleImpactNumber + ' civilian morale each territory. Grows the&nbsp;economy' + rapidlyTxt + '.');
+				impactMsg = '+' + moraleImpactNumber + ' civilian morale each territory. Grows the&nbsp;economy' + rapidlyTxt + '.';
+				$('#impact-msg').attr('class', 'text-success').html(impactMsg);
 			}
 
 			$('#projTaxRate').text(thisVal);
 			$('#projTaxes').text(dispProjNextTaxes);
 			$('#projTreasury').text(dispProjNextTreasury);
+
+			$('#modalLiveRegion').html('Projected Tax Rate: ' + thisVal + '%\nProjected Tax Income: $' + dispProjNextTaxes + '\nProjected Treasury: $' + dispProjNextTreasury + '\n' + impactMsg + '\n' + errorMsg);
 
 		} else {
 			$('#projTaxRate').text(currTaxRate);

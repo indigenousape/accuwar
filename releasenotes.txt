@@ -10,6 +10,111 @@ Sidebar
 https://simple-sidebar.github.io/simpler-sidebar/
 ==========================================
 
+Release Notes
+3.1 Alpha
+Release Date 8/17/2018
+
+FEATURES
+
+1. UX/UI Side Menu: Overall Battle Record & Overall Stats
+	- Keeps cumulative battle statistics over time
+		Battle record
+			- Store total battle wins/losses on Emp model before resetting after turn [oldWins, oldLosses] and add current wins/losses to that for display of current totals
+
+		- Same process used for... (done)
+			Invasions
+			Lost territories
+			Forts destroyed
+			Forts lost
+			Recruited units
+
+		- Reorganized the layout of notifications for invasions, lost territories, forts lost and destroyed
+
+2. UX: Economics - Random market crashes.
+	- Less frequent and less severe than crashes caused by low taxes
+		- Game logic
+			15% chance of a crash being possible on any turn
+			if a crash is possible, then a random number between 0 and 1 is generated
+			if your tax rate is lower than than the random number, you have a market crash
+
+	- Low taxes crashes never happen at the same time as these crashes
+
+3. Accessibility Support: WCAG Level A
+	Note: Color contrast issues may prevent the game from ever truly being WCAG Level AA compliant without a major redesign. At issue is the map text overlayed across a background image with a color layer in between.
+
+	Added screenreader and keyboard accessibility support for all game features, messages, and controls 
+	
+	- Can not reach the territories or sidebar features using the keyboard until the game is started
+
+	Keyboard Accessibility
+	 - Tax projection
+	 - Empire name
+	 - Side menu
+
+	Side Menu
+	-- Make policies and territories into buttons
+	-- Add aria labels for
+		- recruit units menu and button
+		- change Tax Rate icon
+		- listed policies and territories
+		- buttons nested within sidebar lists
+			-- indicate which territories have turns
+	-- When menu is closed, tabindex is removed from the interactive elements in the menu and focus is restored to the menu button
+	-- When it is opened, tabindex for the interactive elements is restored and focus moves to the close menu button
+	-- Hide icons from the screen reader
+
+	Footer
+	-- Button labels
+	-- Military tab
+	-- Rename territory
+	-- Growth rates
+	-- Hide button icons from the screenreader
+
+	Modals
+	-- Change tax rate
+		- add aria label to slider
+		- live region for impact messages and warnings
+	-- Change Territory / Empire name / Invade territory
+		- add aria labels to form fields
+		- live region for error messages
+	-- Reinforce window
+	-- Recruit window
+	-- Attack window
+	-- Policies description and priority
+		- replace with buttons, add aria labels and make the priority section into an alert
+	-- Budget modal collapse menu - make into button, add tabindex
+	-- Battle results window
+
+	Game Start screen
+		Error messages
+		Form labels
+
+	Map
+	-- Territories when selected
+	-- Territories in range for attack or for unit transfers
+
+	-- Create Skip Link to battle map
+
+
+ENHANCEMENTS
+
+1. UI: Add Tips to sidebar for Recruit button and Policies list
+
+2. UX: Fort Upgrade policy
+	- Upgrades forts from least developed to most developed
+
+3. UX: Display notification when attacking army is promoted.
+
+
+BUGFIXES
+
+1. Stored the clicked treasury limits on the model after paying for upgrade.
+	Missed when refactoring territory model methods onto the app namespace
+
+2. Can see tooltips on the side Menu button for the enemy side in Safari and Firefox
+	- Solution: Don't render the tooltips when it's not the active side
+
+
 ===========================================================================
 Release Notes
 3.0 Alpha
@@ -89,6 +194,8 @@ TECHNICAL DEBT
 	 - Eliminated about 350+ lines of JSP
 
 3. Refactored get side casualties collection methods to make better use of underscore methods
+
+4. Realphabetized App namespace. Methods and Constants were out of order.
 
 
 BUGFIXES

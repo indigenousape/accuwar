@@ -7,6 +7,7 @@ App.Views.ConfModal = Backbone.View.extend({
 	template: App.Utilities.template('confModal'),
 	initialize: function() {
 		var thisView = this;
+		$('#modalLiveRegion').html('');
 		this.render();
 		$('#modalTarget').html(this.$el);
 		$('#oneModal .modal-dialog').removeClass('modal-lg');
@@ -213,6 +214,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Models.nationStats.payForUpgrade(treasury);
 			App.Models.nationStats.get(App.Utilities.activeSide()).set('infrastructureSpend', (newSideInfraspend + cost));
 			App.Utilities.displayInRange();
+			App.Utilities.setClickedTreasuryLimits();
 
 			var infraMsgsArr = [
 					['Traffic flowing', _.random(Math.round(diff/2), diff), 'more smoothly through'],
@@ -286,6 +288,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Views.battleMap = new App.Views.BattleZone({model: App.Models.battleMapModel});
 			$('#game').html(App.Views.battleMap.$el);
 			$('#game').removeClass('fadein');
+			$('.army, #sidebar-main-trigger, #sidebar-secondary-trigger, .changeTax, newTurn, .sideName').attr('tabindex', -1);
 			$('body').prepend($('<div id="setup"></div>'));
 
 			var LeftModel = new Emp({

@@ -115,7 +115,7 @@ App.Views.GameStart = Backbone.View.extend({
 		var val = e.currentTarget.value,
 			key = window.event ? e.keyCode : e.which,
 			isEnterKey = key === 13,
-			errorEl = $('<p class="error"></p>'),
+			errorEl = $('<p class="error" role="alert" aria-live="assertive"></p>'),
 			newValidationObj = App.Utilities.validateName(val, 'empire'),
 			invalidName = newValidationObj.errCode != 0;
 
@@ -239,9 +239,13 @@ App.Views.GameStart = Backbone.View.extend({
 			'mobileMode' : App.Defaults.mobileMode
 		});
 
-		App.Models.nationStats.get('left').set('color', leftColor);
-		App.Models.nationStats.get('right').set('color', rightColor);
-		App.Collections.terrCollection.changeColors();
+		App.Models.nationStats.get('left').set({
+				'color': leftColor
+			});
+		App.Models.nationStats.get('right').set({
+			'color': rightColor
+		});
+		App.Collections.terrCollection.changeColorsTerrNames();
 
 		if(!App.Utilities.isMobile() || leftColor != 'blue' || rightColor != 'orange') {
 			App.Utilities.restartSkipBeginning();
@@ -265,8 +269,7 @@ App.Views.GameStart = Backbone.View.extend({
 		}
 
 		this.$el.parent().addClass('fadeout');
-		$('#game').addClass('fadein').attr('tabindex', '');
-		$('.restart').attr('tabindex', '');
+		$('#game').addClass('fadein');
 
 		var specialModeText = "<p>The world is in crisis! Citizens gripped by fear and fury as rival alliances wage war for world&nbsp;domination.</p>";
 
@@ -293,8 +296,12 @@ App.Views.GameStart = Backbone.View.extend({
 			rightNameVal = fictionWarMode ? "Dark" : rightNameVal;
 			leftNameVal = collegeWarMode ? "NCAA" : leftNameVal;
 			rightNameVal = collegeWarMode ? "Alliance" : rightNameVal;
-
 		}
+
+		App.Models.nationStats.get('left').set('empName', leftNameVal);
+		App.Models.nationStats.get('right').set('empName', rightNameVal);
+		App.Models.nationStats.set('gameStarted', true);
+		App.Collections.terrCollection.changeColorsTerrNames();
 
 		if(worldWarMode) {
 
@@ -308,9 +315,6 @@ App.Views.GameStart = Backbone.View.extend({
 			$('#easterEgg')[0].volume = 1;
 
 		}
-
-		App.Models.nationStats.get('left').set('empName', leftNameVal);
-		App.Models.nationStats.get('right').set('empName', rightNameVal);
 
 		var enemyCapital = App.Utilities.activeSide() == 'left' ? App.Collections.terrCollection.getSideCapital('right') : App.Collections.terrCollection.getSideCapital('left');
 

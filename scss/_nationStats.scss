@@ -12,7 +12,7 @@
     	height: 10vh;
     }
 
-    label {
+    .treasury-label {
     	float: left;
 		display: block;
 		font-weight: 700;
@@ -31,6 +31,10 @@
 			overflow-y: auto;
 			padding-top: 10px;
 			padding-bottom: 70px;
+    	}
+
+    	.no-btn {
+    		text-align: left;
     	}
 
     	.btn-group {
@@ -64,13 +68,15 @@
 				}
 
 				& > li {
-					& > span {
+					& > span,
+					& > button {
 						width: 100%;
 						font-size: 14px;
 						padding: 5px 15px;
 						display: block;
 						font-weight: normal;
 						cursor: pointer;
+						text-align: left;
 					}
 				}
 
@@ -369,6 +375,10 @@
 				display: block;
 				margin-bottom: 5px;
 
+				span {
+					display: inline-block;
+				}
+
 				&.collapsed {
 					margin-bottom: 0;
 				}
@@ -392,7 +402,6 @@
 
 		.warning-sublist {
 			padding-left: 18px;
-			list-style-type: none;
 			margin: 8px 0;
 			font-size: 13px;
 
@@ -401,11 +410,17 @@
 			}
 		}
 
+		.battle-stats-label {
+			margin-bottom: 5px;
+		}
+
 		.sidebar-recruit-menu {
 			width: auto;
 			display: inline-block;
 			position: relative;
 			top: 1px;
+			padding-left: 5px;
+			margin-bottom: 10px;
 		}
 
 		.glyphicon-chevron-up,
@@ -428,6 +443,7 @@
 	transform: translateX(-50%);
 	line-height: 5vh;
 	margin: 0;
+	font-size: 30px;
 
 	.newTurn {
 		height: 4vh;
@@ -570,6 +586,8 @@
 	.sideName {
 		line-height: 5vh;
 		font-size: 26px;
+		float: left !important;
+		font-weight: 700;
 
 		&:hover {
 			cursor: pointer;
@@ -583,7 +601,7 @@
 	}
 
 	.changeTax {
-		float:right;
+		float:right !important;
 		font-size: 13px;
 		font-weight: 400;
 		clear: both;

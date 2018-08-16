@@ -434,20 +434,21 @@ App.Views.Terr = Backbone.View.extend({
 	reinforceTerr: function() {
 		var reinforceMax = (App.Models.selectedTerrModel.get('armyPopulation') - App.Constants.ATTACK_ARMY_MINIMUM) * (App.Models.selectedTerrModel.get('econStrength') / 100),
 			reinforceMax = Math.round(reinforceMax),
-			infraWarningHTML = App.Models.selectedTerrModel.get('econStrength') < 100 ? '<small class="text-danger text-center center-block">Only '+App.Utilities.addCommas(reinforceMax)+' reinforcements available due to ' + App.Models.selectedTerrModel.get('econStrength') + '% infrastructure in&nbsp;' + App.Models.selectedTerrModel.get('name') + '.</small>' : '',
+			infraWarningHTML = App.Models.selectedTerrModel.get('econStrength') < 100 ? '<small class="text-danger text-center center-block" tabindex="0">Only '+App.Utilities.addCommas(reinforceMax)+' reinforcements available due to ' + App.Models.selectedTerrModel.get('econStrength') + '% infrastructure in&nbsp;' + App.Models.selectedTerrModel.get('name') + '.</small>' : '',
 			newVals = App.Utilities.returnNewMoraleXpRank(App.Models.clickedTerrModel, Math.round(reinforceMax/2)),
-			toStr = '<div class="pull-right"><span class="glyphicon glyphicon-user"></span> ('+App.Models.clickedTerrModel.get('armyWins') +' - '+ App.Models.clickedTerrModel.get('armyLosses') + ')</div>' +
+			toStr = '<div class="pull-right"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> ('+App.Models.clickedTerrModel.get('armyWins') +' - '+ App.Models.clickedTerrModel.get('armyLosses') + ')</div>' +
 						'<div><label class="top-label">To: '+App.Models.clickedTerrModel.get('name')+'</label></div><div><label>Army:</label> <span id="toUnits">' + App.Utilities.addCommas(App.Models.clickedTerrModel.get('armyPopulation') + Math.round(reinforceMax/2)) + '</span> Units</div>' +
 						'<div><label>Rank: <span id="toRank">' + App.Utilities.makeStarGroup({newRank: newVals.toRank, armyPromoted: false}) + '</span></label></div>' +
 						'<div><label>Experience:</label> <span id="toXP">' + newVals.toXP + '</span> XP</div>' +
 						'<div><label>Morale:</label> <span id="toMorale">' + newVals.toMorale + '</span>%</div>',
-			fromStr = '<div class="pull-right"><span class="glyphicon glyphicon-user"></span> ('+App.Models.selectedTerrModel.get('armyWins') +' - '+ App.Models.selectedTerrModel.get('armyLosses') + ')</div>' +
+			fromStr = '<div class="pull-right"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> ('+App.Models.selectedTerrModel.get('armyWins') +' - '+ App.Models.selectedTerrModel.get('armyLosses') + ')</div>' +
 				'<div><label class="top-label">From: '+App.Models.selectedTerrModel.get('name')+'</label></div>' +
 				'<div><label>Army:</label> <span id="remainingUnits">' + App.Utilities.addCommas(Math.round(reinforceMax/2)) + '</span> Units</div>' +
 				'<div><label>Rank: ' + App.Utilities.makeStarGroup({newRank: App.Models.selectedTerrModel.get('armyRank'), armyPromoted: false}) +  '</label></div>' + 
 				'<div><label>Experience:</label> ' + App.Models.selectedTerrModel.get('armyXP') + ' XP</div>' +
 				'<div><label>Morale:</label> <span id="fromMorale">' + newVals.fromMorale + '</span>%</div>',
-			messageHTML = '<div class="modal-two-terr-container '+App.Models.selectedTerrModel.get('color')+'"><div class="col-xs-6 reinf-col pull-left '+App.Models.selectedTerrModel.get('color')+' modal-side-container">' + fromStr + '</div><div class="col-xs-6 reinf-col pull-right '+App.Models.clickedTerrModel.get('color')+' modal-side-container">' + toStr + '</div><div class="clearfix"></div></div>' + infraWarningHTML + '<p class="form-text">How many army units would you like to send to&nbsp;' + App.Models.clickedTerrModel.get('name') + '?</p>';
+			messageHTML = '<div class="modal-two-terr-container '+App.Models.selectedTerrModel.get('color')+'"><div class="col-xs-6 reinf-col pull-left '+App.Models.selectedTerrModel.get('color')+' modal-side-container" tabindex="0">' + fromStr + '</div><div class="col-xs-6 reinf-col pull-right '+App.Models.clickedTerrModel.get('color')+' modal-side-container" tabindex="0">' + toStr
+				+ '</div><div class="clearfix"></div></div>' + infraWarningHTML + '<p class="form-text" id="sp-label">How many army units would you like to send to&nbsp;' + App.Models.clickedTerrModel.get('name') + '?</p>';
 
 		var spModalModel = new App.Models.Modal({
 			title: 'Send Army Units from ' + App.Models.selectedTerrModel.get('name') + ' to&nbsp;' + App.Models.clickedTerrModel.get('name'),
@@ -460,7 +461,8 @@ App.Views.Terr = Backbone.View.extend({
 			showRange: true,
 			rangeMin: App.Constants.ATTACK_ARMY_MINIMUM,
 			rangeMax: reinforceMax,
-			rangeVal: Math.round(reinforceMax/2)
+			rangeVal: Math.round(reinforceMax/2),
+			ariaLabel: 'sp-label'
 		});
 
 		var spModalView = new App.Views.SinglePromptModal({model: spModalModel});
@@ -489,13 +491,13 @@ App.Views.Terr = Backbone.View.extend({
 
 			messageHTML = '<div class="modal-two-terr-container '+App.Models.clickedTerrModel.get('color')+'"><div class="col-xs-6 reinf-col pull-' + App.Models.selectedTerrModel.get('side') + ' '+App.Models.selectedTerrModel.get('color')+' modal-side-container">' + fromStr + '</div>' +
 			'<div class="col-xs-6 reinf-col pull-' + App.Models.clickedTerrModel.get('side') + ' '+App.Models.clickedTerrModel.get('color')+' modal-side-container">' + toStr + '</div><div class="clearfix"></div></div><div class="clearfix"></div>' + infraWarningHTML +
-			'<p class="form-text">How many army units would you like to send from ' + App.Models.selectedTerrModel.get('name') + ' to secure&nbsp;<span class="newTerrName">' + App.Models.clickedTerrModel.get('name') + '</span>?</p>';
+			'<p class="form-text" id="send-label">How many army units would you like to send from ' + App.Models.selectedTerrModel.get('name') + ' to secure&nbsp;<span class="newTerrName">' + App.Models.clickedTerrModel.get('name') + '</span>?</p>';
 
 		var tpModalModel = new App.Models.Modal({
 			title: '<span>'  + App.Models.clickedTerrModel.get('name') + '</span> invaded<span id="renameMsg"></span>!',
 			confBtnId: 'confInvasion',
 			modalMsg: messageHTML,
-			modalMsg2: '<p class="form-text">Enter a new name for this territory:</p>',
+			modalMsg2: '<p class="form-text" id="rename-label">Enter a new name for this territory:</p>',
 			noTurnsMsg: "Ends turn for " + App.Models.selectedTerrModel.get('name') + ".",
 			confBtnClass: 'btn-danger',
 			attacking: attacking,

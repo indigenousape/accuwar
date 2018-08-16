@@ -5,6 +5,7 @@
 
 App.Models.Modal = Backbone.Model.extend({
 	defaults: {
+		ariaLabel: '',
 		title: '',
 		showCancelBtn: true,
 		confBtnClass: 'btn-primary',
