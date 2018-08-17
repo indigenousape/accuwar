@@ -275,7 +275,7 @@ App.Collections.Territories = Backbone.Collection.extend({
                     .filter(function(model) { return model.get('side') === App.Utilities.activeSide() && model.get('fortStrength') < 100 && model.get('remainingTurns') > 0 })
                     .value();
 
-    	_.each(this.models, function(model) {
+    	_.each(array, function(model) {
     		App.Utilities.repairTerrFortStr(model);
     	});
     },
