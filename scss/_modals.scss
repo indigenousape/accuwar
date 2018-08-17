@@ -77,6 +77,12 @@
 			}
 		}
 	}
+
+
+	.special-list {
+		list-style-type: none;
+		padding-left: 13px;
+	}
 }
 
 /* Large headline for invasion modals */
@@ -319,4 +325,8 @@
 		@include progBarColors('purple', $purple);
 		@include progBarColors('pink', $pink);
 	}
+}
+
+.final-rank {
+	margin-top: 0;
 }

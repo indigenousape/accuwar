@@ -340,7 +340,7 @@
 
 	#declareWar {
 	    width: calc(100% - 200px);
-	    padding: 2rem;
+	    padding: 3rem;
 	    font-size: 4rem;
 	}
 
@@ -489,20 +489,19 @@
 	}
 
 	#declareWar {
-		width: calc(100% - 290px);
+		width: calc(100% - 250px);
 		max-width: 500px;
 		margin-top: 10px;
 		font-size: 3.5rem;
+		padding: 2.5rem;
 	}
 
 	.version-text {
-		right: 10px;
-		bottom: 0;
-		margin-bottom:10px;
+		margin-bottom: 5px;
 	}
 
-	.release-txt {
-		display: block;
+	#setup .sm-container {
+		bottom: 2px;
 	}
 
 	.army:focus {
@@ -535,9 +534,18 @@
 	.audio-control label .hide-phone, .map-control label .hide-phone {
 		display: inline-block;
 	}
+
+	.final-rank {
+		float: none;
+		display: block;
+	}
 }
 
 @media #{$smallPhones} {
+
+	#declareWar {
+		padding: 2rem;
+	}
 
 	#footerZone {
 		max-height: 95vh;
@@ -583,6 +591,20 @@
 	.footer-container {
 		max-height: 195px;
 		overflow-y: auto;
+	}
+
+	.version-text {
+		text-align: left;
+
+		.release-txt {
+			display: block;
+		}
+	}
+
+	.sm-container {
+		.fb_iframe_widget {
+			display: block;
+		}
 	}
 
 }

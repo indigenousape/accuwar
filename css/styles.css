@@ -988,6 +988,14 @@ input[type=range] {
   #setup .error {
     height: 23px;
     line-height: 23px; }
+  #setup .sm-container {
+    width: 100%;
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    text-align: right; }
+  #setup .fb_iframe_widget {
+    top: -5px; }
 
 .terr-slider-control {
   width: 345px;
@@ -1028,7 +1036,7 @@ input[type=range] {
 .version-text {
   position: fixed;
   bottom: 0;
-  right: 15px;
+  left: 15px;
   z-index: 1; }
 
 /* Layout styles */
@@ -1821,6 +1829,10 @@ input[type=range] {
   #oneModal .fort-label .prog-txt:hover {
     cursor: pointer; }
 
+#oneModal .special-list {
+  list-style-type: none;
+  padding-left: 13px; }
+
 /* Large headline for invasion modals */
 .headline-title {
   text-transform: uppercase;
@@ -1996,6 +2008,9 @@ input[type=range] {
 
 .battle-result .previous .prog-bar.pink {
   background-color: #F06292; }
+
+.final-rank {
+  margin-top: 0; }
 
 /* Bootstrap overrides */
 .popover {
@@ -2369,7 +2384,7 @@ input[type=range] {
     display: inline-block; }
   #declareWar {
     width: calc(100% - 200px);
-    padding: 2rem;
+    padding: 3rem;
     font-size: 4rem; }
   #declareWar span {
     font-size: 1.75rem; }
@@ -2456,16 +2471,15 @@ input[type=range] {
   .game-alert p {
     font-size: 14px; }
   #declareWar {
-    width: calc(100% - 290px);
+    width: calc(100% - 250px);
     max-width: 500px;
     margin-top: 10px;
-    font-size: 3.5rem; }
+    font-size: 3.5rem;
+    padding: 2.5rem; }
   .version-text {
-    right: 10px;
-    bottom: 0;
-    margin-bottom: 10px; }
-  .release-txt {
-    display: block; }
+    margin-bottom: 5px; }
+  #setup .sm-container {
+    bottom: 2px; }
   .army:focus {
     border: 4px solid transparent; } }
 
@@ -2482,9 +2496,14 @@ input[type=range] {
   .audio-control label, .map-control label {
     display: block; }
   .audio-control label .hide-phone, .map-control label .hide-phone {
-    display: inline-block; } }
+    display: inline-block; }
+  .final-rank {
+    float: none;
+    display: block; } }
 
 @media screen and (max-width: 580px) {
+  #declareWar {
+    padding: 2rem; }
   #footerZone {
     max-height: 95vh; }
   #footerZone .nav-tabs > li > a {
@@ -2508,4 +2527,10 @@ input[type=range] {
     font-size: 22px; }
   .footer-container {
     max-height: 195px;
-    overflow-y: auto; } }
+    overflow-y: auto; }
+  .version-text {
+    text-align: left; }
+    .version-text .release-txt {
+      display: block; }
+  .sm-container .fb_iframe_widget {
+    display: block; } }

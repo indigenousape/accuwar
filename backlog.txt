@@ -1,4 +1,4 @@
-Next Release: 3.1 Alpha
+Next Release: 3.2 Alpha
 
 Release Priorities
  - Finish remaining features 
@@ -15,44 +15,9 @@ Release Priorities
  - Social Integration? Easy way to like and share. Forget Add This.
 
 ===========================================================================
-RELEASE 3.1
-
-Do a full test in Chrome, FF, IE. Play through. Just for sanity's sake.
-
-===========================================================================
 RELEASE 3.2
 
 STORIES
-1. UX: End Game Experience
-	At end of game user can choose to restart the game OR view the War Details screen
-	War details screen shows for each side:
-		Number of battles won and lost
-		Battle kills and casualties
-		Highest ranking armies from each side
-		Forts destroyed, armies promoted, territories lost and invaded
-		Average tech levels
-		End civilian populations
-		End GDP
-	Play sound / victory music (Done)
-	Do some animation
-	- Add summary of kills and casualties to the end game window
-		- Qualify the victory?
-			Overwhelming/Dominant
-			Close/Narrow
-			Quick
-			Long
-		- Quantify with a score
-			All factors:
-				Territories
-				Ranks
-				Morales
-				GDP
-				Ec Level
-				Infra Strength
-				Tax Income 
-				All stored overall stats
-
-DONE
 
 
 
@@ -81,6 +46,11 @@ SMALL EFFORT
 		- Difficulty
 		- 1P vs 2P
 
+3. Enhancement: Qualify victories on the score screen
+	Overwhelming/Dominant (high army kill score component or greater than 2/3 win to loss ratio)
+	Close/Narrow (near 0 kill score component, near 0 score components for wins)
+	Quick (few turns)
+	Long (many turns)
 
 MEDIUM
 
@@ -165,7 +135,8 @@ DIFFICULTY SETTINGS
 
 =======================================================================
 Enhancements
-(empty)
+
+1. Allow users to store their score, rank, and empire name
 
 =======================================================================
 // Economy Epic

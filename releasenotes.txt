@@ -95,6 +95,26 @@ FEATURES
 
 	-- Create Skip Link to battle map
 
+4. UX: End Game Experience
+	- At end of game user can choose to restart the game OR get the score
+	- Score screen shows winner details:
+		Score
+		Player rank
+		Number of battles won and lost
+		Battle kills and casualties
+		Forts destroyed, armies promoted, territories lost and invaded
+		Average tech levels
+		Ending army and civilian populations
+		Recruits
+		End GDP
+		Territories
+	- Play victory music based on game context (special modes)
+	- Animated score total and rank
+
+5. Add social media sharing for Facebook and Twitter on the start screen.
+	Refs:
+		https://developer.twitter.com/en/docs/twitter-for-websites/tweet-button/overview
+		https://developers.facebook.com/docs/plugins/share-button/
 
 ENHANCEMENTS
 

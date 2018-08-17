@@ -27,7 +27,7 @@ Play side-by-side with another player or alone in sandbox mode to learn the game
 - Chrome, Safari, Firefox, IE10+/Edge
 
 # Release
-3.0 Alpha
+3.1 Alpha
 
 # Credits
 MAPS

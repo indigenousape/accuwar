@@ -1,6 +1,6 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 3.1 Alpha
+	Release: 3.1.1 Alpha
 	Author: Josh Harris
 	8/17/2018
 */
@@ -119,6 +119,20 @@ window.App = {
 			}
 		],
 		RECRUIT_ARMY_MINIMUM: 1000, // Minimum army units that can be recruited
+		SCORE_ARMY_UNITS: 0.005,
+		SCORE_ECON_POPULATION: 0.0001,
+		SCORE_GDP: 0.00000001,
+		SCORE_TREASURY: 0.00000005,
+		SCORE_PROMOTIONS: 5000,
+		SCORE_FORTS_DESTROYED: 5000,
+		SCORE_RECRUITS: 0.001,
+		SCORE_ARMY_KILLS: 0.005,
+		SCORE_ECON_KILLS: 0.002,
+		SCORE_AVG_TECH: 10000,
+		SCORE_WINS: 2500,
+		SCORE_INVASIONS: 5000,
+		SCORE_PER_TERRITORY: 5000,
+		SCORE_FOR_TURN_BONUS: 100000,
 		START_TURN: startYear,
 		START_ARMY_UNITS: 250000,
 		STARTING_TERRITORIES: 25,
@@ -182,6 +196,77 @@ window.App = {
 		},
 		capitalizeStr: function(str) {
 			return str.charAt(0).toUpperCase() + str.slice(1);
+		},
+		makeFinalScoreStars: function(score) {
+			var rankStars = 0;
+			
+			if(App.Models.battleMapModel.get('territories') === 9) {
+
+				if(score >= 375000) {
+					rankStars = 5;			
+				} else if(score >= 300000 && score < 375000) {
+					rankStars = 4;			
+				} else if(score >= 225000 && score < 300000) {
+					rankStars = 3;
+				} else if (score >= 150000 && score < 225000) {
+					rankStars = 2;
+				} else {
+					rankStars = 1;
+				}
+
+			} else if (App.Models.battleMapModel.get('territories') === 25) {
+
+				if(score >= 700000) {
+					rankStars = 5;			
+				} else if(score >= 550000 && score < 700000) {
+					rankStars = 4;			
+				} else if(score >= 400000 && score < 550000) {
+					rankStars = 3;
+				} else if (score >= 250000 && score < 400000) {
+					rankStars = 2;
+				} else {
+					rankStars = 1;
+				}
+			}
+
+			var rankHTML = App.Utilities.makeStarGroup({
+				newRank: rankStars
+			});
+
+			return rankHTML;
+		},
+		computeScore: function(side) {
+
+			var enemySide = side === 'left' ? 'right' : 'left';
+
+			var promotionsTotal = App.Constants.SCORE_PROMOTIONS * (parseInt(App.Models.nationStats.get(side).get('overallArmyPromotions') + App.Models.nationStats.get(side).get('armiesPromoted').length)),
+				fortsDestroyedTotal = App.Constants.SCORE_FORTS_DESTROYED * (parseInt(App.Models.nationStats.get(side).get('overallFortsDestroyed') + App.Models.nationStats.get(enemySide).get('fortsLost').length) - parseInt(App.Models.nationStats.get(enemySide).get('overallFortsDestroyed') + App.Models.nationStats.get(side).get('fortsLost').length)),
+				recruitsTotal = Math.round(App.Constants.SCORE_RECRUITS * (App.Models.nationStats.get(side).get('overallRecruits') + App.Models.nationStats.get(side).get('recruitsThisTurn'))),
+				armyKills = Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(enemySide).get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'army'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(side).get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(side, 'army'))),
+				econKills = Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(enemySide).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(side).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(side, 'econ'))),
+				techLevel = App.Constants.SCORE_AVG_TECH * App.Models.nationStats.get(side).get('armyTechLvl'),
+				battleWins = App.Constants.SCORE_WINS * (App.Models.nationStats.get(side).get('overallBattleWins') - App.Models.nationStats.get(enemySide).get('overallBattleWins')),
+				invasions = App.Constants.SCORE_INVASIONS * (parseInt(App.Models.nationStats.get(side).get('overallInvasions') + App.Models.nationStats.get(side).get('invadedThisTurn').length) - parseInt(App.Models.nationStats.get(enemySide).get('overallInvasions') + App.Models.nationStats.get(enemySide).get('invadedThisTurn').length)),
+				treasury = Math.round(App.Constants.SCORE_TREASURY * App.Models.nationStats.get(side).get('treasury')),
+				population = Math.round(App.Constants.SCORE_ECON_POPULATION * App.Collections.terrCollection.returnSideTotal(side, 'econPopulation')),
+				gdp = Math.round(App.Constants.SCORE_GDP * App.Models.nationStats.get(side).get('econOutput')),
+				armyUnits = Math.round(App.Constants.SCORE_ARMY_UNITS * App.Collections.terrCollection.returnSideTotal(side, 'armyPopulation')),
+				territories = App.Constants.SCORE_PER_TERRITORY * App.Models.nationStats.get(side).get('terrs').length,
+				turns = Math.round(App.Constants.SCORE_FOR_TURN_BONUS / (Math.max(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN, 1)));
+
+			var scoreObj = {
+				total: (promotionsTotal + fortsDestroyedTotal + recruitsTotal + armyKills + econKills + techLevel + battleWins + invasions + treasury + population + gdp + armyUnits + territories + turns),
+				promotions: promotionsTotal,
+				forts_destroyed: fortsDestroyedTotal,
+				recruits: recruitsTotal,
+				army_kills: armyKills,
+				econ_kills: econKills,
+				avg_tech: techLevel,
+				wins: battleWins,
+				invasions: invasions
+			};
+
+			return scoreObj;
 		},
 		console: function(msg) {
 			if(App.Constants.LOGGING) {
@@ -586,7 +671,7 @@ window.App = {
 		},
 		makeStarGroup: function(newRankObj) {
 
-			var starGroup = newRankObj.updateRank ? '<span class="rank-stars" aria-hidden="true"><strong>' : '<span class="rank-stars" aria-hidden="true"><strong>',
+			var starGroup = '<span class="rank-stars" aria-hidden="true"><strong>',
 				emptyStarHTML = '<span class="glyphicon glyphicon-star-empty"></span>',
 				filledStarHTML = '<span class="glyphicon glyphicon-star"></span>';
 			// Start counter at one since rank starts at one

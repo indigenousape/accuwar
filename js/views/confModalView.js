@@ -55,6 +55,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		'click #confNewTurn' : 'endTheTurn',
 		'click #invasionStep' : 'invadeTheTerritory',
 		'click #repairAllInfrastructure' : 'rebuildAllInfrastructure',
+		'click #getScore' : 'getFinalScore',
 		'click .current' : 'currentClick',
 		'click .previous' : 'mouseOutBar',
 		'mouseover .fort-label' : 'mouseOverBar',
@@ -153,6 +154,124 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Views.nationStatsView.updater();
 			this.model.set('stopClick', true);
 		}
+	},
+	getFinalScore: function() {
+
+		var winningSide = App.Utilities.activeSide();
+		var winningSideModel = App.Models.nationStats.get(winningSide);
+		var enemySide = winningSide === 'left' ? 'right' : 'left';
+		var enemySideModel = App.Models.nationStats.get(enemySide);
+
+		var winnerScore = App.Utilities.computeScore(winningSide);
+
+		var detailsHTML = '<h3>Battle Record <span>(' + winningSideModel.get('overallBattleWins') + ' - ' + winningSideModel.get('overallBattleLosses') +')</span></h3>'
+						+ '<div class="row"><div class="col-xs-12 col-sm-6"><p class="battle-stats-label">Enemy Kills</p>'
+						+	'<ul class="side-list">';
+
+		var displayEnemyArmyKilled = App.Utilities.addCommas(enemySideModel.get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'army'));
+		detailsHTML += '<li>Army: ' + displayEnemyArmyKilled + ' units</li>';
+	
+		if(enemySideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ') > 0) {
+			var displayEnemyEconKilled = App.Utilities.addCommas(enemySideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ'));
+			detailsHTML += '<li>Civilians: ' + displayEnemyEconKilled + '</li>';
+		}
+
+		detailsHTML += '</ul></div>'
+					+	'<div class="col-xs-12 col-sm-6"><p class="battle-stats-label">Casualties</p>'
+					+		'<ul class="side-list">';
+		
+		var displayArmyCas = App.Utilities.addCommas(winningSideModel.get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(winningSide, 'army'));
+		detailsHTML += '<li>Army: ' + displayArmyCas + ' units</li>';
+
+		if(winningSideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(winningSide, 'econ') > 0) {
+			var displayEconCasualties = App.Utilities.addCommas(winningSideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(winningSide, 'econ'));
+			detailsHTML += '<li>Civilians: ' + displayEconCasualties + '</li>';
+		}
+
+		detailsHTML += '</ul></div></div><div class="clearfix"></div>'
+					+ '<div class="row"><div class="col-xs-12 col-sm-6"><h3>Empire</h3>'
+					+		'<ul class="side-list">';
+
+		detailsHTML += '<li>Territories: ' + winningSideModel.get('terrs').length + '</li>';
+
+		var displayTreasury = App.Utilities.addCommas(winningSideModel.get('treasury'));
+		detailsHTML += '<li>Treasury: $' + displayTreasury + '</li>';
+
+		var displayGDP = App.Utilities.addCommas(winningSideModel.get('econOutput'));
+		detailsHTML += '<li>GDP: $' + displayGDP + '</li>';
+
+		var displayEconPopulation = App.Utilities.addCommas(App.Collections.terrCollection.returnSideTotal(winningSide, 'econPopulation'));
+		detailsHTML += '<li>Population: ' + displayEconPopulation + '</li>';
+
+		var displayArmyUnits = App.Utilities.addCommas(App.Collections.terrCollection.returnSideTotal(winningSide, 'armyPopulation'));
+		detailsHTML += '<li>Army: ' + displayArmyUnits + ' units</li>'
+					+ '</ul></div>';
+
+
+		detailsHTML += '<div class="col-xs-12 col-sm-6"><h3>Achievements</h3>'
+					+		'<ul class="side-list special-list">';
+
+		detailsHTML += '<li><span class="glyphicon glyphicon-signal" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('armyTechLvl')) + ' Average Tech Level </li>';
+
+		if (winningSideModel.get('invadedThisTurn').length + winningSideModel.get('overallInvasions') > 0) {
+			var terrTxt = winningSideModel.get('invadedThisTurn').length + winningSideModel.get('overallInvasions') === 1 ? 'Territory' : 'Territories';
+			detailsHTML += '<li><span class="glyphicon glyphicon-bookmark" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('invadedThisTurn').length + winningSideModel.get('overallInvasions')) + 'x ' + terrTxt + ' Invaded </li>';
+		}
+
+		if (winningSideModel.get('terrLostThisTurn').length + winningSideModel.get('overallLostTerrs') > 0) { 
+			var terrTxt = winningSideModel.get('terrLostThisTurn').length + winningSideModel.get('overallLostTerrs') === 1 ? 'Territory' : 'Territories';
+			detailsHTML += '<li><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('terrLostThisTurn').length + winningSideModel.get('overallLostTerrs')) + 'x ' + terrTxt + ' Lost </li>';
+		}
+
+		if (winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits') > 0) {
+			detailsHTML += '<li><span class="glyphicon glyphicon-user" aria-hidden="true"></span> ' + App.Utilities.addCommas(parseInt(winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits'))) + ' Recruits</li>';
+		}
+
+		if (winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions') > 0) {
+			var promTxt = winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions') === 1 ? 'Promotion' : 'Promotions';
+			detailsHTML += '<li><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions')) + 'x Army ' + promTxt + '</li>';
+		}
+
+		if (enemySideModel.get('fortsLost').length + winningSideModel.get('overallFortsDestroyed') > 0) {
+			var fortTxt = enemySideModel.get('fortsLost').length + winningSideModel.get('overallFortsDestroyed') === 1 ? 'Fort' : 'Forts';
+			detailsHTML += '<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> ' + parseInt(enemySideModel.get('fortsLost').length + winningSideModel.get('overallFortsDestroyed')) + 'x ' + fortTxt + ' Destroyed</li>';
+		}
+
+		if (winningSideModel.get('fortsLost').length + winningSideModel.get('overallFortsLost') > 0) {
+			var fortTxt = winningSideModel.get('fortsLost').length + winningSideModel.get('overallFortsLost') === 1 ? 'Fort' : 'Forts';
+			detailsHTML += '<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('fortsLost').length + winningSideModel.get('overallFortsLost')) + 'x ' + fortTxt + ' Lost</li>';
+		}
+
+		detailsHTML += '</ul></div></div><div class="clearfix"></div>';
+
+		// Starting at zero to animate up to the final score (stored as data on #finalScore)
+		var rankHTML = App.Utilities.makeFinalScoreStars(0);
+
+		var messageHTML = '<div><h3 class="final-rank pull-right">' + rankHTML + '</h3><h2>Final Score: <span id="finalScore" data-final-score="' + winnerScore.total + '">' + App.Utilities.addCommas(winnerScore.total) + '</span></h2></div>' + detailsHTML;
+
+		var confModalModel = new App.Models.Modal({
+			title: 'Winner: ' + App.Utilities.getActiveEmpireName(),
+			confBtnId: 'confNewGame',
+			confBtnTxt: 'Restart Game',
+			modalMsg: messageHTML,
+			confBtnClass: 'btn-danger',
+			showCancelBtn: false
+		});
+
+		var confModalView = new App.Views.ConfModal({model: confModalModel});
+		// Animate the score total
+	    $('#finalScore').prop('Counter',0).animate({
+	        Counter: $('#finalScore').attr('data-final-score')
+	    }, {
+	        duration: 2000,
+	        easing: 'swing',
+	        step: function (now) {
+	            $('#finalScore').text(App.Utilities.addCommas(Math.ceil(now)));
+	            $('.final-rank').html(App.Utilities.makeFinalScoreStars(Math.ceil(now)));
+	        }
+	    });
+
+
 	},
 	invadeTheTerritory: function() {
 		if(!this.model.get('stopClick')) {

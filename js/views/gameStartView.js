@@ -9,6 +9,13 @@ App.Views.GameStart = Backbone.View.extend({
 		this.render();
 		App.Views.gameStartView = this;
 
+		// Why? Because on re-render the button doesn't show up. This is all over stackoverflow.
+		if(typeof FB != "undefined") {
+			setTimeout(function() {
+				FB.XFBML.parse(document.getElementById('content'));
+			}, 100);
+		}
+
 	 	// Have to bind and unbind the range slider events on the fly
 	 	// Event is different in IE
 	 	if(!App.Utilities.detectIE()) {

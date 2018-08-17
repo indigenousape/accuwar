@@ -420,10 +420,10 @@ App.Views.BattleZone = Backbone.View.extend({
 		}
 
 		// Defender Governor Casualty?
-		// If more than 1% of the civilian population dies, the governor has a 10% chance of being among them
+		// If more than 1% of the civilian population dies, the governor has a 15% chance of being among them
 		
 		var governorDead = false;
-		if(!defending.get('isCapital') && !defending.get('governorKilled') &&  1 - (newEconPopulation / oldEconPop) > 0.01 && Math.random() < 0.1) {
+		if(!defending.get('isCapital') && !defending.get('governorKilled') &&  1 - (newEconPopulation / oldEconPop) > 0.01 && Math.random() < 0.15) {
 			governorDead = true;
 			defending.set('governorKilled', true);
 		}
@@ -602,7 +602,7 @@ App.Views.BattleZone = Backbone.View.extend({
 					if(App.Models.battleMapModel.get('mapMode').indexOf('college') != -1) {
 						locationText = ' the ' + defending.get('name') + ' campus';
 					} else if(App.Models.battleMapModel.get('mapMode').indexOf('wallstreet') != -1) {
-						locationText = ' the trading floor of ' + defending.get('name');
+						locationText = ' the headquarters of ' + defending.get('name');
 					} else {
 						locationText = ' the streets of '+ defending.get('name');
 					}
@@ -615,7 +615,7 @@ App.Views.BattleZone = Backbone.View.extend({
 					} else if (App.Models.battleMapModel.get('mapMode').indexOf('civilwar') != -1) {
 						resultText = ' secured the future for your great&nbsp;nation';
 					} else {
-						resultText = ' secured the future for your glorious&nbsp;empire';
+						resultText = ' secured the future for your great&nbsp;empire';
 					}
 
 					var titleText = nationName + ' Victory!',
@@ -625,7 +625,11 @@ App.Views.BattleZone = Backbone.View.extend({
 
 					var confModalModel = new App.Models.Modal({
 						title: nationName + ' Victory!',
-						confBtnId: 'confEnd',
+						confBtnId: 'confNewGame',
+						confBtnTxt: 'Restart Game',
+						gameEnd: true,
+						seeStatsId: 'getScore',
+						seeStatsBtnTxt: 'Get Score',
 						modalMsg: messageHTML,
 						confBtnClass: 'btn-danger',
 						showCancelBtn: false
@@ -637,7 +641,6 @@ App.Views.BattleZone = Backbone.View.extend({
 						$('#oneModal').off();
 						App.Views.battleMap.deselect();
 						App.Models.nationStats.set('sideTurn', 'left');
-						App.Views.nationStatsView.restartGame(false);
 					});
 
 				}, 600);

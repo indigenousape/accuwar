@@ -32,8 +32,8 @@ App.Views.PolicyView = Backbone.View.extend({
 		var thisEl = $(e.currentTarget);
 
 		if(!thisEl.hasClass('disabled')) {
-			var policyID = $(e.currentTarget).parent().attr('data-enacted-id');
-			var currentPriority = parseInt($(e.currentTarget).parent().attr('data-priority'));
+			var policyID = $(e.currentTarget).parent().parent().attr('data-enacted-id');
+			var currentPriority = parseInt($(e.currentTarget).parent().parent().attr('data-priority'));
 			var currPolicies = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
 			var reorderedIndex = _.indexOf(_.pluck(currPolicies, 'id'), policyID);
 
@@ -48,8 +48,8 @@ App.Views.PolicyView = Backbone.View.extend({
 		var thisEl = $(e.currentTarget);
 
 		if(!thisEl.hasClass('disabled')) {
-			var policyID = $(e.currentTarget).parent().attr('data-enacted-id');
-			var currentPriority = parseInt($(e.currentTarget).parent().attr('data-priority'));
+			var policyID = $(e.currentTarget).parent().parent().attr('data-enacted-id');
+			var currentPriority = parseInt($(e.currentTarget).parent().parent().attr('data-priority'));
 			var currPolicies = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
 			var reorderedIndex = _.indexOf(_.pluck(currPolicies, 'id'), policyID);
 

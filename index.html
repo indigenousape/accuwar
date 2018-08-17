@@ -37,8 +37,9 @@
 	<meta name="theme-color" content="#fff">
 
 	<meta property="og:url" content="http://www.accuwar.com">
+	<meta property="og:type" content="website">
 	<meta property="og:image" content="/accuwar-og.jpg">
-	<meta property="og:description" content="Build your empire and raise armies to defeat your enemy in this turn-based strategy game. Play alone or side-by-side on most devices.">
+	<meta property="og:description" content="Build your empire and raise armies to defeat your enemy in this turn-based strategy game. Play free on most devices.">
 	<meta property="og:title" content="[ accuwar ] - Turn-based strategy game and war simulator. Play free.">
 	<meta property="og:site_name" content="[ accuwar ]">
 	<meta property="og:see_also" content="http://www.accuwar.com">
@@ -59,6 +60,14 @@
 
 </head>
 <body>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.1';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+	<div id="fb-root"></div>
 <!--[if lt IE 9]>
 	<div class="old-browser error-box">
 		<div class="panel panel-default">
@@ -171,6 +180,10 @@
 				<button type="button" class="btn <%= App.Utilities.activeSide() %> <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" data-dismiss="modal" id="<%= repairAllId %>">Repair All</button>
 			<% } %>
 
+			<% if (typeof gameEnd !== "undefined" && gameEnd) {  %>
+				<button type="button" class="btn <%= App.Utilities.activeSide() %> <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" data-dismiss="modal" id="<%= seeStatsId %>"><%= seeStatsBtnTxt %></button>
+			<% } %>
+
 			<button type="button" class="btn <%= confBtnClass %>" data-dismiss="modal" id="<%= confBtnId %>"><%= confBtnTxt %></button>
 		</div>
 
@@ -189,6 +202,7 @@
 	</script>
 
 	<script id="startUp" type="text/template">
+
 		<h1 id="startHeading">[accuwar]</h1>
 		
 		<div class="game-start-desc">
@@ -243,7 +257,15 @@
 
 		<button id="declareWar" disabled>Declare War <% if (!App.Utilities.isSafari()) { %><span>(Fullscreen)</span><% } %></button>
 
-		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.1</span></p>
+		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.1.1</span></p>
+
+		<div class="sm-container">
+			<div class="fb-share-button" data-href="http://www.accuwar.com" data-layout="button" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.accuwar.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
+
+
+			<a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+		</div>
 
 	</script>
 
