@@ -598,7 +598,7 @@
 
 										<% if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE > 0.75) {%>
 											<div class="white prog-txt" tabindex="0"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
-										<% } else if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE < 0.2) { %>
+										<% } else if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE < 0.25) { %>
 											<div class="prog-txt" tabindex="0"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
 										<% } %>
 									<% } %>
@@ -998,11 +998,11 @@
 							
 							<p class="battle-stats-label">Enemy Kills</p>
 							<ul class="side-list">
-								<% if (enemySide.get('overallArmyCasualties') > 0) {%>
+								<% if (enemySide.get('overallArmyCasualties') > 0 || enemySide.get('armyCasualties') > 0) {%>
 								<% var displayEnemyArmyKilled = App.Utilities.addCommas(enemySide.get('overallArmyCasualties') + enemySide.get('armyCasualties')) %>
 								<li>Army: <%= displayEnemyArmyKilled %></li>
 								<% } %>
-								<% if (enemySide.get('overallEconCasualties') > 0) {%>
+								<% if (enemySide.get('overallEconCasualties') > 0 || enemySide.get('econCasualties') > 0) {%>
 								<% var displayEnemyEconKilled = App.Utilities.addCommas(enemySide.get('overallEconCasualties') + enemySide.get('econCasualties')) %>
 								<li>Civilians: <%= displayEnemyEconKilled %></li>
 								<% } %>
@@ -1010,17 +1010,25 @@
 
 							<p class="battle-stats-label">Casualties</p>
 							<ul class="side-list">
-								<% if (side.get('overallArmyCasualties') > 0) {%>
+								<% if (side.get('overallArmyCasualties') > 0 || side.get('armyCasualties') > 0) {%>
 								<% var displayArmyCas = App.Utilities.addCommas(side.get('overallArmyCasualties') + side.get('armyCasualties')) %>
 								<li>Army: <%= displayArmyCas %></li>
 								<% } %>
-								<% if (side.get('overallEconCasualties') > 0) {%>
+								<% if (side.get('overallEconCasualties') > 0 || side.get('econCasualties') > 0) {%>
 								<% var displayEconCasualties = App.Utilities.addCommas(side.get('overallEconCasualties') + side.get('econCasualties')) %>
 								<li>Civilians: <%= displayEconCasualties %></li>
 								<% } %>
 							</ul>
 
+							<% if ((side.get('invadedThisTurn').length + side.get('overallInvasions') > 0)
+									|| (side.get('terrLostThisTurn').length + side.get('overallLostTerrs') > 0)
+									|| (side.get('recruitsThisTurn') + side.get('overallRecruits') > 0)
+									|| (side.get('armiesPromoted').length + side.get('overallArmyPromotions') > 0)
+									|| (enemySide.get('fortsLost').length + side.get('overallFortsDestroyed') > 0)
+									|| (side.get('fortsLost').length + side.get('overallFortsLost') > 0)) { %>
+
 							<p class="battle-stats-label">Achievements</p>
+							
 							<ul class="side-list special-list">
 								<% if (side.get('invadedThisTurn').length + side.get('overallInvasions') > 0) {
 										var terrTxt = side.get('invadedThisTurn').length + side.get('overallInvasions') === 1 ? 'Territory' : 'Territories';
@@ -1061,6 +1069,7 @@
 								<% } %>
 
 							</ul>
+							<% } %>
 
 						</div>
 
@@ -1273,7 +1282,7 @@
 
 					<% if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE > 0.75) {%>
 						<div class="white prog-txt"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
-					<% } else if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE < 0.2) { %>
+					<% } else if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE < 0.25) { %>
 						<div class="prog-txt"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
 					<% } else { %>
 						<div class="prog-txt"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>

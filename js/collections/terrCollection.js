@@ -627,6 +627,19 @@ App.Collections.Territories = Backbone.Collection.extend({
 
         }
 
+        if(!currLeftTurn) {
+            // Store what must be stored on the nation model before the turn resets
+            App.Models.nationStats.get('left').set({
+                overallArmyCasualties: App.Models.nationStats.get('left').get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties('left', 'army'),
+                overallEconCasualties: App.Models.nationStats.get('left').get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties('left', 'econ')
+            });
+
+            App.Models.nationStats.get('right').set({
+                overallArmyCasualties: App.Models.nationStats.get('right').get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties('right', 'army'),
+                overallEconCasualties: App.Models.nationStats.get('right').get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties('right', 'econ')
+            });
+        }
+
 		// Update army populations, fort strengths, and morale values in each territory
 		App.Collections.terrCollection.forEach(function(model, index) {
 
@@ -817,9 +830,7 @@ App.Collections.Territories = Backbone.Collection.extend({
 				invadedThisTurn: [],
 				invasionArmyCasualties: 0,
 				invasionEconCasualties: 0,
-                overallArmyCasualties: App.Models.nationStats.get('left').get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties('left', 'army'),
                 overallArmyPromotions: App.Models.nationStats.get('left').get('overallArmyPromotions') + App.Models.nationStats.get('left').get('armiesPromoted').length,
-                overallEconCasualties: App.Models.nationStats.get('left').get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties('left', 'econ'),
                 overallFortsDestroyed: App.Models.nationStats.get('left').get('overallFortsDestroyed') + leftFortsDestroyedThisTurn,
                 overallFortsLost: App.Models.nationStats.get('left').get('overallFortsLost') + rightFortsDestroyedThisTurn,
                 overallInvasions: App.Models.nationStats.get('left').get('overallInvasions') + App.Models.nationStats.get('left').get('invadedThisTurn').length,
