@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 3.1 Alpha
+	Release: 3.1.2 Alpha
 	Author: Josh Harris
-	8/12/2018
+	8/17/2018
 */ 
 
 (function(){
@@ -63,7 +63,7 @@
 	}
 
 	console.log('[accuwar]: Turn-based strategy game and battle simulator. Play free.');
-	console.log('Release: -3.1 Alpha');
+	console.log('Release: -3.1.2 Alpha');
 	console.log('Release Date: 08.17.2018');
 	console.log('Author: Josh Harris');
 

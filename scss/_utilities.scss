@@ -179,3 +179,39 @@
 .orange {
 	background-color: $sliderOrange;
 }
+
+/* Contact Form */
+#contactForm {
+	padding-bottom: 20px;
+
+	h1 {
+		font-family: 'Courier New';
+		font-size: 8rem;
+		margin-top: 5vh;
+		margin-bottom: 20px;
+		text-align: center;
+		letter-spacing: 5px;
+	}
+
+	p {
+		margin-bottom: 20px;
+	}
+
+	form {
+		display: block;
+	}
+
+	.error {
+		margin: 0 0 5px 0;
+	}
+
+	span.error {
+		display: block;
+		margin: 5px 0;
+		text-align: left;
+	}
+
+	.required {
+		color: #cc0000;
+	}
+}

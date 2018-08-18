@@ -37,6 +37,15 @@ gulp.task('distjs', function(done) {
   done();
 });
 
+// Move contact JS files by themselves
+gulp.task('distContactJS', function(done) {
+  return gulp.src(['./js/contact.js', './js/jquery-3.2.1.min.js'])
+    .pipe(useref())
+    .pipe(gulp.dest('dist/js'));
+
+  done();
+});
+
 // Move vendor CSS files
 gulp.task('distcss', function(done) {
   return gulp.src(['./css/styles.min.css', './css/animate.min.css', './css/bootstrap.min.css'])
@@ -47,8 +56,8 @@ gulp.task('distcss', function(done) {
 });
 
 // Move Robots.txt and other txt files
-gulp.task('txt', function(done) {
-  return gulp.src(['./robots.txt', './backlog.txt', './releasenotes.txt'])
+gulp.task('root', function(done) {
+  return gulp.src(['./robots.txt', './backlog.txt', './releasenotes.txt', './package.json', './package-lock.json', './contact.php', './contact_view.php'])
     .pipe(useref())
     .pipe(gulp.dest('dist'));
 
@@ -90,4 +99,4 @@ gulp.task('audio', function(done) {
 
 // Production build
 
-gulp.task('prodbuild', gulp.series('distjs', 'distcss', 'fonts', 'images', 'rootImages', 'audio', 'txt'));
+gulp.task('prodbuild', gulp.series('distjs', 'distContactJS', 'distcss', 'fonts', 'images', 'rootImages', 'audio', 'root'));

@@ -1,6 +1,6 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 3.1.1 Alpha
+	Release: 3.1.2 Alpha
 	Author: Josh Harris
 	8/17/2018
 */
@@ -254,6 +254,20 @@ window.App = {
 				territories = App.Constants.SCORE_PER_TERRITORY * App.Models.nationStats.get(side).get('terrs').length,
 				turns = Math.round(App.Constants.SCORE_FOR_TURN_BONUS / (Math.max(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN, 1)));
 
+			var qualify = '';
+
+			if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN < 3) {
+				qualify = 'Quick ';
+			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) > (2/3) && armyKills > 0) {
+				qualify = 'Dominant ';
+			} else if(armyKills < -2000 && (invasions < App.Constants.SCORE_INVASIONS * 3)) {
+				qualify = 'Close ';
+			} else if(armyKills < 0 || econKills < 0) {
+				qualify = 'Costly ';
+			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN > 20) {
+				qualify = 'Strategic ';
+			}
+
 			var scoreObj = {
 				total: (promotionsTotal + fortsDestroyedTotal + recruitsTotal + armyKills + econKills + techLevel + battleWins + invasions + treasury + population + gdp + armyUnits + territories + turns),
 				promotions: promotionsTotal,
@@ -263,7 +277,8 @@ window.App = {
 				econ_kills: econKills,
 				avg_tech: techLevel,
 				wins: battleWins,
-				invasions: invasions
+				invasions: invasions,
+				qualifier: qualify
 			};
 
 			return scoreObj;

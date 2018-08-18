@@ -9,7 +9,49 @@ https://material.io/guidelines/style/color.html#
 Sidebar
 https://simple-sidebar.github.io/simpler-sidebar/
 ==========================================
+RELEASE 3.2
+ - Release priority: Develop AI, Bugfixes
 
+
+===========================================================================
+Release Notes
+3.1.2 Alpha
+Release Date 8/18/2018
+
+1. UI Enhancements: Footer shuffle
+	1. Add icons to tab labels user-icon for Army, glyphicon-flag for Fort
+	2. Tab label text will remain but will be hidden in responsive views and the tabs resized
+	3. Move Rank and stars into the Military tab.
+		Rank bar fills up based on cumulative XP. 100% is 599 XP. Compute on the template.
+	4. Replace "Military" label with "Army" or "Fort" depending on which tab is displayed
+
+2. Enhancement: Qualify victories on the score screen
+	Overwhelming/Dominant (positive army kill score component and greater than 2/3 win to loss ratio)
+	Close (near 0 kill score component, near 0 score components for wins)
+	Costly (negative kill and econ kill score)
+	Quick (few turns)
+	Strategic (many turns)
+
+3. Mobile Enhancement
+	Adjusted mobile start screen design in larger phones to account for non-fullscreen browser experience
+
+4. UX: Add an easy way to send feedback. Ideas, suggestions, bug reports.
+	- PHP form? Is there a better way? Maybe, but I can spin up and MVP this way immediately.
+	- Steal security PHP from Phil's contact form
+
+BUGFIX:
+	1. Army Kills and Casualties totals were not displaying in the sidebar when they should (source: logic only displayed the list items when overall kills were > 0, needed to include current turn kills also)
+
+	2. Selected Footer - Army population disappeared when morale was between 20 and 25.
+
+	3. Game Start Screen - Showing Short/Long game slider in tablet views, but the feature is only available in desktops
+
+	4. Accessibility Fixes
+		- Could reach the Skip Link before the game had started.
+		- Tab order to reach the End Turn button was awkward
+		- Could tab to the sidebar summary div before the game started
+
+===========================================================================
 Release Notes
 3.1 Alpha
 Release Date 8/17/2018

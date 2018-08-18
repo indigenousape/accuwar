@@ -144,7 +144,7 @@
 	@include footerTabLinkColors('pink', $sliderPink);
 
 	.tab-content {
-		width: 390px;
+		width: 400px;
 		padding-bottom: 15px;
 		margin: auto;
 	}
@@ -175,6 +175,25 @@
 
 		.glyphicon {
 			margin-right: 2px;
+		}
+	}
+
+	#military {
+		.fort-label {
+			margin-bottom: 0;
+		}
+
+		.white {
+			.rank-stars {
+				.glyphicon {
+					color: $white;
+				}
+			}
+		}
+		.rank-stars {
+			.glyphicon {
+				color: #101101;
+			}
 		}
 	}
 
@@ -278,13 +297,13 @@
 }
 
 .footer-col-1 {
-	width: 150px;
+	width: 100px;
 	display: inline-block;
 	float: left;
 }
 
 .footer-col-2 {
-	width: 390px;
+	width: 400px;
 	display: inline-block;
 }
 

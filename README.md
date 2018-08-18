@@ -5,15 +5,26 @@ Turn-based strategy game and war simulator built with BackboneJS. Players raise 
 
 Play side-by-side with another player or alone in sandbox mode to learn the game controls. Compatible with all modern browsers and mobile devices. Report any issues.
 
-# Features
-- Trainable armies that gain and lose morale based on battle outcomes
-- Repairable infrastructure that takes damage and limits army movements
+# Gameplay
+- Quick and Long Game Modes (Long Game available in Desktop only)
+- Random maps
+- Ambient music (disabled by default)
+- Easter eggs - Special gaming modes :)
+
+# Economics
+- National economies and treasuries based on the overall strength of their territories
+- Policies to perform territory repairs, recruiting, and tech level upgrades automatically 
+- Random market crashes that impact the national economy and mood
+- Economic risks for long periods of high and low tax rates
+- Final score based on winning empire's overall statistics at the end of the war
+
+# Territories
+- Armies that gain experience and achieve new ranks through battles and training
+- Morale levels that influence battle strength and economic health
+- Repairable infrastructure that takes damage and limits army movement
 - Upgradeable forts that protect territory armies, populations, and infrastructure
-- Upgradeable tech levels to grow territory economies and populations
-- Policies to automate territory repairs, recruiting, and tech level upgrades
-- National economic risks for long periods of high and low tax rates
-- Quick and Long Game Modes (Desktop only)
-- Random maps and ambient music (disabled by default)
+- Upgradeable technology levels that rapidly grow territory economies and populations, and strengthen armies
+- Semi-random population and economic growth rates based on terriroty health
 
 # Libraries
 - Backbone - http://backbonejs.org/
@@ -23,11 +34,12 @@ Play side-by-side with another player or alone in sandbox mode to learn the game
 - Simpler Sidebar - http://dcdeiv.github.io/simple-sidebar/
 - Bootstrap Notify - http://bootstrap-notify.remabledesigns.com/
       
-# Browser Compatibility
+# Browser + Device Compatibility
 - Chrome, Safari, Firefox, IE10+/Edge
+- All Devices
 
 # Release
-3.1 Alpha
+3.1.2 Alpha
 
 # Credits
 MAPS

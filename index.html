@@ -55,7 +55,7 @@
 	<!-- Stylesheets -->
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
 	<link rel="stylesheet" type="text/css" href="css/animate.min.css" />
-	<!--<link rel="stylesheet" type="text/css" href="css/styles.css" /> -->
+	<!-- <link rel="stylesheet" type="text/css" href="css/styles.css" /> -->
 	<link rel="stylesheet" type="text/css" href="css/styles.min.css" />
 
 </head>
@@ -191,7 +191,7 @@
 
 	<script id="battleBox" type="text/template">
 
-		<a class="skip-link btn-default btn" href="#battleZone">Skip to battle map</a>
+		<a class="skip-link btn-default btn" href="#battleZone" tabindex="-1">Skip to battle map</a>
 
 		<div id="nationStats" role="complementary"></div>
 
@@ -247,7 +247,7 @@
 			</label><input id="noSound" type="checkbox" /> 
 			<span id="soundState">Off</span>
 
-			<span class="hide-phone">
+			<span class="hide-tab-landscape">
 				<label for="showTips">Show Tips: </label>
 				<input id="showTips" type="checkbox" checked />
 				<span id="tipsState">On</span>
@@ -257,9 +257,11 @@
 
 		<button id="declareWar" disabled>Declare War <% if (!App.Utilities.isSafari()) { %><span>(Fullscreen)</span><% } %></button>
 
-		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.1.1</span></p>
+		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.1.2</span></p>
 
 		<div class="sm-container">
+			<a href="contact_view.php" target="_blank" aria-label="Contact the accuwar development team."><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></a>
+
 			<div class="fb-share-button" data-href="http://www.accuwar.com" data-layout="button" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.accuwar.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
 
 
@@ -553,7 +555,7 @@
 		</section>
 		<section id="military">
 			
-			<h3><span>Military</span></h3>
+			<h3><span id="militaryTabName">Army</span></h3>
 
 			<div class="clearfix"></div>
 
@@ -564,13 +566,10 @@
 					<!-- Nav tabs -->
 					<ul class="nav nav-tabs tabs-<%= side %> tabs-<%= App.Models.nationStats.get(side).get('color') %>" role="tablist">
 						<li role="presentation" class="active">
-							<a href="#armyTab" aria-controls="armyTab" role="tab" data-toggle="tab">Army 
-								
-								<%= App.Utilities.makeStarGroup({newRank: armyRank, armyPromoted: false}) %>
-
+							<a href="#armyTab" aria-controls="armyTab" role="tab" data-toggle="tab" aria-label="Display <%= name %> army details."><span class="glyphicon glyphicon-user" aria-hidden="true"></span> <span class="hide-mob">Army</span> 
 							</a>
 						</li>
-						<li role="presentation"><a href="#fortTab" aria-controls="fortTab" role="tab" data-toggle="tab">Fort (<%= fortStrength %>%)</a></li>
+						<li role="presentation"><a href="#fortTab" aria-controls="fortTab" role="tab" data-toggle="tab" aria-label="Display Statistics and Actions for the <%= name %> fort."><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> <span class="hide-mob">Fort</span></a></li>
 					</ul>
 
 				</div>
@@ -585,21 +584,21 @@
 									<% if (armyPopulation >= App.Constants.MIN_ARMY_FOR_MORALE && morale >= App.Constants.ATTACK_MORALE_MINIMUM && (armyPopulation * econStrength / 100) >= 2 * App.Constants.ATTACK_ARMY_MINIMUM) { %>
 
 										<div class="green-prog prog-bar" style="width: <%= Math.min((armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE) * 100, 100)  %>%"></div>
-										<div class="white prog-txt" tabindex="0"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
+										<div class="white prog-txt" tabindex="0">Units <%= App.Utilities.addCommas(armyPopulation) %></div>
 
 									<% } else if (armyPopulation < App.Constants.MIN_ARMY_FOR_MORALE && morale > App.Constants.ATTACK_MORALE_MINIMUM && (armyPopulation * econStrength / 100) >= 2 * App.Constants.ATTACK_ARMY_MINIMUM) { %>
 
 										<div class="yellow-prog prog-bar" style="width: <%= Math.min((armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE) * 100, 100)  %>%"></div>
-										<div class="prog-txt" tabindex="0"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
+										<div class="prog-txt" tabindex="0">Units <%= App.Utilities.addCommas(armyPopulation) %></div>
 
 									<% }  else if ((armyPopulation * econStrength / 100) < 2 * App.Constants.ATTACK_ARMY_MINIMUM || morale <= App.Constants.ATTACK_MORALE_MINIMUM) {%>
 
 										<div class="red-prog prog-bar" style="width: <%= Math.min((armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE) * 100, 100)  %>%"></div>
 
 										<% if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE > 0.75) {%>
-											<div class="white prog-txt" tabindex="0"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
+											<div class="white prog-txt" tabindex="0">Units <%= App.Utilities.addCommas(armyPopulation) %></div>
 										<% } else if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE < 0.25) { %>
-											<div class="prog-txt" tabindex="0"><span class="hide-mob">Units</span> <%= App.Utilities.addCommas(armyPopulation) %></div>
+											<div class="prog-txt" tabindex="0">Units <%= App.Utilities.addCommas(armyPopulation) %></div>
 										<% } %>
 									<% } %>
 								</label>
@@ -620,9 +619,24 @@
 
 								<label class="fort-label">
 									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'morale').background %>-prog prog-bar" style="width: <%= morale %>%"></div>
-									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'morale').text %> prog-txt"  tabindex="0"><strong>Mor<span class="small-ph">ale</span> <%= morale %>%</strong></div>
+									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'morale').text %> prog-txt"  tabindex="0"><strong>Morale <%= morale %>%</strong></div>
 								</label>
 
+								<div class="clearfix"></div>
+
+							</div>
+
+							<div class="footer-label-container">
+								<label class="fort-label">
+									<% var width = 100 * (((armyRank * 100) + armyXP)  / 599); %>
+									<div class="green-prog prog-bar" style="width: <%= width %>%"></div>
+									<% if ((armyRank < 2) || (armyRank === 2 && armyXP < 50)) { %>
+										<div class="prog-txt"  tabindex="0"><strong>Rank <%= App.Utilities.makeStarGroup({newRank: armyRank, armyPromoted: false}) %></strong></div>
+									<% } else { %>
+										<div class="white prog-txt"  tabindex="0"><strong>Rank <%= App.Utilities.makeStarGroup({newRank: armyRank, armyPromoted: false}) %></strong></div>
+									<% } %>
+
+								</label>
 								<div class="clearfix"></div>
 
 							</div>
@@ -658,7 +672,7 @@
 							<div class="footer-label-container">
 								<label class="fort-label">
 									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'fortStrength').background %>-prog prog-bar" style="width: <%= fortStrength %>%"></div>
-									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'fortStrength').text %> prog-txt" tabindex="0"><strong><span class="hide-mob">Fort</span> Str<span class="small-ph">ength</span> <%= fortStrength %>%</strong></div>
+									<div class="<%= App.Utilities.returnSimpleBarColors(this.model, 'fortStrength').text %> prog-txt" tabindex="0"><strong>Fort Strength <%= fortStrength %>%</strong></div>
 								</label>
 
 								<% if (fortStrength < 100 && remainingTurns > 0 && currTreasury >= fortStrengthCost) { %>
@@ -679,10 +693,10 @@
 								<label class="fort-label">
 									<div class="green-prog prog-bar" style="width: <%= (fortLevel / 10) * 100  %>%"></div>
 
-									<% if (fortLevel < 7) { %> 
-										<div class="prog-txt" tabindex="0"><strong><span class="hide-mob">Fort</span> Level <%= fortLevel %></strong></div>
+									<% if (fortLevel < 6) { %> 
+										<div class="prog-txt" tabindex="0"><strong>Fort Level <%= fortLevel %></strong></div>
 									<% } else { %>
-										<div class="white prog-txt" tabindex="0"><strong><span class="hide-mob">Fort</span> Level <%= fortLevel %></strong></div>
+										<div class="white prog-txt" tabindex="0"><strong>Fort Level <%= fortLevel %></strong></div>
 									<% } %>
 									
 								</label>
@@ -719,14 +733,6 @@
 	</script>
 
 	<script id="sideStats" type="text/template">
-		<div class="turn-counter"><span class="glyphicon glyphicon-globe ic-<%=sideTurn%> ic-<%=App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" aria-hidden="true"></span> Year: <%= currentTurn %>
-
-			<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-				<button class="btn btn-primary quitter newTurn" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="End Turn" data-content="Ends the current year for&nbsp;<%= App.Utilities.getActiveEmpireName() %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">End Turn</button>
-			<% } else { %>
-				<button class="btn btn-primary quitter newTurn" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">End Turn</button>
-			<% } %>
-		</div>
 		<div class="left-stats stats-container">
 
 			<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'left') {%>
@@ -764,6 +770,16 @@
 				
 			</div>
 		</div>
+
+		<div class="turn-counter"><span class="glyphicon glyphicon-globe ic-<%=sideTurn%> ic-<%=App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" aria-hidden="true"></span> Year: <%= currentTurn %>
+
+			<% if (App.Models.battleMapModel.get('tipsMode')) {%>
+				<button class="btn btn-primary quitter newTurn" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="End Turn" data-content="Ends the current year for&nbsp;<%= App.Utilities.getActiveEmpireName() %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">End Turn</button>
+			<% } else { %>
+				<button class="btn btn-primary quitter newTurn" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">End Turn</button>
+			<% } %>
+		</div>
+
 		<div class="right-stats stats-container">
 
 			<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'right') {%>
@@ -814,7 +830,7 @@
 	      	<button class="btn btn-default pull-right quitter close-menu" aria-label="Close <%= side.get('empName') %> side menu." tabindex="-1"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
 	      	<h1><%= side.get('empName') %></h1>
 
-	      	<div class="sidebar-container" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>0<% } %>">
+	      	<div class="sidebar-container" tabindex="<% if (App.Models.nationStats.get('gameStarted')) { %>0<% } %>">
 		      	<!-- Button group -->
 				<div class="btn-group">
 				  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="<%= side.get('empName') %> Empire Actions Menu" tabindex="-1">
@@ -1300,7 +1316,7 @@
 			</label>
 			
 		</button>
-		<span class="glyphicon glyphicon-fire" aria-hidden="true"></span>
+		<span class="glyphicon glyphicon-screenshot" aria-hidden="true"></span>
 		<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
 	</script>
 

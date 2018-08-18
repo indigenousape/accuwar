@@ -112,7 +112,19 @@ App.Views.Footer = Backbone.View.extend({
 		'click #investEconStr' : 'investEconStr',
 		'click .selectedTitle' : 'updateTerrName',
 		'click #upgradeFort' : 'upgradeFortLevel',
-		'click #trainArmy' : 'trainArmy'
+		'click #trainArmy' : 'trainArmy',
+		'click .nav-tabs a' : 'navTabs'
+	},
+	navTabs: function(e) {
+
+		var thisEl = $(e.currentTarget);
+		var isActive = thisEl.parent().hasClass('active');
+
+		if(!isActive) {
+			var theText = thisEl.parent().find('.hide-mob').text();
+			$('#militaryTabName').text(theText);
+		}
+
 	},
 	detailsRotator: function(tick) {
 

@@ -47,6 +47,8 @@ App.Views.Terr = Backbone.View.extend({
 	 		this.events['click .army'] = 'terrClick';
 	 		this.events['click .glyphicon-fire'] = 'terrClick';
 	 		this.events['click .glyphicon-user'] = 'terrClick';
+			this.events['click .army > label'] = 'terrClick';
+			this.events['click .army > h2'] = 'terrClick';
 	 		this.delegateEvents();
 	 	} else {
 	 		this.events['mouseup .army'] = 'terrClick';

@@ -21,7 +21,9 @@ form {
 }
 
 
-input[type='text'] {
+input[type='text'],
+input[type='email'],
+textarea.form-control {
 	border-right:none;
 	border-left: none;
 	border-top: none;
@@ -38,6 +40,16 @@ input[type='text']:focus {
 }
 
 input {
+	&.invalid {
+		border-bottom: 2px solid #cc0000;
+
+		&:focus {
+			border-color: #cc0000;
+		}
+	}
+}
+
+textarea {
 	&.invalid {
 		border-bottom: 2px solid #cc0000;
 

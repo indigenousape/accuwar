@@ -250,7 +250,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		var messageHTML = '<div><h3 class="final-rank pull-right">' + rankHTML + '</h3><h2>Final Score: <span id="finalScore" data-final-score="' + winnerScore.total + '">' + App.Utilities.addCommas(winnerScore.total) + '</span></h2></div>' + detailsHTML;
 
 		var confModalModel = new App.Models.Modal({
-			title: 'Winner: ' + App.Utilities.getActiveEmpireName(),
+			title: winnerScore.qualifier + 'Victory: ' + App.Utilities.getActiveEmpireName(),
 			confBtnId: 'confNewGame',
 			confBtnTxt: 'Restart Game',
 			modalMsg: messageHTML,
@@ -401,13 +401,14 @@ App.Views.ConfModal = Backbone.View.extend({
 			$('#ambientMusic')[0].pause();
 			$('#ambientMusic').off();
 			$('#ambientMusic').bind('ended', App.Utilities.playNextTrack);
+			$('button.close').click();
 
 			App.Utilities.removeClassName(['selected', 'selectedSection']);
 			App.Models.battleMapModel = new App.Models.BattleZone();
 			App.Views.battleMap = new App.Views.BattleZone({model: App.Models.battleMapModel});
 			$('#game').html(App.Views.battleMap.$el);
 			$('#game').removeClass('fadein');
-			$('.army, #sidebar-main-trigger, #sidebar-secondary-trigger, .changeTax, newTurn, .sideName').attr('tabindex', -1);
+			$('.army, #sidebar-main-trigger, #sidebar-secondary-trigger, .changeTax, newTurn, .sideName, .skip-link').attr('tabindex', -1);
 			$('body').prepend($('<div id="setup"></div>'));
 
 			var LeftModel = new Emp({

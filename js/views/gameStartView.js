@@ -201,8 +201,11 @@ App.Views.GameStart = Backbone.View.extend({
 	},
 	declareWar: function() {
 
+		$('.skip-link').attr('tabindex', '');
+
 		// Since we don't want to rerender the battleMap view
 		// The texture classes are modified based on the user's selection the old fashioned way
+
 		var classes = App.Views.battleMap.$el.attr('class');
 
 		if(App.Models.battleMapModel.get('randomMap')) {
