@@ -9,14 +9,14 @@ Play side-by-side with another player or alone in sandbox mode to learn the game
 - Quick and Long Game Modes (Long Game available in Desktop only)
 - Random maps
 - Ambient music (disabled by default)
-- Easter eggs - Special gaming modes :)
+- Easter eggs - Special gaming modes
+- Final score based on winning overall statistics at the end of the war
 
 # Economics
 - National economies and treasuries based on the overall strength of their territories
 - Policies to perform territory repairs, recruiting, and tech level upgrades automatically 
 - Random market crashes that impact the national economy and mood
 - Economic risks for long periods of high and low tax rates
-- Final score based on winning empire's overall statistics at the end of the war
 
 # Territories
 - Armies that gain experience and achieve new ranks through battles and training
@@ -24,7 +24,7 @@ Play side-by-side with another player or alone in sandbox mode to learn the game
 - Repairable infrastructure that takes damage and limits army movement
 - Upgradeable forts that protect territory armies, populations, and infrastructure
 - Upgradeable technology levels that rapidly grow territory economies and populations, and strengthen armies
-- Semi-random population and economic growth rates based on terriroty health
+- Semi-random population and economic growth rates based on territory health
 
 # Libraries
 - Backbone - http://backbonejs.org/
