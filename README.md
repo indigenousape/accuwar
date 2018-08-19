@@ -24,7 +24,7 @@ Play side-by-side with another player or alone in sandbox mode to learn the game
 - Repairable infrastructure that takes damage and limits army movement
 - Upgradeable forts that protect territory armies, populations, and infrastructure
 - Upgradeable technology levels that rapidly grow territory economies and populations, and strengthen armies
-- Semi-random population and economic growth rates based on terriroty health
+- Semi-random population and economic growth rates based on territory health
 
 # Libraries
 - Backbone - http://backbonejs.org/
