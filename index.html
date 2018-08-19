@@ -629,7 +629,7 @@
 								<label class="fort-label">
 									<% var width = 100 * (((armyRank * 100) + armyXP)  / 599); %>
 									<div class="green-prog prog-bar" style="width: <%= width %>%"></div>
-									<% if ((armyRank < 2) || (armyRank === 2 && armyXP < 50)) { %>
+									<% if (armyRank <= 3) { %>
 										<div class="prog-txt"  tabindex="0"><strong>Rank <%= App.Utilities.makeStarGroup({newRank: armyRank, armyPromoted: false}) %></strong></div>
 									<% } else { %>
 										<div class="white prog-txt"  tabindex="0"><strong>Rank <%= App.Utilities.makeStarGroup({newRank: armyRank, armyPromoted: false}) %></strong></div>
@@ -1170,7 +1170,7 @@
 					<% } %>
 
 					<% if (side.get('recruitsThisTurn') === 0) {%>
-					<p>New Recruits (0)</p>
+					<p><strong>New Recruits (0)</strong></p>
 					<% } else {%>
 						<p><a class="collapsed" role="button" data-toggle="collapse" href="#collapseRecruits" aria-expanded="false" aria-controls="collapseRecruits" aria-label="Display a list of territories with new recruits." tabindex="-1"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>New Recruits <span>(<%= App.Utilities.addCommas(side.get('recruitsThisTurn')) %>)</span></a></p>
 						<div class="collapse" id="collapseRecruits">

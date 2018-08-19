@@ -338,7 +338,22 @@ App.Views.NationStats = Backbone.View.extend({
 	},
 	startMusic: function() {
 		App.Models.battleMapModel.set('audio', true);
+		if($('#ambientMusic').length === 0) {
+			var whichAmbient = App.Constants.AMBIENT_MUSIC[_.random(0, (App.Constants.AMBIENT_MUSIC.length - 1))];
+
+			var audioEl = $('<audio id="ambientMusic" hidden>' +
+			  '<source src="' + whichAmbient + '" type="audio/mpeg"> ' +
+			'</audio>');
+
+			$('body').append(audioEl);
+
+			audioEl[0].volume = App.Utilities.smallScreenOnly() ? 0.33 : 0.25;
+
+			audioEl.bind('ended', App.Utilities.playNextTrack);
+		}
+
 		$('#ambientMusic')[0].play();
+
 		this.render();
 	},
 	stopMusic: function() {

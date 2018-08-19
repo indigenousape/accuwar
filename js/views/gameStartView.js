@@ -204,150 +204,156 @@ App.Views.GameStart = Backbone.View.extend({
 	},
 	declareWar: function() {
 
-		$('.skip-link').attr('tabindex', '');
+		if(!this.model.get('stopClick')) {
+			this.model.set('stopClick', true);
 
-		// Since we don't want to rerender the battleMap view
-		// The texture classes are modified based on the user's selection the old fashioned way
+			$('.skip-link').attr('tabindex', '');
 
-		var classes = App.Views.battleMap.$el.attr('class');
+			// Since we don't want to rerender the battleMap view
+			// The texture classes are modified based on the user's selection the old fashioned way
 
-		if(App.Models.battleMapModel.get('randomMap')) {
+			var classes = App.Views.battleMap.$el.attr('class');
 
-			if(classes.indexOf('civil-war') != -1) {
-				var oldMapStart = classes.indexOf('civil-war');
-				var newClasses = classes.substring(0 , oldMapStart) + App.Views.battleMap.addMap();
+			if(App.Models.battleMapModel.get('randomMap')) {
+
+				if(classes.indexOf('civil-war') != -1) {
+					var oldMapStart = classes.indexOf('civil-war');
+					var newClasses = classes.substring(0 , oldMapStart) + App.Views.battleMap.addMap();
+				} else {
+					var worldWarMapStart = classes.indexOf('world-war');
+					var newClasses = classes.substring(0, worldWarMapStart) + App.Views.battleMap.addMap();
+				}
+
 			} else {
-				var worldWarMapStart = classes.indexOf('world-war');
-				var newClasses = classes.substring(0, worldWarMapStart) + App.Views.battleMap.addMap();
+
+				if(classes.indexOf('texture') != -1) {
+					var newMapClass = App.Models.battleMapModel.get('mapMode') == 'civilwar' ? 'civil-war' : 'world-war';
+					var oldMapStart = classes.indexOf('texture');
+					var newClasses = classes.substring(0 , oldMapStart) + newMapClass;
+				} else {
+					var newMapClass = App.Models.battleMapModel.get('mapMode') == 'civilwar' ? 'civil-war' : 'world-war';
+					var oldMapStart = classes.indexOf(newMapClass);
+					var newClasses = classes.substring(0 , oldMapStart) + newMapClass;
+				}
+
 			}
 
-		} else {
+			App.Views.battleMap.$el.attr('class', newClasses);
 
-			if(classes.indexOf('texture') != -1) {
-				var newMapClass = App.Models.battleMapModel.get('mapMode') == 'civilwar' ? 'civil-war' : 'world-war';
-				var oldMapStart = classes.indexOf('texture');
-				var newClasses = classes.substring(0 , oldMapStart) + newMapClass;
-			} else {
-				var newMapClass = App.Models.battleMapModel.get('mapMode') == 'civilwar' ? 'civil-war' : 'world-war';
-				var oldMapStart = classes.indexOf(newMapClass);
-				var newClasses = classes.substring(0 , oldMapStart) + newMapClass;
-			}
+			// Get the names and colors of the left and right sides
 
-		}
+			var leftNameVal = $('#leftName').val().trim(),
+				rightNameVal = $('#rightName').val().trim(),
+				leftColor = $('#leftColor').val(),
+				rightColor = $('#rightColor').val(),
+				terrNumber = parseInt($('#terrNumberInput').val());
 
-		App.Views.battleMap.$el.attr('class', newClasses);
+			App.Defaults.mobileMode = terrNumber != App.Constants.STARTING_TERRITORIES;
 
-		// Get the names and colors of the left and right sides
-
-		var leftNameVal = $('#leftName').val().trim(),
-			rightNameVal = $('#rightName').val().trim(),
-			leftColor = $('#leftColor').val(),
-			rightColor = $('#rightColor').val(),
-			terrNumber = parseInt($('#terrNumberInput').val());
-
-		App.Defaults.mobileMode = terrNumber != App.Constants.STARTING_TERRITORIES;
-
-		App.Models.battleMapModel.set({
-			'territories' : terrNumber,
-			'mobileMode' : App.Defaults.mobileMode
-		});
-
-		App.Models.nationStats.get('left').set({
-				'color': leftColor
+			App.Models.battleMapModel.set({
+				'territories' : terrNumber,
+				'mobileMode' : App.Defaults.mobileMode
 			});
-		App.Models.nationStats.get('right').set({
-			'color': rightColor
-		});
-		App.Collections.terrCollection.changeColorsTerrNames();
 
-		if(!App.Utilities.isMobile() || leftColor != 'blue' || rightColor != 'orange') {
-			App.Utilities.restartSkipBeginning();
-		}
+			App.Models.nationStats.get('left').set({
+					'color': leftColor
+				});
+			App.Models.nationStats.get('right').set({
+				'color': rightColor
+			});
+			App.Collections.terrCollection.changeColorsTerrNames();
 
-		if(App.Views.gameStartView.isSpecialMode(leftNameVal, rightNameVal)) {
-			// Special Map Mode
-			App.Collections.terrCollection.specialMap(leftNameVal, rightNameVal);
-
-			var newClass = '';
-			if(!App.Models.battleMapModel.get('randomMap')
-				 && ( (leftNameVal.toLowerCase() + rightNameVal.toLowerCase()).indexOf('civilwar') != -1 || (leftNameVal.toLowerCase() + rightNameVal.toLowerCase()).indexOf('college') != -1)) {
-					newClass = 'civil-war';
-					var oldClassIndex = App.Views.battleMap.$el.attr('class').indexOf('world-war') != -1 ? App.Views.battleMap.$el.attr('class').indexOf('world-war') : App.Views.battleMap.$el.attr('class').indexOf('texture');
-					var newClasses = classes.substring(0 , oldClassIndex) + newClass;
-					if(!App.Models.battleMapModel.get('randomMap')) {
-						App.Views.battleMap.$el.attr('class', newClasses);
-					}
+			if(!App.Utilities.isMobile() || leftColor != 'blue' || rightColor != 'orange') {
+				App.Utilities.restartSkipBeginning();
 			}
 
+			if(App.Views.gameStartView.isSpecialMode(leftNameVal, rightNameVal)) {
+				// Special Map Mode
+				App.Collections.terrCollection.specialMap(leftNameVal, rightNameVal);
+
+				var newClass = '';
+				if(!App.Models.battleMapModel.get('randomMap')
+					 && ( (leftNameVal.toLowerCase() + rightNameVal.toLowerCase()).indexOf('civilwar') != -1 || (leftNameVal.toLowerCase() + rightNameVal.toLowerCase()).indexOf('college') != -1)) {
+						newClass = 'civil-war';
+						var oldClassIndex = App.Views.battleMap.$el.attr('class').indexOf('world-war') != -1 ? App.Views.battleMap.$el.attr('class').indexOf('world-war') : App.Views.battleMap.$el.attr('class').indexOf('texture');
+						var newClasses = classes.substring(0 , oldClassIndex) + newClass;
+						if(!App.Models.battleMapModel.get('randomMap')) {
+							App.Views.battleMap.$el.attr('class', newClasses);
+						}
+				}
+
+			}
+
+			this.$el.parent().addClass('fadeout');
+			$('#game').addClass('fadein');
+
+			var specialModeText = "<p>The world is in crisis! Citizens gripped by fear and fury as rival alliances wage war for world&nbsp;domination.</p>";
+
+			if (App.Models.battleMapModel.get('mapMode').length > 0) {
+
+				var	worldWarMode = App.Models.battleMapModel.get('mapMode') === 'joshua' || App.Models.battleMapModel.get('mapMode') === 'wargames',
+					civilWarMode = App.Models.battleMapModel.get('mapMode') === 'civilwar',
+					marketWarMode = App.Models.battleMapModel.get('mapMode') === 'wallstreet',
+					fictionWarMode = App.Models.battleMapModel.get('mapMode') === 'makebelieve',
+					collegeWarMode = App.Models.battleMapModel.get('mapMode') === 'college';
+				
+				specialModeText = fictionWarMode ? "<p>The fictional universe is in crisis! Empires have joined forces and declared war on each other for control of the human&nbsp;imagination.</p>" : specialModeText,
+				specialModeText = civilWarMode ? "<p>The Union is in crisis! A powerful confederation of rebel states has seceded from the Union and declared war on the United&nbsp;States.</p>" : specialModeText,
+				specialModeText = marketWarMode ? "<p>The world economy is in crisis! Millions in fear as price wars between rival companies turn bloody in battle for precious&nbsp;marketshare.</p>" : specialModeText;
+				specialModeText = collegeWarMode ? "<p>The university system is in crisis! Dorms are barricaded across the nation as a new alliance of schools fight to establish a new college athletic&nbsp;association.</p>" : specialModeText;
+
+				leftNameVal = worldWarMode ? "Allies" : leftNameVal,
+				rightNameVal = worldWarMode ? "Axis" : rightNameVal,
+				leftNameVal = civilWarMode ? "America" : leftNameVal,
+				rightNameVal = civilWarMode ? "Rebels" : rightNameVal,
+				leftNameVal = marketWarMode ? "NYSE" : leftNameVal,
+				rightNameVal = marketWarMode ? "NASDAQ" : rightNameVal,
+				leftNameVal = fictionWarMode ? "Light" : leftNameVal,
+				rightNameVal = fictionWarMode ? "Dark" : rightNameVal;
+				leftNameVal = collegeWarMode ? "NCAA" : leftNameVal;
+				rightNameVal = collegeWarMode ? "Alliance" : rightNameVal;
+			}
+
+			App.Models.nationStats.get('left').set('empName', leftNameVal);
+			App.Models.nationStats.get('right').set('empName', rightNameVal);
+			App.Models.nationStats.set('gameStarted', true);
+			App.Collections.terrCollection.changeColorsTerrNames();
+
+			if(worldWarMode) {
+
+				var audioEl = '<audio id="easterEgg" hidden>' +
+				  '<source src="audio/wargames.mp3" type="audio/mpeg"> ' +
+				'</audio>';
+				$('body').append(audioEl);
+
+				$('#easterEgg')[0].play();
+
+				$('#easterEgg')[0].volume = 1;
+
+			}
+
+			var enemyCapital = App.Utilities.activeSide() == 'left' ? App.Collections.terrCollection.getSideCapital('right') : App.Collections.terrCollection.getSideCapital('left');
+
+			App.Views.battleMap.notify({
+				icon: "glyphicon glyphicon-globe",
+				titleTxt : "War Declared!",
+				msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire, click the menu button at the top corner of your&nbsp;screen.</p><p>Invest wisely in your economy and your military for the best chance of victory. Good&nbsp;luck!</p>",
+				msgType: "info",
+				delay: App.Constants.DELAY_INFINITE
+			});
+
+			// Launch fullscreen for browsers that support it!
+			App.Utilities.launchFullScreen(document.documentElement);
+
+			setTimeout(function() {
+				App.Views.battleMap.smoothScroll('.terr:first-child');
+				App.Views.gameStartView.closeView();
+				$('#setup').remove();
+
+			}, 600);
+
 		}
 
-		this.$el.parent().addClass('fadeout');
-		$('#game').addClass('fadein');
-
-		var specialModeText = "<p>The world is in crisis! Citizens gripped by fear and fury as rival alliances wage war for world&nbsp;domination.</p>";
-
-		if (App.Models.battleMapModel.get('mapMode').length > 0) {
-
-			var	worldWarMode = App.Models.battleMapModel.get('mapMode') === 'joshua' || App.Models.battleMapModel.get('mapMode') === 'wargames',
-				civilWarMode = App.Models.battleMapModel.get('mapMode') === 'civilwar',
-				marketWarMode = App.Models.battleMapModel.get('mapMode') === 'wallstreet',
-				fictionWarMode = App.Models.battleMapModel.get('mapMode') === 'makebelieve',
-				collegeWarMode = App.Models.battleMapModel.get('mapMode') === 'college';
-			
-			specialModeText = fictionWarMode ? "<p>The fictional universe is in crisis! Empires have joined forces and declared war on each other for control of the human&nbsp;imagination.</p>" : specialModeText,
-			specialModeText = civilWarMode ? "<p>The Union is in crisis! A powerful confederation of rebel states has seceded from the Union and declared war on the United&nbsp;States.</p>" : specialModeText,
-			specialModeText = marketWarMode ? "<p>The world economy is in crisis! Millions in fear as price wars between rival companies turn bloody in battle for precious&nbsp;marketshare.</p>" : specialModeText;
-			specialModeText = collegeWarMode ? "<p>The university system is in crisis! Dorms are barricaded across the nation as a new alliance of schools fight to establish a new college athletic&nbsp;association.</p>" : specialModeText;
-
-			leftNameVal = worldWarMode ? "Allies" : leftNameVal,
-			rightNameVal = worldWarMode ? "Axis" : rightNameVal,
-			leftNameVal = civilWarMode ? "America" : leftNameVal,
-			rightNameVal = civilWarMode ? "Rebels" : rightNameVal,
-			leftNameVal = marketWarMode ? "NYSE" : leftNameVal,
-			rightNameVal = marketWarMode ? "NASDAQ" : rightNameVal,
-			leftNameVal = fictionWarMode ? "Light" : leftNameVal,
-			rightNameVal = fictionWarMode ? "Dark" : rightNameVal;
-			leftNameVal = collegeWarMode ? "NCAA" : leftNameVal;
-			rightNameVal = collegeWarMode ? "Alliance" : rightNameVal;
-		}
-
-		App.Models.nationStats.get('left').set('empName', leftNameVal);
-		App.Models.nationStats.get('right').set('empName', rightNameVal);
-		App.Models.nationStats.set('gameStarted', true);
-		App.Collections.terrCollection.changeColorsTerrNames();
-
-		if(worldWarMode) {
-
-			var audioEl = '<audio id="easterEgg" hidden>' +
-			  '<source src="audio/wargames.mp3" type="audio/mpeg"> ' +
-			'</audio>';
-			$('body').append(audioEl);
-
-			$('#easterEgg')[0].play();
-
-			$('#easterEgg')[0].volume = 1;
-
-		}
-
-		var enemyCapital = App.Utilities.activeSide() == 'left' ? App.Collections.terrCollection.getSideCapital('right') : App.Collections.terrCollection.getSideCapital('left');
-
-		App.Views.battleMap.notify({
-			icon: "glyphicon glyphicon-globe",
-			titleTxt : "War Declared!",
-			msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire, click the menu button at the top corner of your&nbsp;screen.</p><p>Invest wisely in your economy and your military for the best chance of victory. Good&nbsp;luck!</p>",
-			msgType: "info",
-			delay: App.Constants.DELAY_INFINITE
-		});
-
-		// Launch fullscreen for browsers that support it!
-		App.Utilities.launchFullScreen(document.documentElement);
-
-		setTimeout(function() {
-			App.Views.battleMap.smoothScroll('.terr:first-child');
-			App.Views.gameStartView.closeView();
-			$('#setup').remove();
-
-		}, 600);
 
 	},
 	isSpecialMode: function(name1, name2) {

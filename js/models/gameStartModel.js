@@ -8,6 +8,7 @@ App.Models.GameStart = Backbone.Model.extend({
 		allColorsArr: ['blue', 'orange', 'green', 'purple', 'pink'],
 		availableColorsArr : ['green', 'purple', 'pink'],
 		p1Color: 'blue',
-		p2Color: 'orange'
+		p2Color: 'orange',
+		stopClick: false
 	}
 });

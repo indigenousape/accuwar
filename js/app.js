@@ -243,7 +243,7 @@ window.App = {
 				fortsDestroyedTotal = App.Constants.SCORE_FORTS_DESTROYED * (parseInt(App.Models.nationStats.get(side).get('overallFortsDestroyed') + App.Models.nationStats.get(enemySide).get('fortsLost').length) - parseInt(App.Models.nationStats.get(enemySide).get('overallFortsDestroyed') + App.Models.nationStats.get(side).get('fortsLost').length)),
 				recruitsTotal = Math.round(App.Constants.SCORE_RECRUITS * (App.Models.nationStats.get(side).get('overallRecruits') + App.Models.nationStats.get(side).get('recruitsThisTurn'))),
 				armyKills = Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(enemySide).get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'army'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(side).get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(side, 'army'))),
-				econKills = Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(enemySide).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(side).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(side, 'econ'))),
+				econKills = Math.round(App.Constants.SCORE_ECON_KILLS * (App.Models.nationStats.get(enemySide).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(side).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(side, 'econ'))),
 				techLevel = App.Constants.SCORE_AVG_TECH * App.Models.nationStats.get(side).get('armyTechLvl'),
 				battleWins = App.Constants.SCORE_WINS * (App.Models.nationStats.get(side).get('overallBattleWins') - App.Models.nationStats.get(enemySide).get('overallBattleWins')),
 				invasions = App.Constants.SCORE_INVASIONS * (parseInt(App.Models.nationStats.get(side).get('overallInvasions') + App.Models.nationStats.get(side).get('invadedThisTurn').length) - parseInt(App.Models.nationStats.get(enemySide).get('overallInvasions') + App.Models.nationStats.get(enemySide).get('invadedThisTurn').length)),
@@ -256,15 +256,19 @@ window.App = {
 
 			var qualify = '';
 
-			if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN < 3) {
-				qualify = 'Quick ';
-			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) > (2/3) && armyKills > 0) {
+			if (App.Models.nationStats.get(side).get('terrs').length === App.Models.battleMapModel.get('territories')) {
+				qualify: 'Total ';
+			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) >= (2/3) || App.Models.nationStats.get(side).get('terrs').length >= (App.Models.battleMapModel.get('territories') * (2/3))) {
 				qualify = 'Dominant ';
-			} else if(armyKills < -2000 && (invasions < App.Constants.SCORE_INVASIONS * 3)) {
+			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) < (1/3)) {
+				qualify = 'Upset ';
+			} else if(armyKills > -2000 && armyKills < 2000 && (invasions < App.Constants.SCORE_INVASIONS * 3)) {
 				qualify = 'Close ';
-			} else if(armyKills < 0 || econKills < 0) {
+			} else if(armyKills < 0 && econKills < 0) {
 				qualify = 'Costly ';
-			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN > 20) {
+			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN < 3) {
+				qualify = 'Quick ';
+			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN > 10) {
 				qualify = 'Strategic ';
 			}
 

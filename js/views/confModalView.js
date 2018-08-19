@@ -81,7 +81,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		if(this.model.get('govKilled')) {
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-globe',
-				titleTxt : "Governor of " + App.Models.clickedTerrModel.get('name') + " Killed",
+				titleTxt : "Governor of " + App.Models.clickedTerrModel.get('name') + "&nbsp;Killed",
 				msgTxt : "Flags lowered as citizens gather to pay respects for local&nbsp;leader.",
 				msgType: "success"
 			});
@@ -151,6 +151,7 @@ App.Views.ConfModal = Backbone.View.extend({
 	endTheTurn: function() {
 		if(!this.model.get('stopClick')) {
 			App.Views.battleMap.deselect();
+			$('.game-alert .close').click();
 			App.Views.nationStatsView.updater();
 			this.model.set('stopClick', true);
 		}
@@ -250,7 +251,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		var messageHTML = '<div><h3 class="final-rank pull-right">' + rankHTML + '</h3><h2>Final Score: <span id="finalScore" data-final-score="' + winnerScore.total + '">' + App.Utilities.addCommas(winnerScore.total) + '</span></h2></div>' + detailsHTML;
 
 		var confModalModel = new App.Models.Modal({
-			title: winnerScore.qualifier + 'Victory: ' + App.Utilities.getActiveEmpireName(),
+			title: winnerScore.qualifier + 'Victory:&nbsp;' + App.Utilities.getActiveEmpireName(),
 			confBtnId: 'confNewGame',
 			confBtnTxt: 'Restart Game',
 			modalMsg: messageHTML,
@@ -428,6 +429,11 @@ App.Views.ConfModal = Backbone.View.extend({
 				'left' : LeftModel,
 				'right' : RightModel
 			});
+
+			for(var i = 0; i < App.Constants.POLICIES.length; i++) {
+				App.Constants.POLICIES[i].priority = 0;				
+			}
+
 			App.Views.nationStatsView = new App.Views.NationStats({model: App.Models.nationStats});
 			App.Collections.terrCollection = new App.Collections.Territories();
 			App.Utilities.makeTerritories();
