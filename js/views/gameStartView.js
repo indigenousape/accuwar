@@ -26,18 +26,6 @@ App.Views.GameStart = Backbone.View.extend({
 	 		this.delegateEvents();	
 	 	}
 
-		var whichAmbient = App.Constants.AMBIENT_MUSIC[_.random(0, (App.Constants.AMBIENT_MUSIC.length - 1))];
-
-		var audioEl = $('<audio id="ambientMusic" hidden>' +
-		  '<source src="' + whichAmbient + '" type="audio/mpeg"> ' +
-		'</audio>');
-
-		$('body').append(audioEl);
-
-		audioEl[0].volume = App.Utilities.smallScreenOnly() ? 0.33 : 0.25;
-
-		audioEl.bind('ended', App.Utilities.playNextTrack);
-
 	},
 	render: function() {
 		this.$el.html(this.template(this.model.toJSON()));
@@ -65,6 +53,21 @@ App.Views.GameStart = Backbone.View.extend({
 			App.Models.battleMapModel.set('audio', false);
 			$('#soundState').text('Off');
 		} else {
+			
+			if($('#ambientMusic').length === 0) {
+				var whichAmbient = App.Constants.AMBIENT_MUSIC[_.random(0, (App.Constants.AMBIENT_MUSIC.length - 1))];
+
+				var audioEl = $('<audio id="ambientMusic" hidden>' +
+				  '<source src="' + whichAmbient + '" type="audio/mpeg"> ' +
+				'</audio>');
+
+				$('body').append(audioEl);
+
+				audioEl[0].volume = App.Utilities.smallScreenOnly() ? 0.33 : 0.25;
+
+				audioEl.bind('ended', App.Utilities.playNextTrack);
+			}
+
 			$('#ambientMusic')[0].play();
 			App.Models.battleMapModel.set('audio', true);
 			$('#soundState').text('On');

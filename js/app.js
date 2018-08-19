@@ -202,13 +202,13 @@ window.App = {
 			
 			if(App.Models.battleMapModel.get('territories') === 9) {
 
-				if(score >= 375000) {
+				if(score >= 320000) {
 					rankStars = 5;			
-				} else if(score >= 300000 && score < 375000) {
+				} else if(score >= 240000 && score < 320000) {
 					rankStars = 4;			
-				} else if(score >= 225000 && score < 300000) {
+				} else if(score >= 160000 && score < 240000) {
 					rankStars = 3;
-				} else if (score >= 150000 && score < 225000) {
+				} else if (score >= 80000 && score < 160000) {
 					rankStars = 2;
 				} else {
 					rankStars = 1;

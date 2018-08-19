@@ -45,14 +45,14 @@ App.Views.Terr = Backbone.View.extend({
 	 	// If it desktop mouse up events are used to accommodate people who may click and drag 
 	 	if(App.Utilities.smallScreenOnly()) {
 	 		this.events['click .army'] = 'terrClick';
-	 		this.events['click .glyphicon-fire'] = 'terrClick';
+	 		this.events['click .glyphicon-screenshot'] = 'terrClick';
 	 		this.events['click .glyphicon-user'] = 'terrClick';
 			this.events['click .army > label'] = 'terrClick';
 			this.events['click .army > h2'] = 'terrClick';
 	 		this.delegateEvents();
 	 	} else {
 	 		this.events['mouseup .army'] = 'terrClick';
-	 		this.events['mouseup .glyphicon-fire'] = 'terrClick';
+	 		this.events['mouseup .glyphicon-screenshot'] = 'terrClick';
 			this.events['mouseup .glyphicon-user'] = 'terrClick';
 			this.events['mouseup .army > label'] = 'terrClick';
 			this.events['mouseup .army > h2'] = 'terrClick';
@@ -456,7 +456,7 @@ App.Views.Terr = Backbone.View.extend({
 			title: 'Send Army Units from ' + App.Models.selectedTerrModel.get('name') + ' to&nbsp;' + App.Models.clickedTerrModel.get('name'),
 			confBtnId: 'confReinforce',
 			modalMsg: messageHTML,
-			impactMsg: 'Strengthens army and citizen morale in '+App.Models.clickedTerrModel.get('name')+'. Weakens both in '+App.Models.selectedTerrModel.get('name')+'. Impacts army XP in&nbsp;' + App.Models.clickedTerrModel.get('name') + '.',
+			impactMsg: 'Strengthens morale in '+App.Models.clickedTerrModel.get('name')+'. Weakens morale in '+App.Models.selectedTerrModel.get('name')+'. Impacts army XP in&nbsp;' + App.Models.clickedTerrModel.get('name') + '.',
 			impactClass: 'text-muted',
 			noTurnsMsg: 'Ends turn for ' + App.Models.selectedTerrModel.get('name') + '.',
 			confBtnClass: 'btn-danger',

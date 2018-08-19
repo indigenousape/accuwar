@@ -165,7 +165,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		var winnerScore = App.Utilities.computeScore(winningSide);
 
 		var detailsHTML = '<h3>Battle Record <span>(' + winningSideModel.get('overallBattleWins') + ' - ' + winningSideModel.get('overallBattleLosses') +')</span></h3>'
-						+ '<div class="row"><div class="col-xs-12 col-sm-6"><p class="battle-stats-label">Enemy Kills</p>'
+						+ '<div class="row"><div class="col-xs-6"><p class="battle-stats-label">Enemy Kills</p>'
 						+	'<ul class="side-list">';
 
 		var displayEnemyArmyKilled = App.Utilities.addCommas(enemySideModel.get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'army'));
@@ -177,7 +177,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		}
 
 		detailsHTML += '</ul></div>'
-					+	'<div class="col-xs-12 col-sm-6"><p class="battle-stats-label">Casualties</p>'
+					+	'<div class="col-xs-6"><p class="battle-stats-label">Casualties</p>'
 					+		'<ul class="side-list">';
 		
 		var displayArmyCas = App.Utilities.addCommas(winningSideModel.get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(winningSide, 'army'));
@@ -189,7 +189,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		}
 
 		detailsHTML += '</ul></div></div><div class="clearfix"></div>'
-					+ '<div class="row"><div class="col-xs-12 col-sm-6"><h3>Empire</h3>'
+					+ '<div class="row"><div class="col-xs-6"><h3>Empire</h3>'
 					+		'<ul class="side-list">';
 
 		detailsHTML += '<li>Territories: ' + winningSideModel.get('terrs').length + '</li>';
@@ -208,7 +208,7 @@ App.Views.ConfModal = Backbone.View.extend({
 					+ '</ul></div>';
 
 
-		detailsHTML += '<div class="col-xs-12 col-sm-6"><h3>Achievements</h3>'
+		detailsHTML += '<div class="col-xs-6"><h3>Achievements</h3>'
 					+		'<ul class="side-list special-list">';
 
 		detailsHTML += '<li><span class="glyphicon glyphicon-signal" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('armyTechLvl')) + ' Average Tech Level </li>';
@@ -397,12 +397,16 @@ App.Views.ConfModal = Backbone.View.extend({
 	restartTheGame: function() {
 
 		if(!this.model.get('stopClick')) {
-			App.Utilities.setNextTrack();
-			$('#ambientMusic')[0].pause();
-			$('#ambientMusic').off();
-			$('#ambientMusic').bind('ended', App.Utilities.playNextTrack);
-			$('button.close').click();
 
+			// Reset the music 
+			if(App.Models.battleMapModel.get('audio')) {
+				App.Utilities.setNextTrack();
+				$('#ambientMusic')[0].pause();
+				$('#ambientMusic').off();
+				$('#ambientMusic').bind('ended', App.Utilities.playNextTrack);
+			}
+
+			$('button.close').click();
 			App.Utilities.removeClassName(['selected', 'selectedSection']);
 			App.Models.battleMapModel = new App.Models.BattleZone();
 			App.Views.battleMap = new App.Views.BattleZone({model: App.Models.battleMapModel});

@@ -998,7 +998,7 @@ input[type=range] {
   #setup .sm-container {
     width: 100%;
     position: fixed;
-    bottom: 10px;
+    bottom: 5px;
     right: 15px;
     text-align: right; }
     #setup .sm-container .glyphicon {
@@ -2524,12 +2524,18 @@ input[type=range] {
     padding: 2.5rem; }
   .version-text {
     margin-bottom: 5px; }
-  #setup .sm-container {
-    bottom: 2px; }
   .army:focus {
-    border: 4px solid transparent; } }
+    border: 4px solid transparent; }
+  #setup .sm-container {
+    width: 60px;
+    bottom: 2px;
+    right: 15px;
+    text-right: left;
+    overflow: hidden; } }
 
 @media (max-width: 768px) {
+  #contactForm .version-text {
+    display: none; }
   .hide-med-phone {
     display: none; }
   .modal-dialog {
@@ -2551,9 +2557,7 @@ input[type=range] {
   .version-text {
     text-align: left; }
     .version-text .release-txt {
-      display: block; }
-  .sm-container .fb_iframe_widget {
-    display: block; } }
+      display: block; } }
 
 @media screen and (max-width: 580px) {
   #declareWar {

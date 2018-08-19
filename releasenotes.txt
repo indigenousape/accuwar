@@ -39,6 +39,8 @@ Release Date 8/18/2018
 	- PHP form? Is there a better way? Maybe, but I can spin up and MVP this way immediately.
 	- Steal security PHP from Phil's contact form
 
+5. Enhancement: Attack Territory Icon is now a target 
+
 BUGFIX:
 	1. Army Kills and Casualties totals were not displaying in the sidebar when they should (source: logic only displayed the list items when overall kills were > 0, needed to include current turn kills also)
 

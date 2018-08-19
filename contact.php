@@ -115,14 +115,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // $mail->isSMTP();                            // Set mailer to use SMTP
         // $mail->Host = 'smtp.gmail.com';             // Specify main and backup SMTP servers
         // $mail->SMTPAuth = true;                     // Enable SMTP authentication
-        // $mail->Username = 'harris.josh.m@gmail.com';          // SMTP username
+        // $mail->Username = 'xxxxxxxxxx';          // SMTP username
         // $mail->Password = 'W3bS1t9Ja!'; // SMTP password
         // $mail->SMTPSecure = 'tls';                  // Enable TLS encryption, `ssl` also accepted
         // $mail->Port = 587;                          // TCP port to connect to
 
         // $mail->setFrom($email, $name);
         // $mail->addReplyTo($email, $name);
-        // $mail->addAddress('harris.josh.m@gmail.com');   // Add a recipient
+        // $mail->addAddress('xxxxxxxxxx');   // Add a recipient
         // $mail->addCC('cc@example.com');
         // $mail->addBCC('bcc@example.com');
 
@@ -138,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // $mail->Subject = 'Visitor Message';
         // $mail->Body    = $bodyContent;
 
-        $to = 'XXXXX <XXXXX>';
+        $to = 'xxxxxxxxxx <xxxxxxxxxx>';
         $subject = 'Visitor Message';
         $message = $bodyContent;
 
@@ -149,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Additional headers
         $headers .= 'From: ' . $name . ' <' . $email . '>' . "\r\n";
         $headers .= 'Reply-To: ' . $name . ' <' . $email . '>' . "\r\n";
-        $headers .= 'Bcc: XXXXX <XXXXX>, ' . $name . ' <' . $email . '>' . "\r\n";
+        $headers .= 'Bcc: xxxxxxxxxx <xxxxxxxxxx>, ' . $name . ' <' . $email . '>' . "\r\n";
 
         //if(!$mail->send()) {
         if(!mail($to, $subject, $message, $headers)) {
