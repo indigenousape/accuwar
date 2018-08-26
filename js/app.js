@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 3.1.2 Alpha
+	Release: 3.2 Alpha
 	Author: Josh Harris
-	8/17/2018
+	8/26/2018
 */
 
 var startYear = new Date();
@@ -133,6 +133,7 @@ window.App = {
 		SCORE_INVASIONS: 5000,
 		SCORE_PER_TERRITORY: 5000,
 		SCORE_FOR_TURN_BONUS: 100000,
+		SCORE_TOTAL_VICTORY: 150000,
 		START_TURN: startYear,
 		START_ARMY_UNITS: 250000,
 		STARTING_TERRITORIES: 25,
@@ -216,13 +217,13 @@ window.App = {
 
 			} else if (App.Models.battleMapModel.get('territories') === 25) {
 
-				if(score >= 700000) {
+				if(score >= 800000) {
 					rankStars = 5;			
-				} else if(score >= 550000 && score < 700000) {
+				} else if(score >= 600000 && score < 800000) {
 					rankStars = 4;			
-				} else if(score >= 400000 && score < 550000) {
+				} else if(score >= 400000 && score < 600000) {
 					rankStars = 3;
-				} else if (score >= 250000 && score < 400000) {
+				} else if (score >= 200000 && score < 400000) {
 					rankStars = 2;
 				} else {
 					rankStars = 1;
@@ -251,29 +252,30 @@ window.App = {
 				population = Math.round(App.Constants.SCORE_ECON_POPULATION * App.Collections.terrCollection.returnSideTotal(side, 'econPopulation')),
 				gdp = Math.round(App.Constants.SCORE_GDP * App.Models.nationStats.get(side).get('econOutput')),
 				armyUnits = Math.round(App.Constants.SCORE_ARMY_UNITS * App.Collections.terrCollection.returnSideTotal(side, 'armyPopulation')),
-				territories = App.Constants.SCORE_PER_TERRITORY * App.Models.nationStats.get(side).get('terrs').length,
-				turns = Math.round(App.Constants.SCORE_FOR_TURN_BONUS / (Math.max(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN, 1)));
+				territories = App.Constants.SCORE_PER_TERRITORY * (App.Models.nationStats.get(side).get('terrs').length + 1),
+				turns = Math.round(App.Constants.SCORE_FOR_TURN_BONUS / (Math.max(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN, 1))),
+				totalVictory = App.Models.nationStats.get(side).get('terrs').length + 1 === (2 * App.Models.battleMapModel.get('territories')) ? App.Constants.SCORE_TOTAL_VICTORY : 0;
 
 			var qualify = '';
 
-			if (App.Models.nationStats.get(side).get('terrs').length === App.Models.battleMapModel.get('territories')) {
-				qualify: 'Total ';
-			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) >= (2/3) || App.Models.nationStats.get(side).get('terrs').length >= (App.Models.battleMapModel.get('territories') * (2/3))) {
-				qualify = 'Dominant ';
+			if (App.Models.nationStats.get(side).get('terrs').length + 1 === (2 * App.Models.battleMapModel.get('territories'))) {
+				qualify = 'Total&nbsp;';
+			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/(App.Models.nationStats.get(enemySide).get('overallBattleWins') + App.Models.nationStats.get(side).get('overallBattleWins'))) >= (2/3) || App.Models.nationStats.get(side).get('terrs').length >= (App.Models.battleMapModel.get('territories') * (2/3))) {
+				qualify = 'Dominant&nbsp;';
 			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) < (1/3)) {
-				qualify = 'Upset ';
+				qualify = 'Upset&nbsp;';
 			} else if(armyKills > -2000 && armyKills < 2000 && (invasions < App.Constants.SCORE_INVASIONS * 3)) {
-				qualify = 'Close ';
+				qualify = 'Close&nbsp;';
 			} else if(armyKills < 0 && econKills < 0) {
-				qualify = 'Costly ';
+				qualify = 'Costly&nbsp;';
 			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN < 3) {
-				qualify = 'Quick ';
+				qualify = 'Quick&nbsp;';
 			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN > 10) {
-				qualify = 'Strategic ';
+				qualify = 'Strategic&nbsp;';
 			}
 
 			var scoreObj = {
-				total: (promotionsTotal + fortsDestroyedTotal + recruitsTotal + armyKills + econKills + techLevel + battleWins + invasions + treasury + population + gdp + armyUnits + territories + turns),
+				total: (promotionsTotal + fortsDestroyedTotal + recruitsTotal + armyKills + econKills + techLevel + battleWins + invasions + treasury + population + gdp + armyUnits + territories + turns + totalVictory),
 				promotions: promotionsTotal,
 				forts_destroyed: fortsDestroyedTotal,
 				recruits: recruitsTotal,
@@ -282,7 +284,14 @@ window.App = {
 				avg_tech: techLevel,
 				wins: battleWins,
 				invasions: invasions,
-				qualifier: qualify
+				qualifier: qualify,
+				finalTreasury: treasury,
+				finalEcPopulation: population,
+				finalGDP: gdp,
+				finalArmySize: armyUnits,
+				territoryCount: territories,
+				turnsBonus: turns,
+				totalVictoryBonus: totalVictory
 			};
 
 			return scoreObj;
@@ -1358,6 +1367,15 @@ window.App = {
 				};
 			}
 		},
+		returnRecruitCost: function(recruits) {
+			return recruits * App.Constants.ARMY_UNIT_COST;
+		},
+		returnFortLevelCost: function(model) {
+			return model.get('fortLevelCost');
+		},
+		returnTechUpgradeCost: function(model) {
+			return model.get('econLevelCost');
+		},
 		returnTerrFortCost: function(model) {
 			return App.Constants.FORT_STR_COST * model.get('fortLevel') * (100 - model.get('fortStrength'));
 		},
@@ -1427,7 +1445,7 @@ window.App = {
 				diffToNextFortLvl = App.Constants.FORT_LVL_COST * (1 + currFortLvl),
 				diffToFullFortStr = App.Constants.FORT_STR_COST * currFortLvl * (100 - App.Models.selectedTerrModel.get('fortStrength')),
 				diffToNextEconLvl = App.Constants.ECON_LVL_UP_AMT * (1 + currLvl),
-				diffToArmyTraining = ((100 - App.Models.selectedTerrModel.get('armyXP')) * 0.25) * (App.Constants.ARMY_TRAINING_COST * App.Models.selectedTerrModel.get('armyPopulation') / 1000);
+				diffToArmyTraining = 25 * (App.Constants.ARMY_TRAINING_COST * App.Models.selectedTerrModel.get('armyPopulation') / 1000);
 
 			App.Models.selectedTerrModel.set({
 				'currTreasury' : App.Utilities.getTreasury(),
@@ -1565,7 +1583,7 @@ window.App = {
 		trainTerrArmy: function() {
 
 			var oldXP = App.Models.selectedTerrModel.get('armyXP'),
-				newXP = oldXP + Math.round((100 - oldXP) * 0.25),
+				newXP = oldXP + 25,
 				oldMor = App.Models.selectedTerrModel.get('morale'),
 				newMor = Math.min(Math.round(oldMor + (newXP - oldXP)), 100);
 

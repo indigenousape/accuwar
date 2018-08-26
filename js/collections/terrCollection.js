@@ -24,51 +24,53 @@ App.Collections.Territories = Backbone.Collection.extend({
         });
 
     },
-    removeAttackRange: function(model) {
+    battleImpact: function(winner, invaded) {
 
-        var enemyTerritoriesArr = _.chain(this.models)
-            .filter(function(model) { return model.get('side') != App.Utilities.activeSide() })
-            .value();
+        var winningSide = winner.get('side');
 
-        _.each(enemyTerritoriesArr, function(model) {
-            
-            if(model.get('inRange')) {
-                model.set('inRange', false);
-            }
-        
+        // Update army and economic morale values in all territories after an attack
+        App.Collections.terrCollection.forEach(function(model, index) {
+
+            var beforeTurnMor = model.get('morale'),
+                afterTurnMor,
+                beforeTurnEconMor = model.get('econMorale'),
+                afterTurnEconMor,
+                beforeTurnGDP = model.get('economicOutput'),
+                afterTurnGDP;
+
+            if(model.get('side') == winningSide) {
+                afterTurnMor = invaded ? Math.min(beforeTurnMor + 5, 100) : Math.min(beforeTurnMor + 2, 100);
+                afterTurnEconMor = invaded ? Math.min(beforeTurnEconMor + 5, 100) : Math.min(beforeTurnEconMor + 3, 100);
+                var afterTurnGDP = App.Utilities.updateGDP({
+                    newMorale : afterTurnEconMor,
+                    newLevel : model.get('econLevel'),
+                    newEconPopulation: model.get('econPopulation'),
+                    newEconStrength: model.get('econStrength'),
+                    ecGrowthRate: model.get('econGrowthPct')
+                });
+
+            } else {
+                afterTurnMor = invaded ? Math.max(beforeTurnMor - 5, 1) : Math.max(beforeTurnMor - 2, 1);
+                afterTurnEconMor = invaded ? Math.max(beforeTurnEconMor - 5, 1) : Math.max(beforeTurnEconMor - 3, 1);
+                var afterTurnGDP = App.Utilities.updateGDP({
+                    newMorale : afterTurnEconMor,
+                    newLevel : model.get('econLevel'),
+                    newEconPopulation: model.get('econPopulation'),
+                    newEconStrength: model.get('econStrength'),
+                    ecGrowthRate: model.get('econGrowthPct')
+                });
+            } 
+
+            model.set({ 
+                'morale' : afterTurnMor,
+                'econMorale' : afterTurnEconMor,
+                'economicOutput' : afterTurnGDP
+            });
+
         });
     },
     casualtiesTotal: function() {
         return this.getSideCasualties('left', 'army') + this.getSideCasualties('right', 'army');
-    },
-    returnAvgTechLevel: function(s) {
-        var totalTechLevel = _.chain(this.models)
-                        .filter(function(model) { return model.get('side') === s })
-                        .reduce(function(memo, model){ return memo + model.get('econLevel'); }, 0)
-                        .value();
-
-        var terrs = _.chain(this.models)
-                        .filter(function(model) { return model.get('side') === s })
-                        .value();
-
-        return Math.round(totalTechLevel/_.size(terrs));
-
-    },
-    specialMap: function(name1, name2) {
-
-    	var empNamesTogether = name1.toLowerCase() + name2.toLowerCase(),
-    		terrNames = App.Utilities.territoryNames(empNamesTogether);
-
-    	_.each(this.models, function(model) {
-            var terrLen = terrNames.length,
-                thisTerrIndex = _.random(0, (terrLen - 1));
-
-            model.set('name', terrNames[thisTerrIndex]);
-			
-            terrNames.splice(thisTerrIndex, 1);
-   		
-    	});
-
     },
     changeColorsTerrNames: function() {
 
@@ -95,226 +97,6 @@ App.Collections.Territories = Backbone.Collection.extend({
             return App.Utilities.getEnemyEmpireName() === name; 
 
         }
-
-    },
-    recruitTarget: function() {
-
-        var recruitTerritoriesArr = _.chain(this.models)
-            .filter(function(selected) { return selected.get('side') === App.Utilities.activeSide() })
-            .value();
-
-        _.each(recruitTerritoriesArr, function(model) {
-            model.set('recruitTarget', true);
-        });
-
-    },
-    returnSelectedView: function(cid) {
-        var view = _.chain(App.Views.allViews)
-            .filter(function(selected) { return selected.model.cid === cid })
-            .value();
- 
-            return view[0];
-
-    },
-    removeRecruitTarget: function() {
-
-        var recruitTerritoriesArr = _.chain(this.models)
-            .filter(function(selected) { return selected.get('side') === App.Utilities.activeSide() })
-            .value();
-
-        _.each(recruitTerritoriesArr, function(model) {
-            model.set('recruitTarget', false);
-        });
-
-    },
-    returnAnyTurnsLeft: function() {
-    	var terrWithRemainingTurns = false;
-
-        // Receives the side to filter the models, then adds the values from the model at "property" together and returns the results
-        var terrWithRemainingTurns = _.chain(this.models)
-                        .filter(function(model) { return model.get('side') === App.Utilities.activeSide() })
-                        .some(function(model) { return model.get('remainingTurns') > 0;})
-                        .value();
-
-    	return terrWithRemainingTurns;
-
-    },
-    updgradeAllTechLevelsPolicy: function(s) {
-
-        // Create an array from the collection
-        // Filter out only the models that match the side passed to the function
-        // and those with econ strength equal to 100 and levels below the maximum
-        // then sort by the levels in ascending order
-
-        var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === s && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL && model.get('econStrength') === 100; })
-                    .sortBy(function(model){ return model.get('econLevel'); })
-                    .value();
-
-        _.each(array, function(model) {
-
-            if(App.Utilities.getTreasuryAuto(s) > model.get('econLevelCost')) {
-                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('econLevelCost');
-                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('econLevelCost'), s, policyCosts);
-                App.Utilities.upgradeTerrEconLevel(model, true);
-            }
-
-        });
-    },
-    updgradeAllFortsPolicy: function(s) {
-
-        // Create an array from the collection
-        // Filter out only the models that match the side passed to the function
-        // and those with econ strength equal to 100 and levels below the maximum
-        // then sort by the levels in ascending order
-
-        var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === s && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL && model.get('fortStrength') === 100; })
-                    .sortBy(function(model){ return model.get('fortLevel'); })
-                    .value();
-
-        _.each(array, function(model) {
-
-            if(App.Utilities.getTreasuryAuto(s) > model.get('fortLevelCost')) {
-                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('fortLevelCost');
-                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('fortLevelCost'), s, policyCosts);
-                App.Utilities.upgradeTerrArmyFortLevel(model, true);
-            }
-
-        });
-    },  
-    repairAllFortsPolicy: function(s) {
-
-        // Create an array from the collection
-        // Filter out only the models that match the side passed to the function
-        // and those with strength less than 100, then sort by the strength in ascending order
-
-        var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === s && model.get('fortStrength') < 100 })
-                    .sortBy(function(model){ return model.get('fortStrength') })
-                    .value();
-
-        _.each(array, function(model) {
-
-            if(App.Utilities.getTreasuryAuto(s) > model.get('fortStrengthCost')) {
-                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('fortStrengthCost');
-                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('fortStrengthCost'), s, policyCosts);
-                App.Utilities.repairTerrFortStr(model);
-                App.Models.nationStats.get(s).set('repairAllFortCost', App.Collections.terrCollection.returnTotalCost('fortStrength'));
-            }
-
-        });
-    },
-    recruitPolicy: function(s) {
-        var recruits = _.findWhere(App.Models.nationStats.get(s).get('activePolicies'), {'id': 'recruit_army'}).amount;
-        var recruitCost = App.Constants.ARMY_UNIT_COST * recruits;
-
-        // Create an array from the collection
-        // Filter out only the models that match the side passed to the function
-        // and those without the population to support the number of recruits,
-        // then sort territories by the army size from smallest to largest
-
-        var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === s && recruits < model.get('econPopulation') })
-                    .sortBy(function(model){ return model.get('armyPopulation') })
-                    .value();
-
-        _.each(array, function(model) {
-
-            if(recruitCost < App.Utilities.getTreasuryAuto(s)) {
-                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + recruitCost;
-                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - recruitCost, s, policyCosts);
-                model.incomingUnitsAuto(model, recruits, s);
-            }
-
-        });
-    },
-    repairAllInfrastructurePolicy: function(s) {
-
-        // Create an array from the collection
-        // Filter out only the models that match the side passed to the function
-        // and those with strength less than 100, then sort by the strength in ascending order
-
-        var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === s && model.get('econStrength') < 100 })
-                    .sortBy(function(model){ return model.get('econStrength') })
-                    .value();
-
-        _.each(array, function(model) {
-
-            if(App.Utilities.getTreasuryAuto(s) > model.get('econStrengthCost')) {
-                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('econStrengthCost');
-                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('econStrengthCost'), s, policyCosts);
-                App.Utilities.upgradeTerrEconStr(model);
-            }
-
-        });
-    },
-    repairAllInfrastructure: function() {
-
-        // Create an array from the models
-        // Filter to return only models that match the active side
-        // have remaining turns, and an econ strength below 100
-
-        var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === App.Utilities.activeSide() && model.get('econStrength') < 100 && model.get('remainingTurns') > 0 })
-                    .value();
-
-        _.each(array, function(model) {
-            App.Utilities.upgradeTerrEconStr(model);
-        });
-
-    },
-    repairAllForts: function() {
-
-        // Create an array from the models
-        // Filter to return only models that match the active side,
-        // have turns, and are in need of fort repair
-
-        var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === App.Utilities.activeSide() && model.get('fortStrength') < 100 && model.get('remainingTurns') > 0 })
-                    .value();
-
-    	_.each(array, function(model) {
-    		App.Utilities.repairTerrFortStr(model);
-    	});
-    },
-    returnTotalCost: function(type, s) { 
-        var totCost = 0,
-            costFunction = {};
-
-        if(type === 'fortStrength') {
-            costFunction = App.Utilities.returnTerrFortCost;
-        } else if (type === 'econStrength') {
-            costFunction = App.Utilities.returnTerrInfraCost;
-        }
-
-
-        if(typeof s === 'undefined') {
-            s = App.Utilities.activeSide();
-        }
-
-        //Receives the side to filter the models, then adds the values returned from the utility function together and returns the results
-
-
-        if(App.Utilities.activeSide() === s) {
-
-            var totCost = _.chain(this.models)
-                            .filter(function(model) { return model.get('side') === s && model.get(type) != 100 && model.get('remainingTurns') > 0})
-                            .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
-                            .value(); // && model.get('fortStrength') != 100
-
-        } else {
-
-            var totCost = _.chain(this.models)
-                                .filter(function(model) { return model.get('side') === s && model.get(type) != 100})
-                                .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
-                                .value(); // && model.get('fortStrength') != 100
-
-        }
-
-
-        return totCost;
 
     },
     getSideCapital: function(s) {
@@ -350,20 +132,6 @@ App.Collections.Territories = Backbone.Collection.extend({
                 .value();
 
     },
-    getSideTerritoriesWithTurns: function(s) {
-
-        return _.filter(this.models, function(model) { return model.get('side') === s && model.get('remainingTurns') != 0});
-
-    },
-    returnSideTotal: function(s, property) {
-        // Receives the side to filter the models, then adds the values from the model at "property" together and returns the results
-        var total = _.chain(this.models)
-                        .filter(function(model) { return model.get('side') === s })
-                        .reduce(function(memo, model){ return memo + model.get(property); }, 0)
-                        .value();
-
-        return total;
-    },
     getSideTerritoriesWithRecruits: function(s) {
 
         var recruitTerrs = _.chain(this.models)
@@ -374,141 +142,91 @@ App.Collections.Territories = Backbone.Collection.extend({
 
         return recruitTerrs;
     },
-    taxCollection: function() {
+    getSideTerritoriesWithTurns: function(s) {
 
-    	var leftTaxesCollected = 0,
-    		rightTaxesCollected = 0,
-    		leftTaxRate = App.Views.nationStatsView.model.get('left').get('taxRate'),
- 			rightTaxRate = App.Views.nationStatsView.model.get('right').get('taxRate');
-    	
-    	_.each(this.models, function(model){
-    		
-    		if (model.get('side') === 'left') {
-    			leftTaxesCollected += Math.round(model.get('economicOutput') * leftTaxRate);
-    		} else if (model.get('side') === 'right') {
-    			rightTaxesCollected += Math.round(model.get('economicOutput') * rightTaxRate);
-    		}
-
-    	});
-
-    	var newLeftTreasury = App.Views.nationStatsView.model.get('left').get('treasury') + leftTaxesCollected,
-    		newRightTreasury = App.Views.nationStatsView.model.get('right').get('treasury') + rightTaxesCollected;
-
-    	App.Views.nationStatsView.model.get('left').set({
-    		'treasury': newLeftTreasury,
-    		'treasuryStart': newLeftTreasury,
-    		'treasuryPrev': newLeftTreasury,
-            'taxesCollected': leftTaxesCollected
-    	});
-
-    	App.Views.nationStatsView.model.get('right').set({
-    		'treasury': newRightTreasury,
-    		'treasuryStart': newRightTreasury,
-    		'treasuryPrev': newRightTreasury,
-            'taxesCollected' : rightTaxesCollected
-    	});
+        return _.filter(this.models, function(model) { return model.get('side') === s && model.get('remainingTurns') != 0});
 
     },
-    nextTreasury: function() {
-    	// Move this function from the terrCollection into the nationStats model
+    multiplePoliciesInFull: function(policiesInFullObj) {
 
-    	var leftOutputTotal = this.returnSideTotal('left', 'economicOutput'),
-    		rightOutputTotal = this.returnSideTotal('right', 'economicOutput'),
-    		leftNextTreasuryAddedEst = Math.round(leftOutputTotal * App.Models.nationStats.get('left').get('taxRate')),
-    		rightNextTreasuryAddedEst = Math.round(rightOutputTotal * App.Models.nationStats.get('right').get('taxRate'));
+        // Get side territories collection
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === policiesInFullObj[0].side })
+                    .value();
 
- 		App.Models.nationStats.get('left').set({
- 			'nextTreasuryAddedEst' : leftNextTreasuryAddedEst,
-            'econOutput' : this.returnSideTotal('left', 'economicOutput')
- 		});
+        var repairInfra = !_.isEmpty(_.findWhere(policiesInFullObj, {id: 'repair_infra'})),
+            repairForts = !_.isEmpty(_.findWhere(policiesInFullObj, {id: 'repair_forts'})),
+            recruitUnits = !_.isEmpty(_.findWhere(policiesInFullObj, {id: 'recruit_army'})),
+            upgradeTech = !_.isEmpty(_.findWhere(policiesInFullObj, {id: 'upgrade_tech'})),
+            upgradeForts = !_.isEmpty(_.findWhere(policiesInFullObj, {id: 'upgrade_forts'}));
 
- 		App.Models.nationStats.get('right').set({
- 			'nextTreasuryAddedEst' : rightNextTreasuryAddedEst,
-            'econOutput' : this.returnSideTotal('right', 'economicOutput')
- 		});
+        var recruitIndex = _.findIndex(policiesInFullObj, function(policy) { return policy.id == 'recruit_army' });
+
+        _.each(array, function(model) {
+            var newInfrastrength = repairInfra ? 100 : model.get('econStrength'),
+                newFortStrength = repairForts ? 100 : model.get('fortStrength'),
+                newUnits =  recruitUnits ? model.get('armyPopulation') + policiesInFullObj[recruitIndex].amount : model.get('armyPopulation'),
+                newEconPopulation = recruitUnits ? model.get('econPopulation') - policiesInFullObj[recruitIndex].amount : model.get('econPopulation'),
+                newEconLevel = upgradeTech && model.get('econStrength') === 100 || upgradeTech && repairInfra ? model.get('econLevel') + 1 : model.get('econLevel'),
+                newFortLevel = upgradeForts && model.get('fortStrength') === 100 || upgradeForts && repairForts ? model.get('fortLevel') + 1 : model.get('fortLevel'),
+                recruits = recruitUnits ? policiesInFullObj[recruitIndex].amount : 0,
+                newEconStrengthCost = repairInfra ? 0 : model.get('econStrengthCost'),
+                newFortStrengthCost = repairForts ? 0 : model.get('fortStrengthCost'),
+                newFortLevelCost = upgradeForts && model.get('fortStrength') === 100 || upgradeForts && repairForts ? App.Constants.FORT_LVL_COST * (1 + newFortLevel) : model.get('fortLevelCost'),
+                newEconLevelCost = upgradeTech && model.get('econStrength') === 100 || upgradeTech && repairInfra ? App.Constants.ECON_LVL_UP_AMT * (1 + newEconLevel) : model.get('econLevelCost');
+
+            var newVals = App.Utilities.returnRecruitMoraleXPRank(model, recruits),
+                oldArmyMorale = newVals.toMorale,
+                newArmyMorale = Math.round(oldArmyMorale + ((100 - newFortStrength / 2))),
+                newArmyMorale = Math.min(newArmyMorale, 100);
+
+            var ecMorale = App.Utilities.updateEconMorale({
+                selectedFortStrength : newFortStrength,
+                econStrength: newInfrastrength,
+                econPopulation: newEconPopulation,
+                selectedArmyPop: newUnits,
+                econLevel: newEconLevel,
+                selectedFortLevel: newFortLevel,
+                newMorale: model.get('econMorale')
+            }),
+                updateGDP = App.Utilities.updateGDP({
+                    newMorale : ecMorale,
+                    newEconStrength: newInfrastrength,
+                    newEconPopulation : newEconPopulation,
+                    newLevel : newEconLevel,
+                    ecGrowthRate: model.get('econGrowthPct')
+                });
+
+            model.set({
+                econPopulation: newEconPopulation,
+                startEconPopulation: newEconPopulation,
+                prvEconPopulation: newEconPopulation,
+                econMorale: ecMorale,
+                econStrength: newInfrastrength,
+                fortStrength: newFortStrength,
+                armyPopulation: newUnits,
+                startPopulation: newUnits,
+                prvPopulation: newUnits,
+                econLevel: newEconLevel,
+                fortLevel: newFortLevel,
+                morale: newVals.toMorale,
+                armyRank: newVals.toRank,
+                armyXP: newVals.toXP,
+                armyRecruits : recruits,
+                recruitsAuto: recruits,
+                economicOutput: updateGDP,
+                startEconomicOutput: updateGDP,
+                econStrengthCost: newEconStrengthCost,
+                fortStrengthCost: newFortStrengthCost,
+                fortLevelCost: newFortLevelCost,
+                econLevelCost: newEconLevelCost
+            });
+
+        });
+
+        App.Models.nationStats.get(policiesInFullObj[0].side).set('armyTechLvl', App.Collections.terrCollection.returnAvgTechLevel(policiesInFullObj[0].side)); 
 
     },
-    updateAllMoraleGDP: function(taxRate, side) {
-
-   		var oldTaxRate = App.Views.nationStatsView.model.get(side).get('taxRate');
-
-   		_.each(this.models, function(model){
-
-   			App.Models.selectedTerrModel = model;
-
-    		if (model.get('side') === side) {
-
-    			var updatedMorale = App.Utilities.updateEconMorale({
-    				selectedTaxRate : taxRate,
-    				oldTaxRate : oldTaxRate,
-    				newMorale : App.Models.selectedTerrModel.get('econMorale')
-    			});
-
-    			var updatedTerrGDP = App.Utilities.updateGDP({
-    				newMorale : updatedMorale,
-    				newLevel : App.Models.selectedTerrModel.get('econLevel'),
-    				newEconPopulation: App.Models.selectedTerrModel.get('econPopulation'),
-    				newEconStrength: App.Models.selectedTerrModel.get('econStrength'),
-    				ecGrowthRate: App.Models.selectedTerrModel.get('econGrowthPct')
-    			});
-
-    			App.Models.selectedTerrModel.set({
-    				econMorale: updatedMorale,
-    				economicOutput: updatedTerrGDP
-    			});
-
-    		}
-
-    	});
-
-    	App.Models.selectedTerrModel = App.Models.clickedTerrModel;
-
-    },
-    battleImpact: function(winner, invaded) {
-
-		var winningSide = winner.get('side');
-
-		// Update army and economic morale values in all territories after an attack
-		App.Collections.terrCollection.forEach(function(model, index) {
-
-			var beforeTurnMor = model.get('morale'),
-				afterTurnMor,
-				beforeTurnEconMor = model.get('econMorale'),
-				afterTurnEconMor,
-				beforeTurnGDP = model.get('economicOutput'),
-				afterTurnGDP;
-
-			if(model.get('side') == winningSide) {
-				afterTurnMor = invaded ? Math.min(beforeTurnMor + 5, 100) : Math.min(beforeTurnMor + 2, 100);
-				afterTurnEconMor = invaded ? Math.min(beforeTurnEconMor + 5, 100) : Math.min(beforeTurnEconMor + 3, 100);
-    			var afterTurnGDP = App.Utilities.updateGDP({
-    				newMorale : afterTurnEconMor,
-    				newLevel : model.get('econLevel'),
-    				newEconPopulation: model.get('econPopulation'),
-    				newEconStrength: model.get('econStrength'),
-    				ecGrowthRate: model.get('econGrowthPct')
-    			});
-
-			} else {
-				afterTurnMor = invaded ? Math.max(beforeTurnMor - 5, 1) : Math.max(beforeTurnMor - 2, 1);
-				afterTurnEconMor = invaded ? Math.max(beforeTurnEconMor - 5, 1) : Math.max(beforeTurnEconMor - 3, 1);
-    			var afterTurnGDP = App.Utilities.updateGDP({
-    				newMorale : afterTurnEconMor,
-    				newLevel : model.get('econLevel'),
-    				newEconPopulation: model.get('econPopulation'),
-    				newEconStrength: model.get('econStrength'),
-    				ecGrowthRate: model.get('econGrowthPct')
-    			});
-			} 
-
-			model.set({ 
-				'morale' : afterTurnMor,
-				'econMorale' : afterTurnEconMor,
-				'economicOutput' : afterTurnGDP
-			});
-
-		});
-	},
 	newTurnUpdate: function() {
 
 		var currLeftTurn = App.Utilities.activeSide() === 'left',
@@ -530,6 +248,7 @@ App.Collections.Territories = Backbone.Collection.extend({
 			 leftGDPPenalty = 0,
 			 rightGDPPenalty = 0;
 
+        // Set GDP crashes caused by low taxes and random chance
 		if((leftLowTaxCrash || leftRegCrash) && !currLeftTurn) {
 			App.Models.nationStats.get('left').set('econCrash', true);
 
@@ -561,10 +280,10 @@ App.Collections.Territories = Backbone.Collection.extend({
 			App.Models.nationStats.get('right').set('econCrashTurn', 0);
 		}
 
+        // Set and execute policies
         if(!currLeftTurn) {
 
             // Reset policy costs
-
             App.Models.nationStats.get('left').set('policyCosts', 0);
             App.Models.nationStats.get('right').set('policyCosts', 0);
 
@@ -583,6 +302,9 @@ App.Collections.Territories = Backbone.Collection.extend({
                 }
             ]
 
+            var leftPolicies = [];
+            var rightPolicies = [];
+
             for (var i = 0; i < yearPolicies.length; i++) {
 
                 if(yearPolicies[i].enabled != 0) {
@@ -593,35 +315,189 @@ App.Collections.Territories = Backbone.Collection.extend({
                     for (var j = 0; j < yearPolicies[i].policies.length; j++) {
                         if(yearPolicies[i].policies[j].priority != 0 && yearPolicies[i].policies[j].side == yearPolicies[i].side) {
                             activePolicies.push(yearPolicies[i].policies[j]);
+
+                            if (yearPolicies[i].side === 'left') {
+                                leftPolicies.push(yearPolicies[i].policies[j]);
+                            } else if (yearPolicies[i].side === 'right') {
+                                rightPolicies.push(yearPolicies[i].policies[j]);
+                            }
+
                         }
                     }
+
+                    _.sortBy(leftPolicies, 'priority');
+                    _.sortBy(rightPolicies, 'priority');
 
                     _.sortBy(activePolicies, 'priority');
 
-                    for (var k = 0; k < activePolicies.length; k++) {
+                }
+            }
 
-                        switch(activePolicies[k].id) {
+            // Policies work for the left side
+            var leftRunningTotalCost = 0;
+            var prioritiesAffordableInFull = [];
+            var partialPriority = [];
 
-                            case 'repair_infra':
-                                App.Collections.terrCollection.repairAllInfrastructurePolicy(side);
-                                break;
-                            case 'repair_forts':
-                                App.Collections.terrCollection.repairAllFortsPolicy(side);
-                                break;
-                            case 'upgrade_tech':
-                                App.Collections.terrCollection.updgradeAllTechLevelsPolicy(side);
-                                break;
-                            case 'upgrade_forts':
-                                App.Collections.terrCollection.updgradeAllFortsPolicy(side);
-                                break;
-                            case 'recruit_army':
-                                App.Collections.terrCollection.recruitPolicy(side);
-                                break;
-                            default:
-                                return false;
+            for (var i = 0; i < leftPolicies.length; i++) {
 
-                        }
+                var thisPolicyCost = this.returnPolicyCost(leftPolicies[i], !_.isEmpty(_.findWhere(prioritiesAffordableInFull, { id: 'repair_infra'})));
+
+                var affordableInFull = App.Utilities.getTreasuryAuto(leftPolicies[i].side) - leftRunningTotalCost > thisPolicyCost;
+
+                leftRunningTotalCost += affordableInFull && thisPolicyCost > 0 ? thisPolicyCost : 0;
+
+                if(affordableInFull && thisPolicyCost > 0){
+                    prioritiesAffordableInFull.push(leftPolicies[i]);
+
+                    switch (leftPolicies[i].id) {
+
+                        case 'recruit_army':
+                            App.Models.nationStats.get(leftPolicies[i].side).set({
+                                'recruitSpend': thisPolicyCost,
+                                'recruitsAuto': leftPolicies[i].amount * App.Models.nationStats.get(leftPolicies[i].side).get('terrs').length,
+                                'overallRecruits': leftPolicies[i].amount * App.Models.nationStats.get(leftPolicies[i].side).get('terrs').length,
+                                'armyPopulationNow': App.Models.nationStats.get(leftPolicies[i].side).get('armyPopulationNow') + (leftPolicies[i].amount * App.Models.nationStats.get(leftPolicies[i].side).get('terrs').length),
+                                'terrsWithRecruits' : App.Models.nationStats.get(leftPolicies[i].side).get('terrs'),
+                                'econPopulationStart' : App.Models.nationStats.get(leftPolicies[i].side).get('econPopulation') - (leftPolicies[i].amount * App.Models.nationStats.get(leftPolicies[i].side).get('terrs').length),
+                                'recruitsThisTurn': (leftPolicies[i].amount * App.Models.nationStats.get(leftPolicies[i].side).get('terrs').length)
+                            });
+                            break;
+                        case 'repair_infra':
+                            App.Models.nationStats.get(leftPolicies[i].side).set('infrastructureSpend', thisPolicyCost);
+                            break;
+                        case 'repair_forts':
+                            App.Models.nationStats.get(leftPolicies[i].side).set('fortSpend', thisPolicyCost);
+                            break;
+                        case 'upgrade_tech':
+                            App.Models.nationStats.get(leftPolicies[i].side).set('econLevelSpend', thisPolicyCost);
+                            break;
+                        case 'upgrade_forts':
+                            App.Models.nationStats.get(leftPolicies[i].side).set('fortLevelSpend', thisPolicyCost);
+                            break;
+                        default:
+                            return false;
                     }
+
+                } else if (thisPolicyCost > 0) {
+                    partialPriority.push(leftPolicies[i]);
+                    break;
+                }
+
+            }
+
+            // Carry out policies the empire can afford to do in all territories by
+            // cycling through each territory once, and carrying out multiple policies at once
+
+            if(prioritiesAffordableInFull.length > 0) {
+                App.Collections.terrCollection.multiplePoliciesInFull(prioritiesAffordableInFull);
+                var newNationalTreasury = App.Models.nationStats.get('left').get('treasury') - leftRunningTotalCost;
+                App.Models.nationStats.payForUpgradeAuto(newNationalTreasury, 'left', leftRunningTotalCost + App.Models.nationStats.get('left').get('policyCosts'));
+            }
+
+            if (partialPriority.length > 0) {
+                // Carry out partial policy the old way, by cycling through each territory 
+                switch(partialPriority[0].id) {
+                    case 'repair_infra':
+                        App.Collections.terrCollection.repairAllInfrastructurePolicy(partialPriority[0].side);
+                        break;
+                    case 'repair_forts':
+                        App.Collections.terrCollection.repairAllFortsPolicy(partialPriority[0].side);
+                        break;
+                    case 'upgrade_tech':
+                        App.Collections.terrCollection.updgradeAllTechLevelsPolicy(partialPriority[0].side);
+                        break;
+                    case 'upgrade_forts':
+                        App.Collections.terrCollection.updgradeAllFortsPolicy(partialPriority[0].side);
+                        break;
+                    case 'recruit_army':
+                        App.Collections.terrCollection.recruitPolicy(partialPriority[0].side);
+                        break;
+                    default:
+                        return false;
+                }
+            }
+
+            // Policies work for the right side
+            var rightRunningTotalCost = 0;
+            var prioritiesAffordableInFullRight = [];
+            var partialPriorityRight = [];
+
+            for (var i = 0; i < rightPolicies.length; i++) {
+
+                var thisPolicyCost = this.returnPolicyCost(rightPolicies[i], !_.isEmpty(_.findWhere(prioritiesAffordableInFullRight, { id: 'repair_infra'})));
+
+                var affordableInFull = App.Utilities.getTreasuryAuto(rightPolicies[i].side) - rightRunningTotalCost > thisPolicyCost;
+
+                rightRunningTotalCost += affordableInFull && thisPolicyCost > 0 ? thisPolicyCost : 0;
+
+                if(affordableInFull && thisPolicyCost > 0){
+                    prioritiesAffordableInFullRight.push(rightPolicies[i]);
+
+                    switch (rightPolicies[i].id) {
+
+                        case 'recruit_army':
+                            App.Models.nationStats.get(rightPolicies[i].side).set({
+                                'recruitSpend': thisPolicyCost,
+                                'recruitsAuto': rightPolicies[i].amount * App.Models.nationStats.get(rightPolicies[i].side).get('terrs').length,
+                                'overallRecruits': rightPolicies[i].amount * App.Models.nationStats.get(rightPolicies[i].side).get('terrs').length,
+                                'armyPopulationNow': App.Models.nationStats.get(rightPolicies[i].side).get('armyPopulationNow') + (rightPolicies[i].amount * App.Models.nationStats.get(rightPolicies[i].side).get('terrs').length),
+                                'terrsWithRecruits' : App.Models.nationStats.get(rightPolicies[i].side).get('terrs'),
+                                'econPopulationStart' : App.Models.nationStats.get(rightPolicies[i].side).get('econPopulation') - (rightPolicies[i].amount * App.Models.nationStats.get(rightPolicies[i].side).get('terrs').length),
+                                'recruitsThisTurn': (rightPolicies[i].amount * App.Models.nationStats.get(rightPolicies[i].side).get('terrs').length)
+                            });
+                            break;
+                        case 'repair_infra':
+                            App.Models.nationStats.get(rightPolicies[i].side).set('infrastructureSpend', thisPolicyCost);
+                            break;
+                        case 'repair_forts':
+                            App.Models.nationStats.get(rightPolicies[i].side).set('fortSpend', thisPolicyCost);
+                            break;
+                        case 'upgrade_tech':
+                            App.Models.nationStats.get(rightPolicies[i].side).set('econLevelSpend', thisPolicyCost);
+                            break;
+                        case 'upgrade_forts':
+                            App.Models.nationStats.get(rightPolicies[i].side).set('fortLevelSpend', thisPolicyCost);
+                            break;
+                        default:
+                            return false;
+                    }
+
+                } else if (thisPolicyCost > 0) {
+                    partialPriorityRight.push(rightPolicies[i]);
+                    break;
+                }
+
+            }
+
+            // Carry out policies the empire can afford to do in all territories by
+            // cycling through each territory once, and carrying out multiple policies at once
+
+            if(prioritiesAffordableInFullRight.length > 0) {
+                App.Collections.terrCollection.multiplePoliciesInFull(prioritiesAffordableInFullRight);
+                var newNationalTreasury = App.Models.nationStats.get('right').get('treasury') - rightRunningTotalCost;
+                App.Models.nationStats.payForUpgradeAuto(newNationalTreasury, 'right', rightRunningTotalCost + App.Models.nationStats.get('right').get('policyCosts'));
+            }
+
+            if (partialPriorityRight.length > 0) {
+                // Carry out partial policy the old way, by cycling through each territory 
+                switch(partialPriorityRight[0].id) {
+                    case 'repair_infra':
+                        App.Collections.terrCollection.repairAllInfrastructurePolicy(partialPriorityRight[0].side);
+                        break;
+                    case 'repair_forts':
+                        App.Collections.terrCollection.repairAllFortsPolicy(partialPriorityRight[0].side);
+                        break;
+                    case 'upgrade_tech':
+                        App.Collections.terrCollection.updgradeAllTechLevelsPolicy(partialPriorityRight[0].side);
+                        break;
+                    case 'upgrade_forts':
+                        App.Collections.terrCollection.updgradeAllFortsPolicy(partialPriorityRight[0].side);
+                        break;
+                    case 'recruit_army':
+                        App.Collections.terrCollection.recruitPolicy(partialPriorityRight[0].side);
+                        break;
+                    default:
+                        return false;
                 }
             }
 
@@ -636,7 +512,9 @@ App.Collections.Territories = Backbone.Collection.extend({
 
             App.Models.nationStats.get('right').set({
                 overallArmyCasualties: App.Models.nationStats.get('right').get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties('right', 'army'),
-                overallEconCasualties: App.Models.nationStats.get('right').get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties('right', 'econ')
+                overallEconCasualties: App.Models.nationStats.get('right').get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties('right', 'econ'),
+                repairAllInfrastructureCost: this.returnTotalCost('econStrength', 'right'),
+                repairAllFortCost: this.returnTotalCost('fortStrength', 'right')
             });
         }
 
@@ -653,6 +531,8 @@ App.Collections.Territories = Backbone.Collection.extend({
 
 			model.set('prvPopulation', model.get('armyPopulation'));
 			
+            // If the current model is a left side territory and AT THIS POINT the left side has the active turn (which is currently ending)
+            // Set the model's remaingin turns to zero, otherwise set it to 1
 			if(leftSideTerr) {
 				newRemainingTurns = currLeftTurn ? 0 : 1;
 			} else {
@@ -877,12 +757,438 @@ App.Collections.Territories = Backbone.Collection.extend({
                 recruitsAuto: 0,
 				recruitsThisTurn: rightRecruits,
 				terrLostThisTurn: [],
-                terrsWithRecruits: rightTerrWithRecruits,
-				repairAllInfrastructureCost: this.returnTotalCost('econStrength', 'right'),
-				repairAllFortCost: this.returnTotalCost('fortStrength', 'right')
+                terrsWithRecruits: rightTerrWithRecruits
 	 		});
 
  		}
 
-	}
+	},
+    nextTreasury: function() {
+        // Move this function from the terrCollection into the nationStats model
+
+        var leftOutputTotal = this.returnSideTotal('left', 'economicOutput'),
+            rightOutputTotal = this.returnSideTotal('right', 'economicOutput'),
+            leftNextTreasuryAddedEst = Math.round(leftOutputTotal * App.Models.nationStats.get('left').get('taxRate')),
+            rightNextTreasuryAddedEst = Math.round(rightOutputTotal * App.Models.nationStats.get('right').get('taxRate'));
+
+        App.Models.nationStats.get('left').set({
+            'nextTreasuryAddedEst' : leftNextTreasuryAddedEst,
+            'econOutput' : this.returnSideTotal('left', 'economicOutput')
+        });
+
+        App.Models.nationStats.get('right').set({
+            'nextTreasuryAddedEst' : rightNextTreasuryAddedEst,
+            'econOutput' : this.returnSideTotal('right', 'economicOutput')
+        });
+
+    },
+    recruitPolicy: function(s) {
+        var recruits = _.findWhere(App.Models.nationStats.get(s).get('activePolicies'), {'id': 'recruit_army'}).amount;
+        var recruitCost = App.Constants.ARMY_UNIT_COST * recruits;
+
+        // Create an array from the collection
+        // Filter out only the models that match the side passed to the function
+        // and those without the population to support the number of recruits,
+        // then sort territories by the army size from smallest to largest
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === s && recruits < model.get('econPopulation') })
+                    .sortBy(function(model){ return model.get('armyPopulation') })
+                    .value();
+
+        _.each(array, function(model) {
+
+            if(recruitCost < App.Utilities.getTreasuryAuto(s)) {
+                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + recruitCost;
+                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - recruitCost, s, policyCosts);
+                model.incomingUnitsAuto(model, recruits, s);
+            }
+
+        });
+    },
+    recruitTarget: function() {
+
+        var recruitTerritoriesArr = _.chain(this.models)
+            .filter(function(selected) { return selected.get('side') === App.Utilities.activeSide() })
+            .value();
+
+        _.each(recruitTerritoriesArr, function(model) {
+            model.set('recruitTarget', true);
+        });
+
+    },
+    removeAttackRange: function(model) {
+
+        var enemyTerritoriesArr = _.chain(this.models)
+            .filter(function(model) { return model.get('side') != App.Utilities.activeSide() })
+            .value();
+
+        _.each(enemyTerritoriesArr, function(model) {
+            
+            if(model.get('inRange')) {
+                model.set('inRange', false);
+            }
+        
+        });
+    },
+    removeRecruitTarget: function() {
+
+        var recruitTerritoriesArr = _.chain(this.models)
+            .filter(function(selected) { return selected.get('side') === App.Utilities.activeSide() })
+            .value();
+
+        _.each(recruitTerritoriesArr, function(model) {
+            model.set('recruitTarget', false);
+        });
+
+    },
+    repairAllForts: function() {
+
+        // Create an array from the models
+        // Filter to return only models that match the active side,
+        // have turns, and are in need of fort repair
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === App.Utilities.activeSide() && model.get('fortStrength') < 100 && model.get('remainingTurns') > 0 })
+                    .value();
+
+        _.each(array, function(model) {
+            App.Utilities.repairTerrFortStr(model);
+        });
+    },
+    repairAllFortsPolicy: function(s) {
+
+        // Create an array from the collection
+        // Filter out only the models that match the side passed to the function
+        // and those with strength less than 100, then sort by the strength in ascending order
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === s && model.get('fortStrength') < 100 })
+                    .sortBy(function(model){ return model.get('fortStrength') })
+                    .value();
+
+        _.each(array, function(model) {
+
+            if(App.Utilities.getTreasuryAuto(s) > model.get('fortStrengthCost')) {
+                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('fortStrengthCost');
+                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('fortStrengthCost'), s, policyCosts);
+                App.Utilities.repairTerrFortStr(model);
+                App.Models.nationStats.get(s).set('repairAllFortCost', App.Collections.terrCollection.returnTotalCost('fortStrength'));
+            }
+
+        });
+    },
+    repairAllInfrastructure: function() {
+
+        // Create an array from the models
+        // Filter to return only models that match the active side
+        // have remaining turns, and an econ strength below 100
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === App.Utilities.activeSide() && model.get('econStrength') < 100 && model.get('remainingTurns') > 0 })
+                    .value();
+
+        _.each(array, function(model) {
+            App.Utilities.upgradeTerrEconStr(model);
+        });
+
+    },
+    repairAllInfrastructurePolicy: function(s) {
+
+        // Create an array from the collection
+        // Filter out only the models that match the side passed to the function
+        // and those with strength less than 100, then sort by the strength in ascending order
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === s && model.get('econStrength') < 100 })
+                    .sortBy(function(model){ return model.get('econStrength') })
+                    .value();
+
+        _.each(array, function(model) {
+
+            if(App.Utilities.getTreasuryAuto(s) > model.get('econStrengthCost')) {
+                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('econStrengthCost');
+                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('econStrengthCost'), s, policyCosts);
+                App.Utilities.upgradeTerrEconStr(model);
+            }
+
+        });
+    },
+    returnAnyTurnsLeft: function() {
+        var terrWithRemainingTurns = false;
+
+        // Receives the side to filter the models, then adds the values from the model at "property" together and returns the results
+        var terrWithRemainingTurns = _.chain(this.models)
+                        .filter(function(model) { return model.get('side') === App.Utilities.activeSide() })
+                        .some(function(model) { return model.get('remainingTurns') > 0;})
+                        .value();
+
+        return terrWithRemainingTurns;
+
+    },
+    returnAvgTechLevel: function(s) {
+        var totalTechLevel = _.chain(this.models)
+                        .filter(function(model) { return model.get('side') === s })
+                        .reduce(function(memo, model){ return memo + model.get('econLevel'); }, 0)
+                        .value();
+
+        var terrs = _.chain(this.models)
+                        .filter(function(model) { return model.get('side') === s })
+                        .value();
+
+        return Math.round(totalTechLevel/_.size(terrs));
+
+    },
+    returnPolicyCost: function(policy, infFlag) {
+
+        var totPolicyCost = 0,
+            costFunction = {},
+            type = '',
+            recruits = 0,
+            infraFlag = infFlag ? infFlag : false;
+
+        switch(policy.id) {
+            case 'repair_infra':
+                costFunction = App.Utilities.returnTerrInfraCost;
+                type = 'econStrength';
+                break;
+            case 'repair_forts':
+                costFunction = App.Utilities.returnTerrFortCost;
+                type = 'fortStrength';
+                break;
+            case 'upgrade_tech':
+                costFunction = App.Utilities.returnTechUpgradeCost;
+                type = 'econStrength';
+                break;
+            case 'upgrade_forts':
+                costFunction = App.Utilities.returnFortLevelCost;
+                type = 'fortStrength';
+                break;
+            case 'recruit_army':
+                costFunction = App.Utilities.returnRecruitCost;
+                recruits = policy.amount;
+                break;
+            default:
+                return false;
+        }
+
+        //Receives the side to filter the models, then adds the values returned from the utility function together and returns the results
+
+        // If it's infrastructure or fort strength that needs repairing, use a total function that checks the side and damage before adding up the cost
+        if(policy.id === 'repair_infra' || policy.id === 'repair_forts') {
+
+            totPolicyCost = _.chain(this.models)
+                            .filter(function(model) { return model.get('side') === policy.side && model.get(type) != 100})
+                            .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
+                            .value();
+
+        } else if ((!infraFlag && policy.id === 'upgrade_tech') || policy.id === 'upgrade_forts') {
+
+            totPolicyCost = _.chain(this.models)
+                            .filter(function(model) { return model.get('side') === policy.side && model.get(type) === 100})
+                            .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
+                            .value();
+
+        } else if (infraFlag && policy.id === 'upgrade_tech') {
+
+            totPolicyCost = _.chain(this.models)
+                            .filter(function(model) { return model.get('side') === policy.side})
+                            .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
+                            .value();
+
+        } else if (policy.id === 'recruit_army') {
+
+            totPolicyCost = _.chain(this.models)
+                            .filter(function(model) { return model.get('side') === policy.side && recruits < (model.get('econPopulation') / 2)})
+                            .reduce(function(memo, model){ return memo + costFunction(recruits); }, 0)
+                            .value();
+        }
+
+        return totPolicyCost;        
+
+    },
+    returnSelectedView: function(cid) {
+        var view = _.chain(App.Views.allViews)
+            .filter(function(selected) { return selected.model.cid === cid })
+            .value();
+ 
+            return view[0];
+
+    },
+    returnSideTotal: function(s, property) {
+        // Receives the side to filter the models, then adds the values from the model at "property" together and returns the results
+        var total = _.chain(this.models)
+                        .filter(function(model) { return model.get('side') === s })
+                        .reduce(function(memo, model){ return memo + model.get(property); }, 0)
+                        .value();
+
+        return total;
+    },
+    returnTotalCost: function(type, s) { 
+        var totCost = 0,
+            costFunction = {};
+
+        if(type === 'fortStrength') {
+            costFunction = App.Utilities.returnTerrFortCost;
+        } else if (type === 'econStrength') {
+            costFunction = App.Utilities.returnTerrInfraCost;
+        }
+
+
+        if(typeof s === 'undefined') {
+            s = App.Utilities.activeSide();
+        }
+
+        //Receives the side to filter the models, then adds the values returned from the utility function together and returns the results
+
+        if(App.Utilities.activeSide() === s) {
+
+            var totCost = _.chain(this.models)
+                            .filter(function(model) { return model.get('side') === s && model.get(type) != 100 && model.get('remainingTurns') > 0})
+                            .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
+                            .value(); // && model.get('fortStrength') != 100
+
+        } else {
+
+            var totCost = _.chain(this.models)
+                                .filter(function(model) { return model.get('side') === s && model.get(type) != 100})
+                                .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
+                                .value(); // && model.get('fortStrength') != 100
+
+        }
+
+        return totCost;
+
+    },
+    specialMap: function(name1, name2) {
+
+        var empNamesTogether = name1.toLowerCase() + name2.toLowerCase(),
+            terrNames = App.Utilities.territoryNames(empNamesTogether);
+
+        _.each(this.models, function(model) {
+            var terrLen = terrNames.length,
+                thisTerrIndex = _.random(0, (terrLen - 1));
+
+            model.set('name', terrNames[thisTerrIndex]);
+            
+            terrNames.splice(thisTerrIndex, 1);
+        
+        });
+
+    },
+    taxCollection: function() {
+
+        var leftTaxesCollected = 0,
+            rightTaxesCollected = 0,
+            leftTaxRate = App.Views.nationStatsView.model.get('left').get('taxRate'),
+            rightTaxRate = App.Views.nationStatsView.model.get('right').get('taxRate');
+        
+        _.each(this.models, function(model){
+            
+            if (model.get('side') === 'left') {
+                leftTaxesCollected += Math.round(model.get('economicOutput') * leftTaxRate);
+            } else if (model.get('side') === 'right') {
+                rightTaxesCollected += Math.round(model.get('economicOutput') * rightTaxRate);
+            }
+
+        });
+
+        var newLeftTreasury = App.Views.nationStatsView.model.get('left').get('treasury') + leftTaxesCollected,
+            newRightTreasury = App.Views.nationStatsView.model.get('right').get('treasury') + rightTaxesCollected;
+
+        App.Views.nationStatsView.model.get('left').set({
+            'treasury': newLeftTreasury,
+            'treasuryStart': newLeftTreasury,
+            'treasuryPrev': newLeftTreasury,
+            'taxesCollected': leftTaxesCollected
+        });
+
+        App.Views.nationStatsView.model.get('right').set({
+            'treasury': newRightTreasury,
+            'treasuryStart': newRightTreasury,
+            'treasuryPrev': newRightTreasury,
+            'taxesCollected' : rightTaxesCollected
+        });
+
+    },
+    updateAllMoraleGDP: function(taxRate, side) {
+
+        var oldTaxRate = App.Views.nationStatsView.model.get(side).get('taxRate');
+
+        _.each(this.models, function(model){
+
+            App.Models.selectedTerrModel = model;
+
+            if (model.get('side') === side) {
+
+                var updatedMorale = App.Utilities.updateEconMorale({
+                    selectedTaxRate : taxRate,
+                    oldTaxRate : oldTaxRate,
+                    newMorale : App.Models.selectedTerrModel.get('econMorale')
+                });
+
+                var updatedTerrGDP = App.Utilities.updateGDP({
+                    newMorale : updatedMorale,
+                    newLevel : App.Models.selectedTerrModel.get('econLevel'),
+                    newEconPopulation: App.Models.selectedTerrModel.get('econPopulation'),
+                    newEconStrength: App.Models.selectedTerrModel.get('econStrength'),
+                    ecGrowthRate: App.Models.selectedTerrModel.get('econGrowthPct')
+                });
+
+                App.Models.selectedTerrModel.set({
+                    econMorale: updatedMorale,
+                    economicOutput: updatedTerrGDP
+                });
+
+            }
+
+        });
+
+        App.Models.selectedTerrModel = App.Models.clickedTerrModel;
+
+    },
+    updgradeAllTechLevelsPolicy: function(s) {
+
+        // Create an array from the collection
+        // Filter out only the models that match the side passed to the function
+        // and those with econ strength equal to 100 and levels below the maximum
+        // then sort by the levels in ascending order
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === s && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL && model.get('econStrength') === 100; })
+                    .sortBy(function(model){ return model.get('econLevel'); })
+                    .value();
+
+        _.each(array, function(model) {
+
+            if(App.Utilities.getTreasuryAuto(s) > model.get('econLevelCost')) {
+                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('econLevelCost');
+                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('econLevelCost'), s, policyCosts);
+                App.Utilities.upgradeTerrEconLevel(model, true);
+            }
+
+        });
+    },
+    updgradeAllFortsPolicy: function(s) {
+
+        // Create an array from the collection
+        // Filter out only the models that match the side passed to the function
+        // and those with econ strength equal to 100 and levels below the maximum
+        // then sort by the levels in ascending order
+
+        var array = _.chain(this.models)
+                    .filter(function(model) { return model.get('side') === s && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL && model.get('fortStrength') === 100; })
+                    .sortBy(function(model){ return model.get('fortLevel'); })
+                    .value();
+
+        _.each(array, function(model) {
+
+            if(App.Utilities.getTreasuryAuto(s) > model.get('fortLevelCost')) {
+                var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('fortLevelCost');
+                App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('fortLevelCost'), s, policyCosts);
+                App.Utilities.upgradeTerrArmyFortLevel(model, true);
+            }
+
+        });
+    }
 });

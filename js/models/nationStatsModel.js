@@ -17,6 +17,7 @@ var Emp = Backbone.Model.extend({
     defaults: {
 		activePolicies: App.Constants.POLICIES,
 		activePolicyCount: 0,
+		activePolicyChange: false,
 		clickedPolicy: '',
 		armiesPromoted: [],
 		armyPopulationStart: initArmyPopulation,

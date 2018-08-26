@@ -40,7 +40,10 @@ App.Views.PolicyView = Backbone.View.extend({
 			currPolicies[reorderedIndex].priority = currentPriority - 1;
 			currPolicies[(reorderedIndex - 1)].priority = currentPriority;
 			currPolicies = _.sortBy(currPolicies, 'priority');
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('activePolicies', currPolicies);
+			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+				'activePolicies': currPolicies,
+				'activePolicyChange' : true
+			});
 		}
 	},
 	moveDown: function(e) {
@@ -56,7 +59,10 @@ App.Views.PolicyView = Backbone.View.extend({
 			currPolicies[reorderedIndex].priority = currentPriority + 1;
 			currPolicies[(reorderedIndex + 1)].priority = currentPriority;
 			currPolicies = _.sortBy(currPolicies, 'priority');
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('activePolicies', currPolicies);
+			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+				'activePolicies': currPolicies,
+				'activePolicyChange': true
+			});
 		}
 	},
 	showRecruits: function(e) {

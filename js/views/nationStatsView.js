@@ -265,16 +265,18 @@ App.Views.NationStats = Backbone.View.extend({
 			modalHTML += '<p>Policies are tasks that can be carried out automatically throughout your empire with any leftover funds before the start of the next year.</p>';
 
 			modalHTML += '<div class="available-policies-container">';
+
+			var uncheckedHTML = '';
 			for (var m = 0; m < policiesArr.length; m++) {
 
 				if(policiesArr[m].priority != 0 && policiesArr[m].side === App.Utilities.activeSide()) {
 					modalHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies" checked> '+policiesArr[m].title+'</label>';
 				} else if(policiesArr[m].side === App.Utilities.activeSide()) {
-					modalHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies"> '+policiesArr[m].title+ '</label>';
+					uncheckedHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies"> '+policiesArr[m].title+ '</label>';
 				}
 			}
 
-			modalHTML += '</div>';
+			modalHTML += uncheckedHTML + '</div>';
 
 			modalHTML += '<div id="enactedPolicies" role="status" aria-live="assertive"></div>';
 

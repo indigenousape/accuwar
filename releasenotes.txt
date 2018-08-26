@@ -9,9 +9,57 @@ https://material.io/guidelines/style/color.html#
 Sidebar
 https://simple-sidebar.github.io/simpler-sidebar/
 ==========================================
-RELEASE 3.2
+RELEASE 3.3
  - Release priority: Develop AI, Bugfixes
 
+
+===========================================================================
+Release Notes
+3.2 Alpha
+Release Date 8/26/2018
+
+
+FEATURES
+
+1. UI: Create a How to Play modal to communicate the basic idea in text form.
+	- Added as an option to the Game Start Menu
+
+2. UI: Create Game Settings menu for home screen
+	- UI - Bootstrap Button dropdown: (1) Settings (2) Contact (3) How to Play
+	- Settings display inline within the menu
+	- Contact link opens a new browser tab
+	- How to Play launches a descriptive modal
+
+
+ENHANCEMENTS
+
+1. UI: Policies Modal: Checked Available Policy checkboxes now appear at the top of the list.
+
+2. UI: Final Score Modal:
+	- Remove empire name from Score modal title
+	- Updated rank stars for final scores in long game mode
+	- Refactored final score to include invaded capital among empire's territories for score calculation and displayed amount
+	- Created a 150,000 point bonus
+
+3. UI: Sidebar
+	- Show count beside headings for territories invaded/lost, armies promoted, forts lost/destroyed
+	- Show number of territories occupied out of total at top of territories list
+
+4. Performance: Policies
+	Performance between turns was very sluggish when all policies were enabled (especially in long game)
+	- Sped up by refactoring the policy script
+	- BEFORE: Opened each territory in an empire once for each enabled policy. Result was a maximum of 250 cycles opening and updating territories when all policies were enabled in a long game.
+	- AFTER: Determine which policies each side can afford to carry out in EVERY territory (according to priority), and do those update in each of its territories in one pass. Then for the remaining policy that can be partially afforded, open the territories one at the time again and apply the update until the treasury runs out. Result is a maximum of 100 cycles when all policies are enabled in a long game.
+
+	- See: terrCollection.js - App.Collections.terrCollection.multiplePoliciesInFull();
+
+BUGFIXES
+
+-  Repair All Forts and Repair All Infrastructure menu buttons missing from right side menu at turn start
+- Army Training - Notification message indicated +25 XP but added a different amount to the army
+- Cannot Declare War after restarting the game
+- Policies update confirmation does misfires -- doesn't fire when priorities are updated, fires when nothing changes
+- Computation of "Total" victory at game's end when all territories are invaded
 
 ===========================================================================
 Release Notes
@@ -31,15 +79,24 @@ Release Date 8/18/2018
 	Costly (negative kill and econ kill score)
 	Quick (few turns)
 	Strategic (many turns)
+	Total (control all territories)
+	Upset (won few battles or control few territories)
 
-3. Mobile Enhancement
-	Adjusted mobile start screen design in larger phones to account for non-fullscreen browser experience
+3. UI Enhancements
+	Adjusted mobile start screen UI in larger phones to account for non-fullscreen browser experience
 
 4. UX: Add an easy way to send feedback. Ideas, suggestions, bug reports.
 	- PHP form? Is there a better way? Maybe, but I can spin up and MVP this way immediately.
 	- Steal security PHP from Phil's contact form
 
-5. Enhancement: Attack Territory Icon is now a target 
+5. Enhancement: Attack Territory Icon is now a target
+
+6. Game Start Screen
+	- Added "stopClick" property and logic to prevent double-clicking the Declare War button
+	- UI update for Social Media positioning to prevent overlapping the Declare War button
+
+7. Enhancement: End Turn closes any open game alerts
+	- Clears the screen for the user and improves performance
 
 BUGFIX:
 	1. Army Kills and Casualties totals were not displaying in the sidebar when they should (source: logic only displayed the list items when overall kills were > 0, needed to include current turn kills also)
@@ -52,6 +109,11 @@ BUGFIX:
 		- Could reach the Skip Link before the game had started.
 		- Tab order to reach the End Turn button was awkward
 		- Could tab to the sidebar summary div before the game started
+
+	5. Sidebar
+		- Policies priority settings were still showing up after restarting the game
+		- New Recruits: Displays in bold like the other items of similar weight on the sidebar
+		- Music On: Dynamically adding the audio element to the page if it is missing
 
 ===========================================================================
 Release Notes

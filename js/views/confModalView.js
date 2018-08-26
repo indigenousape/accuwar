@@ -124,8 +124,11 @@ App.Views.ConfModal = Backbone.View.extend({
 
 		var activeCount = e.currentTarget.checked ? App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') + 1 : App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') - 1;
 
-		App.Models.nationStats.get(App.Utilities.activeSide()).set('activePolicies', polArr);
-		App.Models.nationStats.get(App.Utilities.activeSide()).set('activePolicyCount', activeCount);
+		App.Models.nationStats.get(App.Utilities.activeSide()).set({
+			'activePolicyCount': activeCount,
+			'activePolicies': polArr,
+			'activePolicyChange': true
+		});
 
 		// Logging
 		App.Utilities.console(App.Utilities.activeSide() + ' side policies: ');
@@ -138,12 +141,13 @@ App.Views.ConfModal = Backbone.View.extend({
 	confUpdatePolicy: function() {
 		if(!this.model.get('stopClick')) {
 
-			if(App.Models.nationStats.get(App.Utilities.activeSide()).changedAttributes().activePolicyCount != undefined) {
+			if(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyChange')) {
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-globe",
 					titleTxt : "Polices Updated in&nbsp;" + App.Utilities.getActiveEmpireName(),
 					msgType: 'left'
 				});
+				App.Models.nationStats.get(App.Utilities.activeSide()).set('activePolicyChange', false);
 			}
 			this.model.set('stopClick', true);
 		}
@@ -193,7 +197,7 @@ App.Views.ConfModal = Backbone.View.extend({
 					+ '<div class="row"><div class="col-xs-6"><h3>Empire</h3>'
 					+		'<ul class="side-list">';
 
-		detailsHTML += '<li>Territories: ' + winningSideModel.get('terrs').length + '</li>';
+		detailsHTML += '<li>Territories: ' + (winningSideModel.get('terrs').length + 1) + '</li>';
 
 		var displayTreasury = App.Utilities.addCommas(winningSideModel.get('treasury'));
 		detailsHTML += '<li>Treasury: $' + displayTreasury + '</li>';
@@ -206,6 +210,7 @@ App.Views.ConfModal = Backbone.View.extend({
 
 		var displayArmyUnits = App.Utilities.addCommas(App.Collections.terrCollection.returnSideTotal(winningSide, 'armyPopulation'));
 		detailsHTML += '<li>Army: ' + displayArmyUnits + ' units</li>'
+
 					+ '</ul></div>';
 
 
@@ -224,10 +229,6 @@ App.Views.ConfModal = Backbone.View.extend({
 			detailsHTML += '<li><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('terrLostThisTurn').length + winningSideModel.get('overallLostTerrs')) + 'x ' + terrTxt + ' Lost </li>';
 		}
 
-		if (winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits') > 0) {
-			detailsHTML += '<li><span class="glyphicon glyphicon-user" aria-hidden="true"></span> ' + App.Utilities.addCommas(parseInt(winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits'))) + ' Recruits</li>';
-		}
-
 		if (winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions') > 0) {
 			var promTxt = winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions') === 1 ? 'Promotion' : 'Promotions';
 			detailsHTML += '<li><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions')) + 'x Army ' + promTxt + '</li>';
@@ -243,6 +244,10 @@ App.Views.ConfModal = Backbone.View.extend({
 			detailsHTML += '<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('fortsLost').length + winningSideModel.get('overallFortsLost')) + 'x ' + fortTxt + ' Lost</li>';
 		}
 
+		if (winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits') > 0) {
+			detailsHTML += '<li><span class="glyphicon glyphicon-user" aria-hidden="true"></span> ' + App.Utilities.addCommas(parseInt(winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits'))) + ' Recruits</li>';
+		}
+
 		detailsHTML += '</ul></div></div><div class="clearfix"></div>';
 
 		// Starting at zero to animate up to the final score (stored as data on #finalScore)
@@ -251,7 +256,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		var messageHTML = '<div><h3 class="final-rank pull-right">' + rankHTML + '</h3><h2>Final Score: <span id="finalScore" data-final-score="' + winnerScore.total + '">' + App.Utilities.addCommas(winnerScore.total) + '</span></h2></div>' + detailsHTML;
 
 		var confModalModel = new App.Models.Modal({
-			title: winnerScore.qualifier + 'Victory:&nbsp;' + App.Utilities.getActiveEmpireName(),
+			title: winnerScore.qualifier + 'Victory',
 			confBtnId: 'confNewGame',
 			confBtnTxt: 'Restart Game',
 			modalMsg: messageHTML,
@@ -437,6 +442,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Views.nationStatsView = new App.Views.NationStats({model: App.Models.nationStats});
 			App.Collections.terrCollection = new App.Collections.Territories();
 			App.Utilities.makeTerritories();
+			App.Models.gameStartModel.set('stopClick', false);
 			App.Views.gameStartView = new App.Views.GameStart({model: App.Models.gameStartModel});
 			$('#setup').html(App.Views.gameStartView.$el);
 			App.Views.p1ColorView = new App.Views.ColorView({model: App.Models.gameStartModel});

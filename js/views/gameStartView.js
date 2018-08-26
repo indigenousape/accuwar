@@ -42,7 +42,27 @@ App.Views.GameStart = Backbone.View.extend({
 		'blur .color-select' : 'lowerColorIndicator',
 		'change #noSound' : 'toggleSound',
 		'change #randomMap' : 'toggleRandomMap',
-		'change #showTips' : 'toggleTips'
+		'change #showTips' : 'toggleTips',
+		'click #howToPlayModal' : 'howToPlay'
+	},
+	howToPlay: function() {
+
+		var modalHTML = '<p><strong>Each player</strong> controls an empire made up of territories at opposite ends of the screen. Players take turns managing territories and attacking one another to expand their empires. <strong>The first player to invade the enemy\'s capital <span class="glyphicon glyphicon-star"></span> wins the&nbsp;game.</strong></p>'
+			+ ' <p><strong>Each territory</strong> contains army units and a fort to protect its citizens and infrastructure. A selected territory\'s army units can be sent to any allied territory or to '
+			+ ' attack neighboring enemies. To manage a territory, select it on the map and expand the window at the bottom of the screen. Some actions -- training, recruiting, transferring units, '
+			+ ' and attacking enemies -- will end a territory\'s turn. Territories without turns can\'t be accessed or updated until the next&nbsp;year.</p>'
+			+ ' <p><strong>Each empire</strong> collects taxes from its territories at the end of each year. Repairs, upgrades, recruiting and training are paid for out of the treasury. Policies can be enabled to spend leftover funds automatically on repairs, '
+			+ ' recruiting, and upgrades between turns. To see budget details, battle statistics, and policy information, visit the menu in the top corner of your&nbsp;screen.</p>';
+
+		var confModalModel = new App.Models.Modal({
+			title: 'How to Play',
+			modalMsg: modalHTML,
+			confBtnClass: 'btn-primary',
+			showCancelBtn: false
+		});
+
+		var confModalView = new App.Views.ConfModal({model: confModalModel});
+
 	},
 	toggleSound: function(e) {
 		
@@ -302,8 +322,8 @@ App.Views.GameStart = Backbone.View.extend({
 				specialModeText = marketWarMode ? "<p>The world economy is in crisis! Millions in fear as price wars between rival companies turn bloody in battle for precious&nbsp;marketshare.</p>" : specialModeText;
 				specialModeText = collegeWarMode ? "<p>The university system is in crisis! Dorms are barricaded across the nation as a new alliance of schools fight to establish a new college athletic&nbsp;association.</p>" : specialModeText;
 
-				leftNameVal = worldWarMode ? "Allies" : leftNameVal,
-				rightNameVal = worldWarMode ? "Axis" : rightNameVal,
+				leftNameVal = worldWarMode ? "NATO" : leftNameVal,
+				rightNameVal = worldWarMode ? "USSR" : rightNameVal,
 				leftNameVal = civilWarMode ? "America" : leftNameVal,
 				rightNameVal = civilWarMode ? "Rebels" : rightNameVal,
 				leftNameVal = marketWarMode ? "NYSE" : leftNameVal,
@@ -337,7 +357,7 @@ App.Views.GameStart = Backbone.View.extend({
 			App.Views.battleMap.notify({
 				icon: "glyphicon glyphicon-globe",
 				titleTxt : "War Declared!",
-				msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire, click the menu button at the top corner of your&nbsp;screen.</p><p>Invest wisely in your economy and your military for the best chance of victory. Good&nbsp;luck!</p>",
+				msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire, click the menu button at the top corner of your&nbsp;screen.</p>",
 				msgType: "info",
 				delay: App.Constants.DELAY_INFINITE
 			});

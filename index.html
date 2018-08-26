@@ -203,6 +203,40 @@
 
 	<script id="startUp" type="text/template">
 
+		<div class="game-controls">
+
+			<!-- Single button -->
+			<div class="btn-group">
+			  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span><span class="hide-phone"> Menu</span>
+			  </button>
+			  <ul class="dropdown-menu">
+			  	<li>
+			  		<label><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Settings</label>
+			  	</li>
+			    <li>
+			    	<input id="randomMap" type="checkbox" /> 
+			    	<label for="randomMap">Random Map: </label>
+					<span id="randomMapState">Off</span>
+				</li>
+				<li>
+					<input id="noSound" type="checkbox" />
+					<label for="noSound">Music: </label>
+					<span id="soundState">Off</span>
+				</li>
+				<li class="hide-tab-landscape">
+					<input id="showTips" type="checkbox" checked />
+					<label for="showTips">Show Tips: </label>
+					<span id="tipsState">On</span>
+				</li>
+			    <li role="separator" class="divider"></li>
+			    <li><a href="#" id="howToPlayModal"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> How to Play</a></li>
+			    <li><a href="contact_view.php" target="_blank" aria-label="Contact the accuwar development team."><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Contact</a></li>
+			  </ul>
+			</div>
+
+		</div>
+
 		<h1 id="startHeading">[accuwar]</h1>
 		
 		<div class="game-start-desc">
@@ -237,30 +271,11 @@
 	    	<div class="clearfix"></div>
 		</div>
 
-		<div class="text-center game-controls">
-
-			<label for="randomMap">Random Map<span class="hide-phone">:</span> </label>
-			<input id="randomMap" type="checkbox" /> 
-			<span id="randomMapState">Off</span> 
-
-			<label for="noSound">Music<span class="hide-phone">:</span> 
-			</label><input id="noSound" type="checkbox" /> 
-			<span id="soundState">Off</span>
-
-			<span class="hide-tab-landscape">
-				<label for="showTips">Show Tips: </label>
-				<input id="showTips" type="checkbox" checked />
-				<span id="tipsState">On</span>
-			</span>
-
-		</div>
-
 		<button id="declareWar" disabled>Declare War <% if (!App.Utilities.isSafari()) { %><span>(Fullscreen)</span><% } %></button>
 
-		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.1.2</span></p>
+		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.2</span></p>
 
 		<div class="sm-container">
-			<a href="contact_view.php" target="_blank" aria-label="Contact the accuwar development team."><span class="glyphicon glyphicon-comment" aria-hidden="true"></span></a>
 
 			<div class="fb-share-button" data-href="http://www.accuwar.com" data-layout="button" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.accuwar.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
 
@@ -273,19 +288,18 @@
 	<script id="budgetList" type="text/template">
 
 		<% if (taxesCollected > 0) { %>
-		<h4><span>Taxes Collected:</span> <span>$<%= App.Utilities.addCommas(taxesCollected) %></span></h4>
+			<h4><span>Taxes Collected:</span> <span>$<%= App.Utilities.addCommas(taxesCollected) %></span></h4>
 		<% } %>
 
 		<% if (policyCosts > 0) { %>
 			<h4><span>Policy Spending: </span> <span>($<%= App.Utilities.addCommas(policyCosts) %>)</span></h4>
-
 		<% } %>
 
 		<% if (treasuryStart - treasury > 0) { %>
 
-		<h3><span>Starting Treasury:</span> <span>$<%= App.Utilities.addCommas(treasuryStart) %></span></h3>
+			<h3><span>Starting Treasury:</span> <span>$<%= App.Utilities.addCommas(treasuryStart) %></span></h3>
 
-		<button data-toggle="collapse" href="#collapseSpending" role="button" aria-expanded="false" aria-controls="collapseSpending" class="no-btn spending-toggle collapsed"><span><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> Turn Spending:</span> <span>$<%= App.Utilities.addCommas(treasuryStart - treasury) %></span></button>
+			<button data-toggle="collapse" href="#collapseSpending" role="button" aria-expanded="false" aria-controls="collapseSpending" class="no-btn spending-toggle collapsed"><span><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> Turn Spending:</span> <span>$<%= App.Utilities.addCommas(treasuryStart - treasury) %></span></button>
 
 		<% } %>
 
@@ -465,7 +479,7 @@
 						<div class="<%= App.Utilities.returnStandardBarColors(this.model, 'economicOutput', 'startEconomicOutput').background %>-prog prog-bar" style="width: <%= Math.min((economicOutput / startEconomicOutput) * 100, 100) %>%"></div>
 						
 						<div class="<%= App.Utilities.returnStandardBarColors(this.model, 'economicOutput', 'startEconomicOutput').text %> prog-txt" tabindex="0">
-							<strong>GDP $<%= displayGDP %>
+							<strong><span class="hide-sm-phones">GDP</span> $<%= displayGDP %>
 								<% if(econGrowthPct != 0) {%>
 								<button type="button" class="no-btn" data-toggle="tooltip" data-placement="right" data-trigger="<% if (!App.Utilities.smallScreenOnly()) { %>hover<% } %> focus" title="<%= upOrDown %><%= econGrowthPct.toFixed(2) %>%" aria-label="GDP Growth Rate: <%= upOrDown %><%= econGrowthPct.toFixed(2) %>%">
 								 	<span class="glyphicon <%= displayGDPIcon %>" aria-hidden="true"></span>
@@ -910,7 +924,7 @@
 		  			<p class="pop-tot">Population: <%= App.Utilities.addCommas(side.get('econPopulationNow')) %></p>
 		  			<p class="small">Start Population: <%= App.Utilities.addCommas(side.get('econPopulationStart')) %></p>
 
-	  				<p class="terr-tot sidebar-top"><a class="collapsed" role="button" data-toggle="collapse" href="#collapseTerrs" aria-expanded="false" aria-controls="collapseTerrs" aria-label="Territories list. Activate to display a selectable list of your territories. <%= side.get('terrsWithTurns').length %> out of <%= side.get('terrs').length %> territories have turns remaining." tabindex="-1"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>Territories <span>(<%= side.get('terrsWithTurns').length %> / <%= side.get('terrs').length %>)</span></a></p>
+	  				<p class="terr-tot sidebar-top"><a class="collapsed" role="button" data-toggle="collapse" href="#collapseTerrs" aria-expanded="false" aria-controls="collapseTerrs" aria-label="Territories list. Activate to display a selectable list of your territories. <%= side.get('terrsWithTurns').length %> out of <%= side.get('terrs').length %> territories have turns remaining." tabindex="-1"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>Territories <span>(<%= side.get('terrs').length %> / <%= side.get('terrs').length + enemySide.get('terrs').length %>)</span></a></p>
 	  				<div class="collapse" id="collapseTerrs">
 	  					<ul class="side-list territories-list">
 							<% for (var i = 0; i < side.get('terrs').length; i++) { %>
@@ -1120,7 +1134,7 @@
 							</ul>
 
 							<% if (side.get('invadedThisTurn').length > 0) { %>
-							<p class="battle-stats-label">Territories Invaded</p>
+							<p class="battle-stats-label">Territories Invaded (<%= side.get('invadedThisTurn').length %>)</p>
 							<ul class="side-list special-list">
 								<% for (var i = 0; i < side.get('invadedThisTurn').length; i++) { %>					
 									<li><span class="glyphicon glyphicon-bookmark" aria-hidden="true"></span> <%= side.get('invadedThisTurn')[i] %></li>
@@ -1129,7 +1143,7 @@
 							<% } %>
 
 							<% if (side.get('terrLostThisTurn').length > 0) { %>
-							<p class="battle-stats-label">Territories Lost</p>
+							<p class="battle-stats-label">Territories Lost <%= side.get('terrLostThisTurn').length %></p>
 							<ul class="side-list special-list">
 								<% for (var i = 0; i < side.get('terrLostThisTurn').length; i++) { %>					
 									<li><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> <%= side.get('terrLostThisTurn')[i] %></li>
@@ -1138,7 +1152,7 @@
 							<% } %>
 
 							<% if (side.get('armiesPromoted').length > 0) { %>
-							<p class="battle-stats-label">Armies Promoted</p>
+							<p class="battle-stats-label">Armies Promoted (<%= side.get('armiesPromoted').length %>)</p>
 							<ul class="side-list special-list">
 								<% for (var i = 0; i < side.get('armiesPromoted').length; i++) { %>					
 									<li><span class="glyphicon glyphicon-star" aria-hidden="true"></span> <%= side.get('armiesPromoted')[i] %></li>
@@ -1147,7 +1161,7 @@
 							<% } %>
 
 							<% if (enemySide.get('fortsLost').length > 0) { %>
-							<p class="battle-stats-label">Forts Destroyed</p>
+							<p class="battle-stats-label">Forts Destroyed (<%= enemySide.get('fortsLost').length %>)</p>
 							<ul class="side-list special-list">
 								<% for (var i = 0; i < enemySide.get('fortsLost').length; i++) { %>
 									<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> <%= enemySide.get('fortsLost')[i] %></li>
@@ -1156,7 +1170,7 @@
 							<% } %>
 
 							<% if (side.get('fortsLost').length > 0) { %>
-							<p class="battle-stats-label">Forts Lost</p>
+							<p class="battle-stats-label">Forts Lost (<%= side.get('fortsLost').length %>)</p>
 							<ul class="side-list special-list">
 								<% for (var i = 0; i < side.get('fortsLost').length; i++) { %>
 									<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> <%= side.get('fortsLost')[i] %></li>
