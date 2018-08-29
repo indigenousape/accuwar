@@ -116,6 +116,16 @@
 	        		<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-<%= App.Utilities.activeSide() %> slider-<%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color')%>" aria-labelledby="send-label" min="<%= rangeMin %>" max="<%= rangeMax %>" step="<%= rangeStep %>" value="<%= rangeVal %>" defaultValue="<%= rangeVal %>" id="tp-input-1">
 	        	<% } %>
 				<p id="error-message" class="text-danger" aria-role="status" aria-live="assertive"></p>
+				<% if(App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) > 0 && App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury')) { %>
+				<div class="inv-repair">
+					<input type="checkbox" id="repairInvInfra"> <label for="repairInvInfra">Repair Infrastructure:</label> $<span id="repairInfCost">0</span></label>
+				</div>
+				<% } %>
+				<% if(App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel) > 0 && App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel) < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury')) { %>
+				<div class="inv-repair">
+					<input type="checkbox" id="repairInvFort"> <label for="repairInvFort">Repair Fort:</label> $<span id="repairFortCost">0</span>
+				</div>
+				<% } %>
 				<div id="tp-modal-msg-2"><%= modalMsg2 %></div>
 				<input type="text" class="form-control" aria-labelledby="tp-modal-msg-2" id="tp-input-2">
 				<p id="error-message-2" class="text-danger" aria-role="status" aria-live="assertive"></p>
@@ -219,6 +229,13 @@
 			    	<label for="randomMap">Random Map: </label>
 					<span id="randomMapState">Off</span>
 				</li>
+				<% if (!App.Utilities.isSafari()) { %>
+					<li>
+				    	<input id="fullScreen" type="checkbox" /> 
+				    	<label for="fullScreen">Fullscreen: </label>
+						<span id="fullScreenState">Off</span>
+					</li>
+				<% } %>
 				<li>
 					<input id="noSound" type="checkbox" />
 					<label for="noSound">Music: </label>
@@ -271,9 +288,9 @@
 	    	<div class="clearfix"></div>
 		</div>
 
-		<button id="declareWar" disabled>Declare War <% if (!App.Utilities.isSafari()) { %><span>(Fullscreen)</span><% } %></button>
+		<button id="declareWar" disabled>Declare War</button>
 
-		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.2</span></p>
+		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.2.1</span></p>
 
 		<div class="sm-container">
 
@@ -582,7 +599,14 @@
 							<a href="#armyTab" aria-controls="armyTab" role="tab" data-toggle="tab" aria-label="Display <%= name %> army details."><span class="glyphicon glyphicon-user" aria-hidden="true"></span> <span class="hide-mob">Army</span> 
 							</a>
 						</li>
-						<li role="presentation"><a href="#fortTab" aria-controls="fortTab" role="tab" data-toggle="tab" aria-label="Display Statistics and Actions for the <%= name %> fort."><span class="glyphicon glyphicon-flag" aria-hidden="true"></span> <span class="hide-mob">Fort</span></a></li>
+						<li role="presentation"><a href="#fortTab" aria-controls="fortTab" role="tab" data-toggle="tab" aria-label="Display Statistics and Actions for the <%= name %> fort.">
+							<% if (fortStrength > 25) { %>
+								<span class="glyphicon glyphicon-flag" aria-hidden="true"></span>
+							<% } else { %>
+								<span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+							<% } %>
+							<span class="hide-mob">Fort</span></a>
+						</li>
 					</ul>
 
 				</div>

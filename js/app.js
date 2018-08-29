@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 3.2 Alpha
+	Release: 3.2.1 Alpha
 	Author: Josh Harris
-	8/26/2018
+	8/28/2018
 */
 
 var startYear = new Date();
@@ -258,16 +258,16 @@ window.App = {
 
 			var qualify = '';
 
-			if (App.Models.nationStats.get(side).get('terrs').length + 1 === (2 * App.Models.battleMapModel.get('territories'))) {
+			if (armyKills < 0 && econKills < 0) {
+				qualify = 'Costly&nbsp;';
+			} else if (App.Models.nationStats.get(side).get('terrs').length + 1 === (2 * App.Models.battleMapModel.get('territories'))) {
 				qualify = 'Total&nbsp;';
 			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/(App.Models.nationStats.get(enemySide).get('overallBattleWins') + App.Models.nationStats.get(side).get('overallBattleWins'))) >= (2/3) || App.Models.nationStats.get(side).get('terrs').length >= (App.Models.battleMapModel.get('territories') * (2/3))) {
 				qualify = 'Dominant&nbsp;';
 			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) < (1/3)) {
 				qualify = 'Upset&nbsp;';
-			} else if(armyKills > -2000 && armyKills < 2000 && (invasions < App.Constants.SCORE_INVASIONS * 3)) {
+			} else if(armyKills < 2000 && (invasions < App.Constants.SCORE_INVASIONS * 3)) {
 				qualify = 'Close&nbsp;';
-			} else if(armyKills < 0 && econKills < 0) {
-				qualify = 'Costly&nbsp;';
 			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN < 3) {
 				qualify = 'Quick&nbsp;';
 			} else if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN > 10) {
@@ -1197,6 +1197,12 @@ window.App = {
 			App.Collections.terrCollection = new App.Collections.Territories();
 			App.Utilities.makeTerritories();
 		},
+		returnEconStrengthCost: function(model) {
+			return Math.round(App.Constants.ECON_STR_COST * model.get('econLevel') * ((100 - model.get('econStrength')) / 10));
+		},
+		returnFortStrengthCost: function(model) {
+			return App.Constants.FORT_STR_COST * model.get('fortLevel') * (100 - model.get('fortStrength'));
+		},
 		returnHighTaxLimit: function() {
 			return App.Constants.HIGH_TAX_MORALE_AMT * 100;
 		},
@@ -1440,10 +1446,10 @@ window.App = {
 
 			var currStr = App.Models.selectedTerrModel.get('econStrength'),
 				currLvl = App.Models.selectedTerrModel.get('econLevel'),
-				diffToNextEconStr = Math.round(App.Constants.ECON_STR_COST * currLvl * ((100 - currStr) / 10)),
+				diffToNextEconStr = App.Utilities.returnEconStrengthCost(App.Models.selectedTerrModel),
 				currFortLvl = App.Models.selectedTerrModel.get('fortLevel'),
 				diffToNextFortLvl = App.Constants.FORT_LVL_COST * (1 + currFortLvl),
-				diffToFullFortStr = App.Constants.FORT_STR_COST * currFortLvl * (100 - App.Models.selectedTerrModel.get('fortStrength')),
+				diffToFullFortStr = App.Utilities.returnFortStrengthCost(App.Models.selectedTerrModel),
 				diffToNextEconLvl = App.Constants.ECON_LVL_UP_AMT * (1 + currLvl),
 				diffToArmyTraining = 25 * (App.Constants.ARMY_TRAINING_COST * App.Models.selectedTerrModel.get('armyPopulation') / 1000);
 

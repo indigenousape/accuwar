@@ -340,7 +340,7 @@ App.Collections.Territories = Backbone.Collection.extend({
 
             for (var i = 0; i < leftPolicies.length; i++) {
 
-                var thisPolicyCost = this.returnPolicyCost(leftPolicies[i], !_.isEmpty(_.findWhere(prioritiesAffordableInFull, { id: 'repair_infra'})));
+                var thisPolicyCost = this.returnPolicyCost(leftPolicies[i], !_.isEmpty(_.findWhere(prioritiesAffordableInFull, { id: 'repair_infra'})), !_.isEmpty(_.findWhere(prioritiesAffordableInFull, { id: 'repair_forts'})));
 
                 var affordableInFull = App.Utilities.getTreasuryAuto(leftPolicies[i].side) - leftRunningTotalCost > thisPolicyCost;
 
@@ -424,7 +424,7 @@ App.Collections.Territories = Backbone.Collection.extend({
 
             for (var i = 0; i < rightPolicies.length; i++) {
 
-                var thisPolicyCost = this.returnPolicyCost(rightPolicies[i], !_.isEmpty(_.findWhere(prioritiesAffordableInFullRight, { id: 'repair_infra'})));
+                var thisPolicyCost = this.returnPolicyCost(rightPolicies[i], !_.isEmpty(_.findWhere(prioritiesAffordableInFullRight, { id: 'repair_infra'})), !_.isEmpty(_.findWhere(prioritiesAffordableInFullRight, { id: 'repair_forts'})));
 
                 var affordableInFull = App.Utilities.getTreasuryAuto(rightPolicies[i].side) - rightRunningTotalCost > thisPolicyCost;
 
@@ -939,13 +939,14 @@ App.Collections.Territories = Backbone.Collection.extend({
         return Math.round(totalTechLevel/_.size(terrs));
 
     },
-    returnPolicyCost: function(policy, infFlag) {
+    returnPolicyCost: function(policy, infFlag, ftFlag) {
 
         var totPolicyCost = 0,
             costFunction = {},
             type = '',
             recruits = 0,
-            infraFlag = infFlag ? infFlag : false;
+            infraFlag = infFlag ? infFlag : false,
+            fortFlag = ftFlag ? ftFlag : false;
 
         switch(policy.id) {
             case 'repair_infra':
@@ -982,14 +983,14 @@ App.Collections.Territories = Backbone.Collection.extend({
                             .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
                             .value();
 
-        } else if ((!infraFlag && policy.id === 'upgrade_tech') || policy.id === 'upgrade_forts') {
+        } else if ((!infraFlag && policy.id === 'upgrade_tech') || (!fortFlag && policy.id === 'upgrade_forts')) {
 
             totPolicyCost = _.chain(this.models)
                             .filter(function(model) { return model.get('side') === policy.side && model.get(type) === 100})
                             .reduce(function(memo, model){ return memo + costFunction(model); }, 0)
                             .value();
 
-        } else if (infraFlag && policy.id === 'upgrade_tech') {
+        } else if (infraFlag && policy.id === 'upgrade_tech' || fortFlag && policy.id === 'upgrade_forts') {
 
             totPolicyCost = _.chain(this.models)
                             .filter(function(model) { return model.get('side') === policy.side})

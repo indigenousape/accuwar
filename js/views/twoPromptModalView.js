@@ -45,7 +45,58 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 	events: {
 		'click #confInvasion' : 'confirmInvasion',
 		'keyup #tp-input-2': 'nameValidator',
-		'keyup #tp-input-1': 'keyPress'
+		'keyup #tp-input-1': 'keyPress',
+		'change #repairInvInfra' : 'toggleInvInfra',
+		'change #repairInvFort' : 'toggleInvFort'
+	},
+	toggleInvInfra: function(e) { 
+		var isChecked = $(e.currentTarget)[0].checked;
+
+		if(!isChecked) {
+			$('#repairInfCost').text(0);
+		} else {
+
+			var fortCost = 0,
+				infCost = App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel);
+
+			if($('#repairInvFort').length != 0 && $('#repairInvFort')[0].checked) {
+ 				fortCost = App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel);
+ 			}
+
+ 			var affordable = infCost + fortCost < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury');
+
+ 			if (!affordable) {
+ 				$('#repairFortCost').text(0);
+ 				$('#repairInvFort')[0].checked = false;
+ 			}
+
+			$('#repairInfCost').text(App.Utilities.addCommas(infCost));
+
+		}
+	},
+	toggleInvFort: function(e) { 
+		var isChecked = $(e.currentTarget)[0].checked;
+
+		if(!isChecked) {
+			$('#repairFortCost').text(0);
+		} else {
+
+			var infCost = 0,
+				fortCost = App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel);
+
+			if($('#repairInvInfra').length != 0 && $('#repairInvInfra')[0].checked) {
+ 				infCost = App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel);
+ 			}
+
+ 			var affordable = infCost + fortCost < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury');
+
+ 			if (!affordable) {
+ 				$('#repairInfCost').text(0);
+ 				$('#repairInvInfra')[0].checked = false;
+ 			}
+
+			$('#repairFortCost').text(App.Utilities.addCommas(fortCost));
+		}
 	},
 	closeView: function() {
     	this.unbind();
@@ -153,7 +204,19 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 			var thisView = this.model.get('modalView'),
 				thatInput = $('#tp-input-2'),
 				newName = thatInput.val(),
-				validNewName = App.Utilities.validateName(newName, 'territory');
+				validNewName = App.Utilities.validateName(newName, 'territory'),
+				repairFort = $('#repairInvFort').length > 0 ? $('#repairInvFort')[0].checked : false,
+				repairInfra = $('#repairInvInfra').length > 0 ? $('#repairInvInfra')[0].checked : false,
+				fortCost = repairFort ? App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel) : 0,
+				infraCost = repairInfra ? App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) : 0;
+
+			if(fortCost + infraCost > 0) {
+				App.Models.nationStats.payForUpgrade(App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury') - (fortCost + infraCost));
+				App.Models.nationStats.get(App.Utilities.activeSide()).set({
+					'infrastructureSpend': infraCost + App.Models.nationStats.get(App.Utilities.activeSide()).get('infrastructureSpend'),
+					'fortSpend': fortCost + App.Models.nationStats.get(App.Utilities.activeSide()).get('fortSpend')
+				});
+			}
 
 			// Exeption is because territory can be renamed after itself
 			if (validNewName.errCode != 0 && newName != App.Models.clickedTerrModel.get('name')) {
@@ -191,28 +254,32 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 
 				// Update Invaded Economics
 
+				// Are we paying to repair infrastructure or forts?
+				var newEconStrength = repairInfra ? 100 : newInvaded.newEconStrength,
+					newFortStrength = repairFort ? 100 : newInvaded.newDefFortStr;
+
 				// Updating the selected territory so that the updateEconMorale & updateGDP functions will work correctly when fired
 				App.Models.selectedTerrModel = defending;
 
 				// Update Civilian Morale and GDP in invaded territory
 				var invadedEconMorale = App.Utilities.updateEconMorale({
 						selectedArmyPop: transferringUnits,
-						econStrength: newInvaded.newEconStrength,
+						econStrength: newEconStrength,
 						econPopulation: newInvaded.newEconPopulation,
 						econLevel: newInvaded.newEconLvl,
 						selectedFortLevel: newInvaded.oldDefFortLvl,
-						selectedFortStrength: newInvaded.newDefFortStr,
+						selectedFortStrength: newFortStrength,
 						newMorale : newInvaded.newEconMorale
 					}),
 					invadedGDP = App.Utilities.updateGDP({
 						newLevel: newInvaded.newEconLvl,
 						newMorale : invadedEconMorale,
 						newEconPopulation: newInvaded.newEconPopulation,
-						newEconStrength: newInvaded.newEconStrength,
+						newEconStrength: newEconStrength,
 						ecGrowthRate: defending.get('econGrowthPct')
 					}),
-					invadedFortRepairCost = App.Constants.FORT_STR_COST * newInvaded.oldDefFortLvl * (100 - newInvaded.newDefFortStr),
-					invadedRebuildInfCost = Math.round(App.Constants.ECON_STR_COST * newInvaded.newEconLvl * ((100 - newInvaded.newEconStrength) / 10));
+					invadedFortRepairCost = App.Constants.FORT_STR_COST * newInvaded.oldDefFortLvl * (100 - newFortStrength),
+					invadedRebuildInfCost = Math.round(App.Constants.ECON_STR_COST * newInvaded.newEconLvl * ((100 - newEconStrength) / 10));
 
 				// Resetting the selected territory variable to the attacking model for the econ and gdp calculations
 				App.Models.selectedTerrModel = attacking;
@@ -232,7 +299,9 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 					'econMorale' : invadedEconMorale,
 					'economicOutput' : invadedGDP,
 					'econLevel' : newInvaded.newEconLvl,
+					'econStrength' : newEconStrength,
 					'econPopulation' : newInvaded.newEconPopulation,
+					'fortStrength' : newFortStrength,
 					'prvEconPopulation' : newInvaded.newEconPopulation,
 					'currTreasury' : attacking.get('currTreasury'),
 					'fortStrengthCost' : invadedFortRepairCost,
@@ -278,6 +347,7 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 				App.Views.selectedTerrView = App.Views.clickedTerrView;
 				App.Utilities.displayInRange();
 				App.Models.battleMapModel.set('selectedMode', true);
+				App.Utilities.setClickedTreasuryLimits();
 
 				App.Models.nationStats.get('left').set({
 					'armyPopulationNow' : App.Collections.terrCollection.returnSideTotal('left', 'armyPopulation'),
@@ -312,8 +382,6 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 					});
 
 				}
-
-				App.Views.selectedFooterView.raiseFooter();
 
 				// Update the army tech level
 				App.Models.nationStats.get(App.Utilities.activeSide()).set('armyTechLvl', App.Collections.terrCollection.returnAvgTechLevel(App.Utilities.activeSide()));

@@ -11,7 +11,28 @@ https://simple-sidebar.github.io/simpler-sidebar/
 ==========================================
 RELEASE 3.3
  - Release priority: Develop AI, Bugfixes
+ 
+===========================================================================
+Release Notes
+3.2.1 Alpha
+Release Date 8/28/2018
 
+Enhancements
+
+1. Make Full Screen optional.
+	- Add a setting on the Game Start screen for Full Screen
+	- Unchecked by default
+	- Game mode when launched depends on the setting
+
+2. UI: Invasion Enhancement
+	Added checkboxes to allow a player to repair the infrastructure/fort right on the invasion window
+	Display if Inf / Forts are damaged and empire can afford to repair them
+	If checked, perform the repair(s) as part of the invasion logic when invasion is confirmed
+
+3. When fort strength is below 25 (bar is red), icon on the Selected Footer panel shows an alert instead of the flag.
+
+BUGFIX
+ - Policies logic: Users could not repair and upgrade forts in the same turn
 
 ===========================================================================
 Release Notes
@@ -55,7 +76,7 @@ ENHANCEMENTS
 
 BUGFIXES
 
--  Repair All Forts and Repair All Infrastructure menu buttons missing from right side menu at turn start
+- Repair All Forts and Repair All Infrastructure menu buttons missing from right side menu at turn start
 - Army Training - Notification message indicated +25 XP but added a different amount to the army
 - Cannot Declare War after restarting the game
 - Policies update confirmation does misfires -- doesn't fire when priorities are updated, fires when nothing changes

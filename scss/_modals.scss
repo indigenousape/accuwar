@@ -131,11 +131,19 @@
 
 @include modalInputMsg('error-message');
 @include modalInputMsg('impact-msg');
-@include modalInputMsg('tp-modal-msg-2');
+//@include modalInputMsg('tp-modal-msg-2');
 @include modalInputMsg('error-message-2');
 
 #tp-modal-msg-2 {
 	margin-top: 10px;
+}
+
+.inv-repair {
+	margin-top: 8px;
+
+	& + .inv-repair {
+		margin-top: 0;
+	}
 }
 
 /* Attack and Reinforce Modal styles */

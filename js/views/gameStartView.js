@@ -43,7 +43,8 @@ App.Views.GameStart = Backbone.View.extend({
 		'change #noSound' : 'toggleSound',
 		'change #randomMap' : 'toggleRandomMap',
 		'change #showTips' : 'toggleTips',
-		'click #howToPlayModal' : 'howToPlay'
+		'click #howToPlayModal' : 'howToPlay',
+		'change #fullScreen' : 'toggleFullScreen'
 	},
 	howToPlay: function() {
 
@@ -63,6 +64,17 @@ App.Views.GameStart = Backbone.View.extend({
 
 		var confModalView = new App.Views.ConfModal({model: confModalModel});
 
+	},
+	toggleFullScreen: function(e) { 
+		var isChecked = $(e.currentTarget)[0].checked;
+
+		if(!isChecked) {
+			App.Models.nationStats.set('fullScreen', false);
+			$('#fullScreenState').text('Off');
+		} else {
+			App.Models.nationStats.set('fullScreen', true);
+			$('#fullScreenState').text('On');
+		}
 	},
 	toggleSound: function(e) {
 		
@@ -357,13 +369,15 @@ App.Views.GameStart = Backbone.View.extend({
 			App.Views.battleMap.notify({
 				icon: "glyphicon glyphicon-globe",
 				titleTxt : "War Declared!",
-				msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire, click the menu button at the top corner of your&nbsp;screen.</p>",
+				msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire click the menu button at the top corner of your screen.</p>",
 				msgType: "info",
 				delay: App.Constants.DELAY_INFINITE
 			});
 
 			// Launch fullscreen for browsers that support it!
-			App.Utilities.launchFullScreen(document.documentElement);
+			if(App.Models.nationStats.get('fullScreen')) {
+				App.Utilities.launchFullScreen(document.documentElement);
+			}
 
 			setTimeout(function() {
 				App.Views.battleMap.smoothScroll('.terr:first-child');
