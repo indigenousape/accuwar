@@ -9,9 +9,156 @@ https://material.io/guidelines/style/color.html#
 Sidebar
 https://simple-sidebar.github.io/simpler-sidebar/
 ==========================================
-RELEASE 3.3
+RELEASE 4.0
  - Release priority: Develop AI, Bugfixes
  
+===========================================================================
+Release Notes
+4.0 Beta
+Release Date 10/6/2018
+
+Features
+1. UX: Added first pass at 1-Player mode to play vs AI.
+
+	Concept: Nested setTimeout functions that operate by firing click events on territory views or buttons in the footer. Logic is in place to do repairs, attack and recruit, and to do so intelligently.
+
+	1.1. UI: Game Start View Update
+		- Play vs AI in Easy difficulty should be default
+		- Slider controls AI difficulty setting
+			- Valid values: 0, 1, 2, 3
+			- Current values: 0, 1 
+			- Labels on the App.Constants namespace control what displays on the template:
+				Training, Easy, Advanced, Hard
+		- Slider control replaces Player 2 input when Play vs AI is active
+		- Play vs AI toggled from Settings menu
+
+	1.2 UX: Training Training difficulty AI logic
+		Enables Repair Forts policy ONLY
+		Will not attack
+		Will recruit to restore army units to 250,000 that is all
+
+	1.3 UX: Activate policies for each level of AI difficulty on game start.
+
+	1.4 UX: Develop Easy Difficulty
+		- Policies enabled:  Repair Forts, Repair Infra
+		- Randomly enacts Recruits policy
+			- 67% of the time sets recruits to a minimum of 125000 per turn
+				- If the enemy army size is significantly larger than the AI player's, the AI player will set recruits to be enough to make up the difference if it's affordable
+				- If not affordable, reduces the target amount by 25000 and re-evaluates until it lands on an amount it can afford (should the policy logic also work this way?? food for thought.)
+		- Repairs infrastructure and forts before attacking on the first turn (other turns handled by policies)
+		- Capital territory should not attack except in certain conditions
+		- New recruits amounts depend on whether a border territory has as many units as the average enemy territory	
+		- Will not change tax rate
+		- Will not transfer units
+
+	1.5 UX: Develop Attack Logic - Easy Mode ONLY
+		- Evaluates border territories in range and compares relative battle strengths to determine whether to attack
+			- If all battle strengths are equal, chooses a random one to attack
+			- If it cannot attack and does not need to do repairs, it will recruit units or train
+			- Knowledge of battle strength is handicapped by difficulty level
+				- Easy -20%
+				- Advanced -10%
+				- Hard (not handicapped)
+
+	1.5.1 UX: Define when capital territories can attack.
+		When it is the last territory on the board
+		And it always sends the minimum amount to invade
+		And never repairs forts
+
+	1.6 Develop Recruiting Logic - Training and Easy Modes ONLY
+		Considers how many army units are affordable
+		Compares army size to size of average enemy army
+		Compares army size to minimum army needed to keep morale level
+		Will do any necessary repairs before recruiting
+
+	1.8 UI/UX: Add hidden layer (high z-index value) to prevent user from clicking on anything during the AI's turn.
+		Created utility to toggle the layer App.Utilities.toggleMaskLayer();
+
+	1.9 UX: Add support for special map modes (war games, college, etc) in 1-player mode
+
+	1.10 UX: When the game is over...
+		Borders should update
+		No additional territories should be selected
+		The AI mask overlay should be gone
+
+	1.11 UX: Develop recruiting algorithm (Easy Mode)
+		- Borderlands recruit units relative to a few different factors
+			- Size of average enemy army
+				- If territory has more, it recruits 250,000
+				- If it has less, it recruits the difference if it's affordable - otherwise it recruits 250,000
+			- Whether territory has enough units for army morale to stay afloat
+				- If territory has less than 250,000 it will recruit enough to make up the difference
+
+
+Enhancements
+
+1. UI: Border territory.
+	New isBorder property set on all territories by default when map is created
+	Reset when territories are invaded
+
+	Needed:
+		Method to determine whether a given territory borders the enemy based on column/row properties
+		Method to determine which borders are active (if above is true)
+		Adding the classname to the territory's container element
+		Collection method to reset values on territories (using above methods) after invasion is completed
+		Styles to draw the border based on the side's value returned
+			- No borders across screen top bottom or ends
+
+2. UI: Game Start Screen
+	- When checkbox for Full Screen is checked, go ahead and launch full screen.
+	- When it's unchecked, exit full screen. 
+	- Pare down the language in the How to Play instructions
+
+3. UI: Updated Footer Button Text
+	- From "Details & Actions" to "Manage {{Territory Name}}"
+
+4. UX: Removed about 1/3 of the audio based on AWS metrics.
+	- Nobody is listening to the audio first of all
+	- Second of all, this 1/3 of the tracks didn't sound like they fit with the rest of them
+
+5. UX: Updated music - Removed tracks that did not fit the theme of the majority of tracks.
+
+6. UI: Button labels - Updated for clarity:
+	Footer:
+		"Close {{terrname}}" button changed simply to "Deselect"
+		"Details & Actions" button changed simply to "Manage {{Terrname}}"
+
+	Empire menu:
+		"Music On" changed to "Play Music"
+		"Music Off" changed to "Stop Music"
+
+7. UX/UI: Game Alert Management
+	When a territory is selected, close any open game alerts
+
+Bugfixes
+
+ - Safari UI Bug - EXTREMELY difficult to click territories to attack or reinforce
+	Root Cause: Having the click event on the glyphicons wasn't working
+	Solution: Put the glyphicons into button elements and attached the click event to those instead.
+
+ - Army XP was still displaying inconsistent XP amounts between the confirmation message and awarded amount
+	- Fixed to reflect +25 XP and confirmed +25 XP is what is being priced and stored
+
+ - Recruit costs were being computed different ways and not all of them accounted for army tech level
+	- Updated the method used to compute costs to look at the army level
+	- Each level adds 10% to the cost per recruit
+		- Recruit Modal
+		- Policies
+
+ - Added handling to prevent inadvertently forcing invasions to happen when an invading territory didn't have enough units to invade.
+
+ - Invading the top territory from a middle territory would leave the bottom territory in range AFTER invasion.
+
+ - Occasionally a territory would attempt to send reinforcements, but shouldn't be doing that since the logic isn't built yet.
+	Fix: App.Collections.terrCollection.returnTerrsWithBorders now evaluates whether a territory is currently selected before picking a new territory in App.Utilities.aiDoNextAttack.
+
+	If it is, it uses the selected territory for the next action.
+
+ - Restart Game: Restarting the game should maintain the settings for:
+		Tips Mode
+		Full Screen
+		vs AI Mode
+
 ===========================================================================
 Release Notes
 3.2.1 Alpha
@@ -110,7 +257,7 @@ Release Date 8/18/2018
 	- PHP form? Is there a better way? Maybe, but I can spin up and MVP this way immediately.
 	- Steal security PHP from Phil's contact form
 
-5. Enhancement: Attack Territory Icon is now a target
+5. UX Enhancement: Attack Territory Icon is now a target
 
 6. Game Start Screen
 	- Added "stopClick" property and logic to prevent double-clicking the Declare War button
