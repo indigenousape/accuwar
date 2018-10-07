@@ -39,7 +39,7 @@ Play side-by-side with another player or alone in sandbox mode to learn the game
 - All Devices
 
 # Release
-3.1.2 Alpha
+3.2.1 Alpha
 
 # Credits
 MAPS
