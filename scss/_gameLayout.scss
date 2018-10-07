@@ -9,6 +9,21 @@ body {
 	}
 }
 
+#aiMaskLayer {
+	display: none;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: -10;
+
+	&.active {
+		display: block;
+		z-index: 1000000;
+	}
+}
+
 /* Global styles*/
 a:focus, a:hover, a {
 	color: inherit;

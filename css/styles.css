@@ -6,6 +6,18 @@ body {
   body.terrSelected {
     height: calc(100vh + 67px); }
 
+#aiMaskLayer {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -10; }
+  #aiMaskLayer.active {
+    display: block;
+    z-index: 1000000; }
+
 /* Global styles*/
 a:focus, a:hover, a {
   color: inherit;
@@ -103,7 +115,8 @@ textarea.invalid {
   right: 0;
   left: 0;
   opacity: 0.6;
-  transition: opacity 0.6s; }
+  transition: opacity 0.6s;
+  z-index: 1; }
 
 /* .army */
 .army {
@@ -117,7 +130,8 @@ textarea.invalid {
   border-color: transparent;
   text-align: left;
   border: 4px solid transparent;
-  outline: none; }
+  outline: none;
+  z-index: 1; }
   .army:focus {
     border: 4px inset #cccccc; }
   .army:focus, .army:active:focus {
@@ -147,7 +161,8 @@ textarea.invalid {
     position: absolute;
     right: 5px;
     top: 5px;
-    font-size: 11px; }
+    font-size: 11px;
+    cursor: pointer; }
   .army .glyphicon-flag {
     position: absolute;
     font-size: 11px; }
@@ -168,9 +183,10 @@ textarea.invalid {
 .inrange:active .army {
   border: 4px solid #ff0000; }
 
-.inrange:active > .glyphicon-screenshot {
-  opacity: 1;
+.inrange:active > .no-btn {
   z-index: 999; }
+  .inrange:active > .no-btn > .glyphicon-screenshot {
+    opacity: 1; }
 
 .inrange .army {
   cursor: crosshair; }
@@ -190,9 +206,10 @@ textarea.invalid {
   .reinforce:active .overlay ~ .army > h2,
   .reinforce:active .overlay ~ .army > label {
     color: #333; }
-  .reinforce:active:hover > .glyphicon-user {
-    opacity: 1;
+  .reinforce:active:hover > .no-btn {
     z-index: 999; }
+    .reinforce:active:hover > .no-btn > .glyphicon-user {
+      opacity: 1; }
   .reinforce:active h2 {
     color: #fff; }
   .reinforce:active > .army:focus label {
@@ -203,9 +220,9 @@ textarea.invalid {
     opacity: 0; }
   .reinforce:active .army {
     border: 4px solid transparent; }
-  .reinforce:active > .glyphicon-user {
+  .reinforce:active > .no-btn > .glyphicon-user {
     color: #333; }
-    .reinforce:active > .glyphicon-user:after {
+    .reinforce:active > .no-btn > .glyphicon-user:after {
       border: 1.5px solid #333; }
 
 .reinforce.noTurns:active:hover > .army > .armyLabel {
@@ -268,22 +285,22 @@ textarea.invalid {
   opacity: 0.9;
   will-change: opacity; }
 
-.terr > .glyphicon-screenshot,
-.terr > .glyphicon-user {
-  font-size: 40px;
+.terr .no-btn {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0;
-  transition: opacity 0.6s;
-  z-index: -1;
-  color: #fff; }
-
-.terr > .glyphicon-user:after {
-  left: 3px;
-  height: 15px;
-  border: 1.5px solid #fff; }
+  z-index: -1; }
+  .terr .no-btn > .glyphicon-screenshot,
+  .terr .no-btn > .glyphicon-user {
+    font-size: 40px;
+    opacity: 0;
+    transition: opacity 0.6s;
+    color: #fff; }
+  .terr .no-btn > .glyphicon-user:after {
+    left: 3px;
+    height: 15px;
+    border: 1.5px solid #fff; }
 
 .terr .army:focus label {
   opacity: 1; }
@@ -436,6 +453,14 @@ section > .terr {
   background-color: transparent;
   border-width: 0;
   border-style: solid; }
+  section > .terr.borderRight {
+    border-right: 2px solid #333; }
+  section > .terr.borderLeft {
+    border-left: 2px solid #333; }
+  section > .terr.borderTop {
+    border-top: 2px solid #333; }
+  section > .terr.borderBottom {
+    border-bottom: 2px solid #333; }
   section > .terr.capital.reinforce:hover .army {
     border: 4px solid #fff; }
 
@@ -503,16 +528,18 @@ section > .reinforce {
   cursor: crosshair; }
 
 /* .selected */
-.selected:active > .glyphicon-user {
-  opacity: 1;
+.selected:active > .no-btn {
   z-index: 99; }
+  .selected:active > .no-btn > .glyphicon-user {
+    opacity: 1; }
 
-.selected.terr > .glyphicon-user {
-  opacity: 1;
-  z-index: 99;
-  color: #333; }
-  .selected.terr > .glyphicon-user:after {
-    border: 1.5px solid #333; }
+.selected.terr > .no-btn {
+  z-index: 99; }
+  .selected.terr > .no-btn > .glyphicon-user {
+    opacity: 1;
+    color: #333; }
+    .selected.terr > .no-btn > .glyphicon-user:after {
+      border: 1.5px solid #333; }
 
 .selected .army > label {
   opacity: 1; }
@@ -1007,31 +1034,67 @@ input[type=range] {
     top: -5px; }
 
 .terr-slider-control {
-  width: 345px;
+  width: 345px; }
+
+.terr-slider-control,
+.difficulty-slider-control {
   margin: 43px auto 0; }
-  .terr-slider-control label {
+  .terr-slider-control label,
+  .difficulty-slider-control label {
     height: 34px;
     line-height: 34px;
     float: left;
     margin-bottom: 0;
     font-weight: normal; }
-  .terr-slider-control .active {
+  .terr-slider-control .active,
+  .difficulty-slider-control .active {
     font-weight: bold; }
 
+.difficulty-slider-control {
+  width: 250px; }
+  .difficulty-slider-control label {
+    float: none; }
+
 .game-controls {
-  margin: 16px 0 8px; }
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1001; }
   .game-controls label {
-    margin: 0 5px 0 20px; }
+    margin: 4px 0; }
   .game-controls > label:first-child {
     margin-left: 0; }
   .game-controls input {
     zoom: 1.25;
     margin-top: 0;
+    margin-left: 17px;
     position: relative;
     top: 3px; }
+  .game-controls .dropdown-toggle {
+    box-shadow: 1px 1px 3px #333;
+    will-change: box-shadow;
+    transition: all .4s;
+    border-left: none;
+    border-top: none;
+    border-top-left-radius: 0; }
+    .game-controls .dropdown-toggle:focus, .game-controls .dropdown-toggle:hover {
+      box-shadow: 2px 2px 6px #333;
+      border-top: none;
+      border-left: none; }
+  .game-controls .dropdown-menu {
+    min-width: 200px; }
+    .game-controls .dropdown-menu .glyphicon-cog {
+      margin-left: 20px; }
 
-.error ~ .terr-slider-control {
+.ai-mode ~ .terr-slider-control {
+  margin: 20px auto 0; }
+
+.error ~ .terr-slider-control,
+.error ~ #aiDifficulty .difficulty-slider-control {
   margin: 0 auto; }
+
+.error ~ #aiDifficulty .difficulty-slider-control {
+  margin: 0 auto 20px; }
 
 #terrNumberInput {
   width: 150px;
@@ -1810,7 +1873,8 @@ input[type=range] {
     margin-bottom: 5px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap; }
+    white-space: nowrap;
+    padding-right: 5px; }
   .modal-body > p:last-child {
     margin-bottom: 0; }
 
@@ -1888,11 +1952,6 @@ input[type=range] {
   #impact-msg:empty {
     display: none; }
 
-#tp-modal-msg-2 {
-  font-size: 13px; }
-  #tp-modal-msg-2:empty {
-    display: none; }
-
 #error-message-2 {
   font-size: 13px; }
   #error-message-2:empty {
@@ -1900,6 +1959,11 @@ input[type=range] {
 
 #tp-modal-msg-2 {
   margin-top: 10px; }
+
+.inv-repair {
+  margin-top: 8px; }
+  .inv-repair + .inv-repair {
+    margin-top: 0; }
 
 /* Attack and Reinforce Modal styles */
 .modal-two-terr-container {
@@ -2443,12 +2507,14 @@ input[type=range] {
     font-size: 12px; } }
 
 @media screen and (max-width: 812px) {
+  .difficulty-slider-control {
+    margin: 9px auto 0; }
   .modal-dialog {
     margin: 10px auto; }
   .hide-phone {
     display: none; }
-  .terr > .glyphicon-fire,
-  .terr > .glyphicon-user {
+  .terr > .no-btn > .glyphicon-screenshot,
+  .terr > .no-btn > .glyphicon-user {
     font-size: 30px; }
   .modal-side-container {
     font-size: 14px; }
@@ -2507,11 +2573,12 @@ input[type=range] {
   #startHeading,
   #contactForm h1 {
     font-size: 5rem;
-    margin-top: 2vh; }
+    margin-top: 2vw; }
   #setup .form-group {
     margin: 5px auto; }
   .game-start-desc {
-    margin-top: 0; }
+    margin-top: 0;
+    margin-bottom: 10px; }
   .game-start-desc > p:first-child {
     display: none; }
   .game-alert p {
@@ -2530,8 +2597,7 @@ input[type=range] {
     width: 60px;
     bottom: 2px;
     right: 15px;
-    text-right: left;
-    overflow: hidden; } }
+    text-align: right; } }
 
 @media (max-width: 768px) {
   #contactForm .version-text {
@@ -2560,6 +2626,8 @@ input[type=range] {
       display: block; } }
 
 @media screen and (max-width: 580px) {
+  .hide-sm-phones {
+    display: none; }
   #declareWar {
     padding: 2rem; }
   #footerZone {

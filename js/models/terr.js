@@ -14,6 +14,10 @@ App.Models.Territory = Backbone.Model.extend({
 		armyXP: 0,
 		armyWins: 0,
 		armyLosses: 0,
+		borderRight: false,
+		borderLeft: false,
+		borderTop: false,
+		borderBottom: false,
 		column: 0,
 		currTreasury: 0,
 		econCasualties: 0,
@@ -34,6 +38,7 @@ App.Models.Territory = Backbone.Model.extend({
 		fortStrengthCost: 0,
 		governorKilled: false,
 		inRange: false,
+		isBorder: false,
 		isCapital: false,
 		morale: 80, // Army morale
 		name: '',

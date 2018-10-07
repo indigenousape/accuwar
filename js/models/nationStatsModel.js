@@ -40,7 +40,6 @@ var Emp = Backbone.Model.extend({
 		econPopulationStart: initEconPopulation,
 		econPopulationNow: initEconPopulation,
 		empName: '',
-		fortLevelSpend: 0,
 		fortsLost: [],
 		highTaxTurnLength: 0,
 		infrastructureSpend: 0,
@@ -92,6 +91,7 @@ var RightModel = new Emp({
 // Nation Stats Model
 App.Models.NationStats = Backbone.Model.extend({
 	defaults: {
+		aiMode: false,
 		currentTurn: App.Constants.START_TURN,
 		sideTurn: 'left',
 		left: LeftModel,

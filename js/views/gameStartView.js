@@ -20,9 +20,11 @@ App.Views.GameStart = Backbone.View.extend({
 	 	// Event is different in IE
 	 	if(!App.Utilities.detectIE()) {
 	 		this.events['input #terrNumberInput'] = "toggleSliderLabel";
+	 		this.events['input #difficultyInput'] = "toggleDifficultyLabel";
 	 		this.delegateEvents();
 	 	} else {
 	 		this.events['change #terrNumberInput'] = "toggleSliderLabel";
+	 		this.events['change #difficultyInput'] = "toggleDifficultyLabel";
 	 		this.delegateEvents();	
 	 	}
 
@@ -44,16 +46,16 @@ App.Views.GameStart = Backbone.View.extend({
 		'change #randomMap' : 'toggleRandomMap',
 		'change #showTips' : 'toggleTips',
 		'click #howToPlayModal' : 'howToPlay',
-		'change #fullScreen' : 'toggleFullScreen'
+		'change #fullScreen' : 'toggleFullScreen',
+		'change #aiMode' : 'toggleAIMode'
 	},
 	howToPlay: function() {
 
 		var modalHTML = '<p><strong>Each player</strong> controls an empire made up of territories at opposite ends of the screen. Players take turns managing territories and attacking one another to expand their empires. <strong>The first player to invade the enemy\'s capital <span class="glyphicon glyphicon-star"></span> wins the&nbsp;game.</strong></p>'
-			+ ' <p><strong>Each territory</strong> contains army units and a fort to protect its citizens and infrastructure. A selected territory\'s army units can be sent to any allied territory or to '
-			+ ' attack neighboring enemies. To manage a territory, select it on the map and expand the window at the bottom of the screen. Some actions -- training, recruiting, transferring units, '
-			+ ' and attacking enemies -- will end a territory\'s turn. Territories without turns can\'t be accessed or updated until the next&nbsp;year.</p>'
-			+ ' <p><strong>Each empire</strong> collects taxes from its territories at the end of each year. Repairs, upgrades, recruiting and training are paid for out of the treasury. Policies can be enabled to spend leftover funds automatically on repairs, '
-			+ ' recruiting, and upgrades between turns. To see budget details, battle statistics, and policy information, visit the menu in the top corner of your&nbsp;screen.</p>';
+			+ ' <p><strong>Each territory</strong> contains army units and a fort to protect its citizens and infrastructure. Army units can be sent to reinforce allied territories or to '
+			+ ' attack neighboring enemies. To manage a territory, select it on the map and expand the window at the bottom of the screen.</p>'
+			+ ' <p><strong>Each empire</strong> collects taxes from its territories at the end of each year. Costs for repairs, recruiting, upgrades, and training are deducted from the treasury. Policies can be enabled to spend leftover funds automatically '
+			+ ' between turns. To see budget details, battle statistics, and policy information, visit the menu in the top corner of the game&nbsp;screen.</p>';
 
 		var confModalModel = new App.Models.Modal({
 			title: 'How to Play',
@@ -65,15 +67,37 @@ App.Views.GameStart = Backbone.View.extend({
 		var confModalView = new App.Views.ConfModal({model: confModalModel});
 
 	},
+	toggleAIMode: function(e) {
+		var isChecked = $(e.currentTarget)[0].checked;
+		if(!isChecked) {
+			App.Models.nationStats.set('aiMode', false);
+			App.Models.gameStartModel.set('aiMode', false);
+			$('#aiState').text('Off');
+			$('#empStartTxt').text('names');
+			$('.player2').show();
+			$('.ai-mode').removeClass('ai-mode');
+		} else {
+			App.Models.nationStats.set('aiMode', true);
+			App.Models.gameStartModel.set('aiMode', true);
+			$('#aiState').text('On');
+			$('#empStartTxt').text('name');
+			$('.player2').hide();
+			$('#leftName').trigger('keyup');
+		}
+	},
 	toggleFullScreen: function(e) { 
 		var isChecked = $(e.currentTarget)[0].checked;
 
 		if(!isChecked) {
 			App.Models.nationStats.set('fullScreen', false);
 			$('#fullScreenState').text('Off');
+			App.Models.gameStartModel.set('inFullScreen', false);
+			App.Utilities.exitFullScreen();
 		} else {
 			App.Models.nationStats.set('fullScreen', true);
+			App.Models.gameStartModel.set('inFullScreen', true);
 			$('#fullScreenState').text('On');
+			App.Utilities.launchFullScreen(document.documentElement);
 		}
 	},
 	toggleSound: function(e) {
@@ -144,6 +168,29 @@ App.Views.GameStart = Backbone.View.extend({
 		}
 
 	},
+	toggleDifficultyLabel: function(e) {
+		var val = parseInt(e.currentTarget.value);
+
+		switch(val) {
+
+			case 0:
+				App.Models.gameStartModel.set('aiDifficulty', 0);
+				break;
+			case 1:
+				App.Models.gameStartModel.set('aiDifficulty', 1);
+				break;
+			case 2:
+				App.Models.gameStartModel.set('aiDifficulty', 2);
+				break;
+			case 3:
+				App.Models.gameStartModel.set('aiDifficulty', 3);
+				break;
+			default:
+				App.Models.gameStartModel.set('aiDifficulty', 0);
+				break;
+		}
+
+	},
 	raiseColorIndicator: function(e) { 
 		$(e.currentTarget).parent().parent().prev().find('.select-indicator').addClass('raised');
 	},
@@ -153,61 +200,67 @@ App.Views.GameStart = Backbone.View.extend({
 	validateSideName: function(e) {
 
 		$('.error').remove();
+		$(e.currentTarget).removeClass('invalid');
 
-		var val = e.currentTarget.value,
-			key = window.event ? e.keyCode : e.which,
-			isEnterKey = key === 13,
-			errorEl = $('<p class="error" role="alert" aria-live="assertive"></p>'),
-			newValidationObj = App.Utilities.validateName(val, 'empire'),
-			invalidName = newValidationObj.errCode != 0;
+		var val = e.currentTarget.value;
 
-		if(invalidName) {
-			errorEl.html(newValidationObj.msg);
-			$(e.currentTarget).addClass('invalid');
-			$(errorEl).insertBefore($('.terr-slider-control'));
-			$('#declareWar').prop('disabled', true);
-			$('#specialMap').remove();
-		} else {
-			$(e.currentTarget).removeClass('invalid');
-			var leftVal = $('#leftName').val(),
-				rightVal = $('#rightName').val(),
-				specialMode = App.Views.gameStartView.isSpecialMode(leftVal, rightVal);
+		if(val.length > 0) {
 
-			$('#specialMap').remove();
+			var key = window.event ? e.keyCode : e.which,
+				isEnterKey = key === 13,
+				errorEl = $('<p class="error" role="alert" aria-live="assertive"></p>'),
+				newValidationObj = App.Utilities.validateName(val, 'empire'),
+				invalidName = newValidationObj.errCode != 0;
 
-			if(specialMode && $('#specialMap').length === 0) {
-				var p = $("<p class='bg-success text-center' id='specialMap'><span class='glyphicon glyphicon-globe'></span> Bonus unlocked!</p>");
-				p.insertAfter($('#declareWar'));
-			}
-
-			// If both are valid and not equal
-			var bothValid = App.Utilities.validateName(leftVal, 'empire').errCode === 0 && App.Utilities.validateName(rightVal, 'empire').errCode === 0;
-
-			if(leftVal != rightVal && bothValid) {
-				
-				$('#declareWar').prop('disabled', false);
-				$('.invalid').removeClass('invalid');
-
-				// If enter key
-				if(isEnterKey) {
-		 			this.declareWar();
-		 		}
-
-			} else if (bothValid) {
-				errorEl.text('Your empire name must be unique.');
+			if(invalidName) {
+				errorEl.html(newValidationObj.msg);
 				$(e.currentTarget).addClass('invalid');
-				$(errorEl).insertBefore($('.terr-slider-control'));
+				$(errorEl).insertBefore($('#aiDifficulty'));
 				$('#declareWar').prop('disabled', true);
 				$('#specialMap').remove();
+			} else {
+				$(e.currentTarget).removeClass('invalid');
+				var leftVal = $('#leftName').val(),
+					rightVal = $('#rightName').val(),
+					specialMode = App.Views.gameStartView.isSpecialMode(leftVal, rightVal);
+
+				$('#specialMap').remove();
+
+				if(specialMode && $('#specialMap').length === 0) {
+					var p = $("<p class='bg-success text-center' id='specialMap'><span class='glyphicon glyphicon-globe'></span> Bonus unlocked!</p>");
+					p.insertAfter($('#declareWar'));
+				}
+
+				// If both are valid and not equal
+				var bothValid = App.Utilities.validateName(leftVal, 'empire').errCode === 0 && App.Utilities.validateName(rightVal, 'empire').errCode === 0;
+
+				if((leftVal != rightVal && bothValid) || (App.Utilities.validateName(leftVal, 'empire').errCode === 0 && App.Models.gameStartModel.get('aiMode'))) {
+					
+					$('#declareWar').prop('disabled', false);
+					$('.invalid').removeClass('invalid');
+
+					// If enter key
+					if(isEnterKey) {
+			 			this.declareWar();
+			 		}
+
+				} else if (bothValid && !App.Models.gameStartModel.get('aiMode')) {
+					errorEl.text('Your empire name must be unique.');
+					$(e.currentTarget).addClass('invalid');
+					$(errorEl).insertBefore($('.terr-slider-control'));
+					$('#declareWar').prop('disabled', true);
+					$('#specialMap').remove();
+				}
+
 			}
 
-		}
+			// If enter key was pressed and either input is empty, move focus to the empty input
+			if(!App.Models.gameStartModel.get('aiMode') && isEnterKey && e.currentTarget.id === "leftName" && !invalidName && $("#rightName").val() === "") {
+				$("#rightName").focus();
+			} else if (isEnterKey && e.currentTarget.id === "rightName" && !invalidName && $("#leftName").val() === "") {
+				$("#leftName").focus();
+			}
 
-		// If enter key was pressed and either input is empty, move focus to the empty input
-		if(isEnterKey && e.currentTarget.id === "leftName" && !invalidName && $("#rightName").val() === "") {
-			$("#rightName").focus();
-		} else if (isEnterKey && e.currentTarget.id === "rightName" && !invalidName && $("#leftName").val() === "") {
-			$("#leftName").focus();
 		}
 
 	},
@@ -275,9 +328,9 @@ App.Views.GameStart = Backbone.View.extend({
 			// Get the names and colors of the left and right sides
 
 			var leftNameVal = $('#leftName').val().trim(),
-				rightNameVal = $('#rightName').val().trim(),
+				rightNameVal = App.Models.gameStartModel.get('aiMode') ? 'CPU' : $('#rightName').val().trim(),
 				leftColor = $('#leftColor').val(),
-				rightColor = $('#rightColor').val(),
+				rightColor = App.Models.gameStartModel.get('aiMode') ? App.Utilities.returnCPUcolor() : $('#rightColor').val(),
 				terrNumber = parseInt($('#terrNumberInput').val());
 
 			App.Defaults.mobileMode = terrNumber != App.Constants.STARTING_TERRITORIES;
@@ -288,8 +341,9 @@ App.Views.GameStart = Backbone.View.extend({
 			});
 
 			App.Models.nationStats.get('left').set({
-					'color': leftColor
-				});
+				'color': leftColor
+			});
+
 			App.Models.nationStats.get('right').set({
 				'color': rightColor
 			});
@@ -374,18 +428,11 @@ App.Views.GameStart = Backbone.View.extend({
 				delay: App.Constants.DELAY_INFINITE
 			});
 
-			// Launch fullscreen for browsers that support it!
-			if(App.Models.nationStats.get('fullScreen')) {
-				App.Utilities.launchFullScreen(document.documentElement);
-			}
-
 			setTimeout(function() {
 				App.Views.battleMap.smoothScroll('.terr:first-child');
 				App.Views.gameStartView.closeView();
 				$('#setup').remove();
-
 			}, 600);
-
 		}
 
 
@@ -393,9 +440,10 @@ App.Views.GameStart = Backbone.View.extend({
 	isSpecialMode: function(name1, name2) {
 		var name1Lower = name1.toLowerCase(),
 			name2Lower = name2.toLowerCase(),
+			evaluateNames = this.model.get('aiMode') ? name1Lower : name1Lower + name2Lower, 
 			specialModes = ['civilwar', 'wargames', 'joshua', 'wallstreet', 'makebelieve', 'college'];
 
-		if(specialModes.indexOf(name1Lower + name2Lower) != -1) {
+		if(specialModes.indexOf(evaluateNames) != -1) {
 			return true;
 		} else {
 			return false;

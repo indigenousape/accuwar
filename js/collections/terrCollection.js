@@ -15,6 +15,8 @@ App.Collections.Territories = Backbone.Collection.extend({
             .filter(function(selected) { return selected.get('side') != App.Utilities.activeSide() })
             .value();
 
+        App.Collections.terrCollection.removeAttackRange();
+
         _.each(enemyTerritoriesArr, function(model) {
             
             if(Math.abs(parseInt(model.get('row')) - row) < range && Math.abs(parseInt(model.get('column')) - column) < range) {
@@ -167,13 +169,13 @@ App.Collections.Territories = Backbone.Collection.extend({
                 newFortStrength = repairForts ? 100 : model.get('fortStrength'),
                 newUnits =  recruitUnits ? model.get('armyPopulation') + policiesInFullObj[recruitIndex].amount : model.get('armyPopulation'),
                 newEconPopulation = recruitUnits ? model.get('econPopulation') - policiesInFullObj[recruitIndex].amount : model.get('econPopulation'),
-                newEconLevel = upgradeTech && model.get('econStrength') === 100 || upgradeTech && repairInfra ? model.get('econLevel') + 1 : model.get('econLevel'),
-                newFortLevel = upgradeForts && model.get('fortStrength') === 100 || upgradeForts && repairForts ? model.get('fortLevel') + 1 : model.get('fortLevel'),
+                newEconLevel = upgradeTech && model.get('econStrength') === 100 && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL || upgradeTech && repairInfra && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL ? model.get('econLevel') + 1 : model.get('econLevel'),
+                newFortLevel = upgradeForts && model.get('fortStrength') === 100 && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL || upgradeForts && repairForts && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL ? model.get('fortLevel') + 1 : model.get('fortLevel'),
                 recruits = recruitUnits ? policiesInFullObj[recruitIndex].amount : 0,
                 newEconStrengthCost = repairInfra ? 0 : model.get('econStrengthCost'),
                 newFortStrengthCost = repairForts ? 0 : model.get('fortStrengthCost'),
-                newFortLevelCost = upgradeForts && model.get('fortStrength') === 100 || upgradeForts && repairForts ? App.Constants.FORT_LVL_COST * (1 + newFortLevel) : model.get('fortLevelCost'),
-                newEconLevelCost = upgradeTech && model.get('econStrength') === 100 || upgradeTech && repairInfra ? App.Constants.ECON_LVL_UP_AMT * (1 + newEconLevel) : model.get('econLevelCost');
+                newFortLevelCost = upgradeForts && model.get('fortStrength') === 100 && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL || upgradeForts && repairForts && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL ? App.Constants.FORT_LVL_COST * (1 + newFortLevel) : model.get('fortLevelCost'),
+                newEconLevelCost = upgradeTech && model.get('econStrength') === 100 && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL || upgradeTech && repairInfra && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL ? App.Constants.ECON_LVL_UP_AMT * (1 + newEconLevel) : model.get('econLevelCost');
 
             var newVals = App.Utilities.returnRecruitMoraleXPRank(model, recruits),
                 oldArmyMorale = newVals.toMorale,
@@ -802,6 +804,7 @@ App.Collections.Territories = Backbone.Collection.extend({
                 var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + recruitCost;
                 App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - recruitCost, s, policyCosts);
                 model.incomingUnitsAuto(model, recruits, s);
+                App.Models.nationStats.get(s).set('policyCosts', policyCosts);
             }
 
         });
@@ -926,6 +929,55 @@ App.Collections.Territories = Backbone.Collection.extend({
         return terrWithRemainingTurns;
 
     },
+    returnTerrsWithBorders: function(s) {
+
+        var terrsArrHasSelected =  _.chain(this.models)
+                                .filter(function(selected) { return selected.get('side') === s && selected.get('isBorder') && selected.get('remainingTurns') > 0 })
+                                .some(function(model) { return model.get('selected') })
+                                .value();
+
+        // If there is a selected territory, guarantee that it will be at the top of the returned list
+        if(terrsArrHasSelected) {
+
+            var selectedTerrsArr = _.chain(this.models)
+                                .filter(function(selected) { return selected.get('side') === s && selected.get('isBorder') && selected.get('remainingTurns') > 0 })
+                                .sortBy(function(model){ return model.get('selected') })
+                                .reverse()
+                                .value();
+
+            return selectedTerrsArr;
+        } else {
+            // Otherwise just return the border territories with turns remaining for a particular side
+            // but randomly switch between the order of selecting them from bottom to top and from top to bottom.
+
+            var terrsArr = [];
+
+            if (Math.random() > 0.5) {
+                // From the top to the bottom of the map
+                terrsArr = _.chain(this.models)
+                            .filter(function(selected) { return selected.get('side') === s && selected.get('isBorder') && selected.get('remainingTurns') > 0 })
+                            .value();
+            } else {
+                // From bottom to the top of the map
+                terrsArr = _.chain(this.models)
+                            .filter(function(selected) { return selected.get('side') === s && selected.get('isBorder') && selected.get('remainingTurns') > 0 })
+                            .reverse()
+                            .value();
+            }
+
+            return terrsArr;
+        }
+
+    },
+    returnTerrsInRange: function(s) {
+        var terrsArr = _.chain(this.models)
+                            .filter(function(selected) { return selected.get('side') === s && selected.get('inRange') })
+                            .sortBy(function(model){ return model.get('morale') })
+                            .sortBy(function(model){ return model.get('armyPopulation') })
+                            .value();
+
+        return terrsArr;
+    },
     returnAvgTechLevel: function(s) {
         var totalTechLevel = _.chain(this.models)
                         .filter(function(model) { return model.get('side') === s })
@@ -937,6 +989,82 @@ App.Collections.Territories = Backbone.Collection.extend({
                         .value();
 
         return Math.round(totalTechLevel/_.size(terrs));
+
+    },
+    hasTwoCapitals: function(s) {
+        var hasTwoCapitalsArr = _.chain(this.models)
+                        .filter(function(model) { return model.get('side') === s && model.get('isCapital') })
+                        .value();
+
+        return hasTwoCapitalsArr.length > 1;
+    },
+    updateAllBorders: function() {
+        _.each(this.models, function(model) {
+            var borderObj = App.Collections.terrCollection.returnBorders(model);
+            model.set({
+                borderRight: borderObj.rightB,
+                borderLeft: borderObj.leftB,
+                borderTop: borderObj.topB,
+                borderBottom: borderObj.bottomB,
+                isBorder: borderObj.hasBorder
+            });
+        });
+    },
+    returnBorders: function(m) {
+        var row = m.get('row');
+        var column = m.get('column');
+
+        var rightNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row && model.get('column') === column + 1 && model.get('side') != m.get('side') })
+                            .value()[0];
+
+        var leftNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row && model.get('column') === column - 1 && model.get('side') != m.get('side') })
+                            .value()[0];
+
+        var topNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row - 1 && model.get('column') === column && model.get('side') != m.get('side')  })
+                            .value()[0];
+
+        var topRightNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row - 1 && model.get('column') === column + 1 && model.get('side') != m.get('side')  })
+                            .value()[0];
+
+        var topLeftNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row - 1 && model.get('column') === column - 1 && model.get('side') != m.get('side')  })
+                            .value()[0];
+
+        var bottomNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row + 1 && model.get('column') === column && model.get('side') != m.get('side') })
+                            .value()[0];
+
+        var bottomRightNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row + 1 && model.get('column') === column + 1 && model.get('side') != m.get('side') })
+                            .value()[0];
+
+        var bottomLeftNeighbor = _.chain(this.models)
+                            .filter(function(model) { return model.get('row') === row + 1 && model.get('column') === column - 1 && model.get('side') != m.get('side') })
+                            .value()[0];
+
+        var rightBorder = rightNeighbor ? true : false,
+            leftBorder = leftNeighbor ? true : false,
+            topBorder = topNeighbor ? true : false,
+            bottomBorder = bottomNeighbor ? true : false,
+            topRightBorder = topRightNeighbor ? true : false,
+            topLeftBorder = topLeftNeighbor ? true : false,
+            bottomRightBorder = bottomRightNeighbor ? true : false,
+            bottomLeftBorder = bottomLeftNeighbor ? true : false,
+            otherBorders = topRightBorder || topLeftBorder || bottomRightBorder || bottomLeftBorder;
+
+        var borderObj = {
+            topB: topBorder,
+            rightB: rightBorder,
+            bottomB: bottomBorder,
+            leftB: leftBorder,
+            hasBorder: (rightBorder || leftBorder || topBorder || bottomBorder || otherBorders)
+        }
+
+        return borderObj;
 
     },
     returnPolicyCost: function(policy, infFlag, ftFlag) {
@@ -1025,6 +1153,16 @@ App.Collections.Territories = Backbone.Collection.extend({
 
         return total;
     },
+    returnSortedByArmyPopulation: function(s) {
+        var rightTerrsArr = _.chain(this.models)
+                            .filter(function(selected) { return selected.get('side') === s })
+                            .sortBy(function(model){ return model.get('armyPopulation') })
+                            .filter(function(model) { return model.get('armyPopulation') < App.Constants.MIN_ARMY_FOR_MORALE })
+                            .value();
+
+        return rightTerrsArr;
+
+    },
     returnTotalCost: function(type, s) { 
         var totCost = 0,
             costFunction = {};
@@ -1063,7 +1201,7 @@ App.Collections.Territories = Backbone.Collection.extend({
     },
     specialMap: function(name1, name2) {
 
-        var empNamesTogether = name1.toLowerCase() + name2.toLowerCase(),
+        var empNamesTogether = App.Models.gameStartModel.get('aiMode') ? name1.toLowerCase() : name1.toLowerCase() + name2.toLowerCase(),
             terrNames = App.Utilities.territoryNames(empNamesTogether);
 
         _.each(this.models, function(model) {
@@ -1166,6 +1304,7 @@ App.Collections.Territories = Backbone.Collection.extend({
                 var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('econLevelCost');
                 App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('econLevelCost'), s, policyCosts);
                 App.Utilities.upgradeTerrEconLevel(model, true);
+                App.Models.nationStats.get(s).set('policyCosts', policyCosts);
             }
 
         });
@@ -1188,6 +1327,7 @@ App.Collections.Territories = Backbone.Collection.extend({
                 var policyCosts = App.Models.nationStats.get(s).get('policyCosts') + model.get('fortLevelCost');
                 App.Models.nationStats.payForUpgradeAuto(App.Utilities.getTreasuryAuto(s) - model.get('fortLevelCost'), s, policyCosts);
                 App.Utilities.upgradeTerrArmyFortLevel(model, true);
+                App.Models.nationStats.get(s).set('policyCosts', policyCosts);
             }
 
         });

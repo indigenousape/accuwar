@@ -76,20 +76,16 @@ App.Views.BattleZone = Backbone.View.extend({
 
 		// Fort Strength can give up to 50% strength bonus to a defending army depending on fort level
 		var fortLevel = defending.get('fortLevel'),
-			defenderFortBonus = 1 + ((fortLevel * defending.get('fortStrength')) / 100) / 10,
+			defenderFortBonus = ((fortLevel * 500) + defending.get('fortStrength')) / 10000,
 			defenderCapitalBonus;
 
-		var attackXP = attacking.get('armyRank') > 1 ?  attacking.get('armyXP') + (attacking.get('armyRank') * 100) : Math.max(attacking.get('armyXP'), 1),
-			defendXP = defending.get('armyRank') > 1 ? defending.get('armyXP') + (defending.get('armyRank') * 100) : Math.max(defending.get('armyXP'), 1);
+		var attackXP = App.Utilities.returnArmyXP(attacking),
+			defendXP = App.Utilities.returnArmyXP(defending);
 
-		defenderCapitalBonus = defending.get('isCapital') ? 2.5 : 1; // Capital territory has a 25% defensive strength bonus
+		defenderCapitalBonus = defending.get('isCapital') ? 0.25 : 0; // Capital territory has a 25% defensive strength bonus
 
-		// Computed attacker and defender strengths currently based on morale, population, and rank/XP
-		var attackArmyTechBonus = 1 + (0.25 * App.Models.nationStats.get(attacking.get('side')).get('armyTechLvl'));
-		var defendArmyTechBonus = 1 + (0.25 * App.Models.nationStats.get(defending.get('side')).get('armyTechLvl'));
-
-		var attackerStrength = Math.round(attacking.get('armyPopulation') * attacking.get('morale') * (1 + (attackXP/100)) * attackArmyTechBonus / 100);
-		var defenderStrength = Math.max(Math.round(defending.get('armyPopulation') * defending.get('morale') * (1 + (defendXP/100)) * defenderFortBonus * defendArmyTechBonus *  defenderCapitalBonus / 100), 1);
+		var attackerStrength = App.Utilities.returnBattleStrength(attacking);
+		var defenderStrength = Math.max(Math.round(App.Utilities.returnBattleStrength(defending) * (1 + defenderFortBonus +  defenderCapitalBonus)), 1);
 
 		// Generate attacker and defender odds
 		var attackerOdds = attackerStrength / (attackerStrength + defenderStrength);
@@ -175,7 +171,7 @@ App.Views.BattleZone = Backbone.View.extend({
 					lastStandAttLosses;
 
 				//If the attacking army is 4 times the size of the defending army, they invade for certain
-				if(lastStandAttPop / lastStandDefPop > 4) {
+				if(lastStandAttPop / lastStandDefPop > 4 && (attCasRate * lastStandAttPop) > App.Constants.ATTACK_INVADE_ARMY_MINIMUM) {
 					defCasRate = 1;
 				} else {
 
@@ -212,8 +208,8 @@ App.Views.BattleZone = Backbone.View.extend({
 				// Compute estimated attacker losses
 				var lastStandAttLosses = attCasRate * attacking.get('armyPopulation');
 
-				// If estimate of attacker losses is greater than defender population, set defender casualty rate to 1
-				if(lastStandAttLosses >= defending.get('armyPopulation')) {
+				// If estimate of attacker losses is greater than 10x defender population, set defender casualty rate to 1
+				if(lastStandAttLosses >= 10 * defending.get('armyPopulation') && (attacking.get('armyPopulation') - lastStandAttLosses) > App.Constants.ATTACK_INVADE_ARMY_MINIMUM) {
 					defCasRate = 1;
 				}
 
@@ -579,12 +575,16 @@ App.Views.BattleZone = Backbone.View.extend({
 
 				App.Collections.terrCollection.nextTreasury();
 
+				App.Collections.terrCollection.updateAllBorders();
+
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-globe",
 					titleTxt : "Game Over" ,
 					msgTxt : nationName + " defeats&nbsp;" + loseNationName + "!",
 					msgType : 'success'
 				});
+
+				$('.selected').blur();
 
 				//Delay the alert so last territory will render first (remove when we go to another approach)
 				setTimeout(function() {
@@ -635,6 +635,10 @@ App.Views.BattleZone = Backbone.View.extend({
 						showCancelBtn: false
 					});
 
+					if (App.Models.gameStartModel.get('aiMode') && App.Utilities.activeSide() === 'right') {
+						App.Utilities.toggleMaskLayer();
+					}
+
 					var confModalView = new App.Views.ConfModal({model: confModalModel});
 
 					$('#oneModal').on('hidden.bs.modal', function(e) {
@@ -643,7 +647,7 @@ App.Views.BattleZone = Backbone.View.extend({
 						App.Models.nationStats.set('sideTurn', 'left');
 					});
 
-				}, 600);
+				}, 1200);
 
 			} else {
 
@@ -1004,7 +1008,8 @@ App.Views.BattleZone = Backbone.View.extend({
 			i++;
 		}
 
-		messageHTML += App.Utilities.isMobile() ? '<p class="br-alert text-center">Tap each bar to see the impact from the battle.</p>' : '';
+		// Only display the message below when it's the human player's turn
+		messageHTML += App.Utilities.isMobile() && (App.Models.gameStartModel.get('aiMode') && App.Utilities.activeSide() === 'left') ? '<p class="br-alert text-center">Tap each bar to see the impact from the battle.</p>' : '';
 
 		function progBarObjHTML(barObj) {
 			return 	'<button class="fort-label no-btn current" aria-label="'+ sideName + ' '+barObj.labelText+' Before Attack: ' + barObj.textVal + ' After Attack: ' + barObj.updatedTextVal + '">' + 

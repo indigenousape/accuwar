@@ -4,12 +4,12 @@
 <!--[if gt IE 8]><!-->
 <html lang="en" role="main"> <!--<![endif]-->
 <head>
-	<title>[ accuwar ] - Turn-based strategy game and war simulator. Play free.</title>
+	<title>[ accuwar ] - Turn-based strategy game and battle simulator. Play free.</title>
 
 	<meta charset="utf-8">
 
-	<meta name="description" content="Build your empire and raise armies to defeat your enemy in a turn-based browser game. Play alone or side-by-side on all devices.">
-	<meta name="keywords" content="strategy games, war games, war simulators, empire builders, turn-based strategy games, free games, web games, turn-based games, free web games, free strategy games, free HTML5 games, free war games, browser games, games like risk, games like civilization">
+	<meta name="description" content="Build your empire and raise armies to defeat your enemy in this turn-based strategy game. Play alone or side-by-side on all devices.">
+	<meta name="keywords" content="strategy games, war games, battle simulator, war simulator, empire builders, turn-based strategy games, free games, web games, turn-based games, free web games, free strategy games, free HTML5 games, free war games, browser games, games like risk, games like civilization, free games">
 	<link rel="author" href="https://www.linkedin.com/in/joshmharris" />
 	<link rel="canonical" href="http://www.accuwar.com" />
 
@@ -40,13 +40,13 @@
 	<meta property="og:type" content="website">
 	<meta property="og:image" content="/accuwar-og.jpg">
 	<meta property="og:description" content="Build your empire and raise armies to defeat your enemy in this turn-based strategy game. Play free on all devices.">
-	<meta property="og:title" content="[ accuwar ] - Turn-based strategy game and war simulator. Play free.">
+	<meta property="og:title" content="[ accuwar ] - Turn-based strategy game and battle simulator. Play free.">
 	<meta property="og:site_name" content="[ accuwar ]">
 	<meta property="og:see_also" content="http://www.accuwar.com">
 
 	<meta name="twitter:card" content="summary">
 	<meta name="twitter:url" content="http://www.accuwar.com">
-	<meta name="twitter:title" content="[ accuwar ] - Turn-based strategy game and war simulator. Play free.">
+	<meta name="twitter:title" content="[ accuwar ] - Turn-based strategy game and battle simulator. Play free.">
 	<meta name="twitter:description" content="Build your empire and raise armies to defeat your enemy. Play alone or side-by-side on all devices.">
 	<meta name="twitter:image" content="/accuwar-og.jpg">
 
@@ -87,7 +87,11 @@
 				<div class="panel panel-default">
 		  			<div class="panel-body">
 						<h1>[accuwar]</h1>
-						<p class="bg-danger"><span class="glyphicon glyphicon-alert" aria-hidden="true"></span> This game is best experienced on larger screens. Resize your browser window, or turn your mobile or tablet device sideways. Go ahead and give it a try!</p>
+						<div class="bg-danger">
+							<p><span class="glyphicon glyphicon-alert" aria-hidden="true"></span> This game is best experienced on larger screens.</p>
+
+							<p>Turn your mobile device sideways, or resize your browser window. Go ahead and give it a try!</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -201,6 +205,8 @@
 
 	<script id="battleBox" type="text/template">
 
+		<div id="aiMaskLayer" aria-hidden="true"></div>
+
 		<a class="skip-link btn-default btn" href="#battleZone" tabindex="-1">Skip to battle map</a>
 
 		<div id="nationStats" role="complementary"></div>
@@ -231,9 +237,13 @@
 				</li>
 				<% if (!App.Utilities.isSafari()) { %>
 					<li>
-				    	<input id="fullScreen" type="checkbox" /> 
-				    	<label for="fullScreen">Fullscreen: </label>
-						<span id="fullScreenState">Off</span>
+						<% if (inFullScreen) { %>
+				    		<input id="fullScreen" type="checkbox" checked /> 
+				    	<% } else { %>
+				    		<input id="fullScreen" type="checkbox" /> 
+				    	<% } %>
+				    	<label for="fullScreen">Full Screen: </label>
+						<span id="fullScreenState"><% if (inFullScreen) { %>On<% } else { %>Off<% } %></span>
 					</li>
 				<% } %>
 				<li>
@@ -242,9 +252,23 @@
 					<span id="soundState">Off</span>
 				</li>
 				<li class="hide-tab-landscape">
-					<input id="showTips" type="checkbox" checked />
+					<% if (App.Models.battleMapModel.get('tipsMode')) { %>
+						<input id="showTips" type="checkbox" checked />
+					<% } else { %>
+						<input id="showTips" type="checkbox" />
+					<% } %>
+
 					<label for="showTips">Show Tips: </label>
-					<span id="tipsState">On</span>
+					<% if (App.Models.battleMapModel.get('tipsMode')) { %>
+						<span id="tipsState">On</span>
+					<% } else { %>
+						<span id="tipsState">Off</span>
+					<% } %>
+				</li>
+				<li>
+					<input id="aiMode" type="checkbox" <% if(aiMode) {%>checked<% } %> />
+					<label for="aiMode">Play vs AI: </label>
+					<span id="aiState"><% if(aiMode) {%>On<%} else {%>Off<%}%></span>
 				</li>
 			    <li role="separator" class="divider"></li>
 			    <li><a href="#" id="howToPlayModal"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> How to Play</a></li>
@@ -259,7 +283,7 @@
 		<div class="game-start-desc">
 			<p>Turn-based strategy game.</p>
 
-			<p>Enter your empire names to declare war.</p>
+			<p>Enter your empire <span id="empStartTxt">name<% if(!aiMode) { %>s<%}%></span> to declare war.</p>
 		</div>
 
 		<div class="form-group">
@@ -272,7 +296,8 @@
 			<div id="p1ColorMenu"></div>
 
 		</div>
-		<div class="form-group">
+
+		<div class="form-group player2" <% if(aiMode) {%> style="display: none;" <%}%> >
 			<label for="rightName">Player 2:</label>
 			<input type="text" id="rightName">
 			<div class="indicator-wrapper">
@@ -280,6 +305,12 @@
 			</div>
 			<div id="p2ColorMenu"></div>
 		</div>
+
+		<% if(aiMode) { %>
+			<div id="aiDifficulty" class="ai-mode"></div>
+		<% } else { %>
+			<div id="aiDifficulty"></div>
+		<% } %>
 
 		<div class="terr-slider-control">
 			<label class="active" id="quickGame">Quick game</label>
@@ -290,7 +321,7 @@
 
 		<button id="declareWar" disabled>Declare War</button>
 
-		<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.2.1</span></p>
+		<p class="small text-muted version-text">Beta <span class="release-txt">Release 4.0</span></p>
 
 		<div class="sm-container">
 
@@ -300,6 +331,16 @@
 
 		</div>
 
+	</script>
+
+	<script id="aiDifficultySlider" type="text/template">
+		<% if (aiMode) {%>
+			<div class="difficulty-slider-control">
+		    	<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-blue" min="0" max="1" step="1" value="<%= aiDifficulty %>" defaultValue="0" id="difficultyInput" aria-label="Difficulty setting.">
+		    	<label class="center-block"  id="difficultyText"><strong>Difficulty:</strong> <%= aiDifficultyLabels[aiDifficulty] %></label>
+		    	<div class="clearfix"></div>
+			</div>
+		<% } %>
 	</script>
 
 	<script id="budgetList" type="text/template">
@@ -388,11 +429,11 @@
 								<span class="glyphicon glyphicon-chevron-down disabled" disabled></span>
 							<% } %>
 
-							<%= policies[i].title %>
+							<%= policies[i].title %> (Tech Level <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('armyTechLvl') %>)
 
 							<% if (policies[i].id === 'recruit_army') { %>
 								<input type="range" min="25000" value="<%= policies[i].amount %>" max="500000" step="25000" id="armyUnitsRange" class="form-control range-slider slider-<%= App.Utilities.activeSide()%> slider-<%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" aria-label="Recruits army units in all territories each turn.">
-								<span class="recruit-impact text-muted" tabindex="0"><span><span id="recruitsPerYear"><%= App.Utilities.addCommas(policies[i].amount) %></span> units per territory</span> <span>$<span id="recruitPerYearCost"><%= App.Utilities.addCommas(App.Constants.ARMY_UNIT_COST * policies[i].amount * App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length) %></span> total</span> <span class="clearfix"></span></span>
+								<span class="recruit-impact text-muted" tabindex="0"><span><span id="recruitsPerYearPol"><%= App.Utilities.addCommas(policies[i].amount) %></span> units per territory</span> <span>$<span id="recruitPerYearPolCost"><%= App.Utilities.addCommas(App.Utilities.returnRecruitCost(policies[i].amount) * App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length) %></span> total</span> <span class="clearfix"></span></span>
 							<% } %>
 
 						</label>
@@ -472,13 +513,13 @@
 
 		<div class="footer-icons">
 		<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-			<button class="raise btn btn-primary pull-left" id="dropFooter" data-toggle="popover" data-trigger="hover" data-placement="top" title="<%= name %> Details Panel" data-content="Recruit and train army units. Repair and upgrade forts. Develop the local&nbsp;economy."><span class="down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> </span><span class="up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> </span> <span class="hide-mob">Details &amp;</span> Actions</button>
+			<button class="raise btn btn-primary pull-left" id="dropFooter" data-toggle="popover" data-trigger="hover" data-placement="top" title="Manage <%= name %>" data-content="Recruit and train army units. Repair and upgrade forts. Develop the local&nbsp;economy."><span class="down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> </span><span class="up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> </span> Manage <span class="hide-mob"><%= name %></span></button>
 		<% } else {%>
 
-			<button class="raise btn btn-primary pull-left" id="dropFooter"><span class="down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> </span><span class="up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> </span> <span class="hide-mob">Details &amp;</span> Actions</button>
+			<button class="raise btn btn-primary pull-left" id="dropFooter"><span class="down"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span> </span><span class="up"><span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span> </span> Manage <span class="hide-mob"><%= name %></span></button>
 
 		<% } %>
-			<button class="close-footer btn btn-default pull-left" id="closeFooter">Close<span class="hide-mob"> <%= name %></span></button>
+			<button class="close-footer btn btn-default pull-left" id="closeFooter">Deselect</button>
 		</div>
 
 		<section id="economy">
@@ -634,7 +675,7 @@
 
 										<% if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE > 0.75) {%>
 											<div class="white prog-txt" tabindex="0">Units <%= App.Utilities.addCommas(armyPopulation) %></div>
-										<% } else if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE < 0.25) { %>
+										<% } else if (armyPopulation / App.Constants.MIN_ARMY_FOR_MORALE <= 0.75) { %>
 											<div class="prog-txt" tabindex="0">Units <%= App.Utilities.addCommas(armyPopulation) %></div>
 										<% } %>
 									<% } %>
@@ -906,9 +947,9 @@
 				    <% } %>
 
 				    <% if (App.Models.battleMapModel.get('audio')) {%>
-				    	<li><button class="no-btn stopMusic" tabindex="-1">Music Off</button></li>
+				    	<li><button class="no-btn stopMusic" tabindex="-1">Stop Music</button></li>
 				    <% } else { %>
-				    	<li><button class="no-btn startMusic" tabindex="-1">Music On</button></li>
+				    	<li><button class="no-btn startMusic" tabindex="-1">Play Music</button></li>
 				    <% } %>
 
 				    <% if (App.Models.battleMapModel.get('audio')) {%>
@@ -1353,8 +1394,10 @@
 			</label>
 			
 		</button>
-		<span class="glyphicon glyphicon-screenshot" aria-hidden="true"></span>
-		<span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+
+		<button class="no-btn"><span class="glyphicon glyphicon-screenshot" aria-hidden="true"></span></button>
+		<button class="no-btn"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></button>
+
 	</script>
 
 	<!--[if gt IE 8]><!-->
@@ -1386,6 +1429,7 @@
 	<!-- Views -->
 	<script src="js/views/terrView.js"></script>
 	<script src="js/views/gameStartView.js"></script>
+	<script src="js/views/difficultySliderView.js"></script>
 	<script src="js/views/colorView.js"></script>
 	<script src="js/views/nationStatsView.js"></script>
 	<script src="js/views/battleZoneView.js"></script>
@@ -1415,8 +1459,9 @@
 			National Geographic
 
 		SOUND EFFECTS
+			United Artists & Sherwood Productions
+			NYSE
 			Quaker540 - Invasion
-
 			SoundsBoom.com
 
 		MUSIC
@@ -1430,53 +1475,41 @@
 			Source: http://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100727
 			Artist: http://incompetech.com/
 			Songs:
-				Dhaka, - ambient-2
-				Dark Times, - ambient-26
-				Gregorian Chant, - ambient-23
-				Evil March,  - ambient-10
-				Five Armies, - ambient-27
-				The Descent, - ambient-22
-				Epic Unease, - ambient-24
-				Past the Edge, - ambient-25
+				Dark Times, - ambient-18
+				Gregorian Chant, - ambient-16
+				Evil March,  - ambient-9
+				Five Armies, - ambient-19
+				Past the Edge, - ambient-17
 
 			High Tension by Audionautix is licensed under a Creative Commons Attribution license (https://creativecommons.org/licenses/by/4.0/)
 			Artist: http://audionautix.com/
-			 - ambient-9
+			 - ambient-8
 
 			Silent Partner
-				Righteous - ambient-3
-				Belief - ambient-7
+				Righteous - ambient-2
+				Belief - ambient-6
 
-			Cataclysmic Molten Core.....Jingle Punks  - ambient-12
+			Cataclysmic Molten Core.....Jingle Punks  - ambient-10
 
-			Black and White.......Max Surla/Media Right Productions  - ambient-11
 			Patriotic March.......Max Surla/Media Right Productions - victory_college
 
-			Drama Music...........Alexander Blu - ambient-17
-			http://www.orangefreesounds.com/
-
 			Royalty Free Music from Bensound (2)
-				Epic - ambient-5
-				Little Planet - ambient-13
+				Epic - ambient-4
 
 			http://www.purple-planet.com (3)
-				Battle Lines - ambient-4
-				Last Stand - ambient-6
-				Sierra Nevada - ambient-8
+				Battle Lines - ambient-3
+				Last Stand - ambient-5
+				Sierra Nevada - ambient-7
 
 			Shane Ivers - https://www.silvermansound.com (9)
-				Action and Adventure - ambient-19
-				The Fall of Heroes - ambient-20
-				The Rise of Heroes - ambient-21
+				The Fall of Heroes - ambient-15
 				The Victory Of Heroes - Victory music
-				Voyage of Discovery  - ambient-14
-				Against Time - ambient-15
-				Passage of Arms - ambient-16
-				Soviet March - ambient-18
+				Voyage of Discovery  - ambient-11
+				Against Time - ambient-12
+				Passage of Arms - ambient-13
+				Soviet March - ambient-14
 
 		Air Force Band of Liberty - When Johnny Comes Marching Home Instrumental - victory_union
-
-
 
 	-->
 

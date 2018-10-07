@@ -460,6 +460,165 @@ App.Views.NationStats = Backbone.View.extend({
 			App.Utilities.warpEls(['.treasury-tot', '.changeTax']);
 		}
 
+
+		/* Start of AI Logic */
+		// - A mask layer is used to prevent user interaction during the AI player's turn
+		// - Modal views need to be namespaced so that the code can reach their methods within the timeout functions
+		// - Logic needs ultimately should be updated so that it does not depend on the "right" side player being AI 
+		//
+		// A series of functions are executed within nested setTimeout functions (these functions should be namespaced)
+		// to simulate the AI user playing the game.
+		//
+		// The difficulties need to be namespaced to the App to avoid cluttering this up
+		// - Each difficulty logic chain should be its own utility eg App.Utilities.easyAIturn
+
+		if(currLeftTurn && App.Models.gameStartModel.get('aiMode')) {
+
+			App.Utilities.toggleMaskLayer();
+
+			// Handling for Training Level AI logic
+
+			if(App.Models.gameStartModel.get('aiDifficulty') === 0) {
+
+				// Activate repair forts policies at the start of the turn
+				if(App.Models.nationStats.get('currentTurn') === App.Constants.START_TURN) {
+					App.Utilities.togglePolicy('repair_forts', true);
+				}
+
+				// Identify territories with less than 250,000 units and start recruiting in them if you can afford it
+				// Otherwise end the turn
+
+				var sideTerrArr = App.Collections.terrCollection.returnSortedByArmyPopulation('right'),
+					estCost = sideTerrArr.length > 0 ? ( App.Constants.MIN_ARMY_FOR_MORALE - (sideTerrArr[0].get('armyPopulation') - 100) ) * App.Constants.ARMY_UNIT_COST : 0;
+
+				if(sideTerrArr.length > 0 && App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury') > estCost) {
+
+					App.Collections.terrCollection.returnSelectedView(sideTerrArr[0].cid).terrClick();
+
+					setTimeout(function() {
+						$('#recruitUnits').click();
+						setTimeout(function() {
+							$('#spRangeInput').val(App.Constants.MIN_ARMY_FOR_MORALE - (sideTerrArr[0].get('armyPopulation') - 100));
+							App.Views.spModalView.showRecruitResult();
+
+							setTimeout(function() {
+								$('#confNewRecruits').click();
+								setTimeout(function() {
+									var sideTerrArr = App.Collections.terrCollection.returnSortedByArmyPopulation('right'),
+										estCost = sideTerrArr.length > 0 ? ( App.Constants.MIN_ARMY_FOR_MORALE - (sideTerrArr[0].get('armyPopulation') ) - 100) * App.Constants.ARMY_UNIT_COST : 0;
+									if(sideTerrArr && sideTerrArr.length > 0 && App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury') > estCost) {
+										// Next recruit method brings recruits to min needed for morale
+										App.Utilities.nextRecruitForMorale(sideTerrArr[0].cid);
+									} else if (App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0) {
+										App.Utilities.aiEndTurn();
+									}
+								}, 1200);
+
+							}, 800);
+						}, 800);
+					}, 1500);
+
+				} else if (App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0) {
+					setTimeout(function() {
+						App.Utilities.aiEndTurn();
+					}, 1200);
+				}
+
+			}
+
+			/* Easy Difficulty AI */
+			// Currently:
+			// - Activates Repair Forts and Repair Infrastructure policies
+			// - Randomy activates the Recruiting policy
+
+			if (App.Models.gameStartModel.get('aiDifficulty') === 1) {
+
+				// Activate repair forts and repair infrastructure policies at the start of the game
+				if(App.Models.nationStats.get('currentTurn') === App.Constants.START_TURN) {
+					App.Utilities.togglePolicy('repair_forts', true);
+					App.Utilities.togglePolicy('repair_infra', true);
+				}
+
+				// Randomly set the recruiting policy off and on
+				var polArr = _.where(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'), {side: App.Utilities.activeSide()});
+				var clickedPolIndexInSidePolicies = _.pluck(polArr, 'id');
+				var indexInSidePolicies = _.indexOf(clickedPolIndexInSidePolicies, 'recruit_army');
+
+				if(Math.random() > 0.33 && polArr[indexInSidePolicies].priority === 0) {
+
+					// If the right army is larger than the left army, only recruit 125000 units per territory
+					// Otherwise, evaluate the difference in the size of both armies and set to a value that closes the gap
+					if(App.Models.nationStats.get('right').get('armyPopulationNow') >= App.Models.nationStats.get('left').get('armyPopulationNow')) {
+						App.Utilities.togglePolicy('recruit_army', true, 125000);
+					} else {
+						var sizeDiff = App.Models.nationStats.get('left').get('armyPopulationNow') - App.Models.nationStats.get('right').get('armyPopulationNow');
+						var recruitPolAmt = Math.round(sizeDiff / App.Models.nationStats.get('right').get('terrs').length);
+						recruitPolAmt = Math.max(recruitPolAmt - (recruitPolAmt % 25000), 125000);
+
+						// Make sure the recruit amount is affordable (otherwise it won't help to set the recruits to this amount)
+						while(App.Models.nationStats.get('right').get('treasury') < recruitPolAmt * App.Constants.ARMY_UNIT_COST) {
+							recruitPolAmt -= 25000;
+						}
+
+						App.Utilities.togglePolicy('recruit_army', true, recruitPolAmt);
+					}
+
+				} else if (polArr[indexInSidePolicies].priority != 0) {
+					App.Utilities.togglePolicy('recruit_army', false);
+				}
+
+				// Start attacking
+				var borderTerrs = App.Collections.terrCollection.returnTerrsWithBorders('right');
+
+				// Is the side has two capitals, the game is over.
+				if(borderTerrs.length > 0 && !App.Collections.terrCollection.hasTwoCapitals('right')) {
+
+					App.Utilities.nextAttack(borderTerrs[0].cid);
+
+				} else if (!App.Collections.terrCollection.hasTwoCapitals('right')) {
+					setTimeout(function() {
+						App.Utilities.aiEndTurn();
+					}, 1200);
+				}
+				
+				// setTimeout(function() {
+				// 	App.Utilities.aiEndTurn();
+				// }, 1200);
+			}
+
+			/* Advanced Difficulty AI */
+			// Current: Activates Repair Forts, Repair Infrastructure, and Upgrade Tech policies only
+
+			if (App.Models.gameStartModel.get('aiDifficulty') === 2) {
+				if(App.Models.nationStats.get('currentTurn') === App.Constants.START_TURN) {
+					App.Utilities.togglePolicy('repair_forts', true);
+					App.Utilities.togglePolicy('repair_infra', true);
+					App.Utilities.togglePolicy('upgrade_tech', true);
+				}
+
+				setTimeout(function() {
+					App.Utilities.aiEndTurn();
+				}, 1200);
+			}
+
+			/* Hard Difficulty AI */
+			// Current: Activates Repair Forts, Repair Infrastructure, Upgrade Tech, and Upgrade forts policies
+
+			if (App.Models.gameStartModel.get('aiDifficulty') === 3) {
+				if(App.Models.nationStats.get('currentTurn') === App.Constants.START_TURN) {
+					App.Utilities.togglePolicy('repair_forts', true);
+					App.Utilities.togglePolicy('repair_infra', true);
+					App.Utilities.togglePolicy('upgrade_tech', true);
+					App.Utilities.togglePolicy('upgrade_forts', true);
+				}
+
+				setTimeout(function() {
+					App.Utilities.aiEndTurn();
+				}, 1200);
+			}
+
+		}
+
 		// if(currLeftTurn) {
 		// 	App.Utilities.console("AI LOGIC TIME");
 

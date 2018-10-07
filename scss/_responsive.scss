@@ -391,6 +391,10 @@
 
 @media #{$largePhoneLandscape} {
 
+	.difficulty-slider-control {
+		margin: 9px auto 0;
+	}
+
 	.modal-dialog {
 		margin: 10px auto;
 	}
@@ -399,8 +403,8 @@
 		display: none;
 	}
 
-	.terr > .glyphicon-fire,
-	.terr > .glyphicon-user {
+	.terr > .no-btn > .glyphicon-screenshot,
+	.terr > .no-btn > .glyphicon-user {
 		font-size: 30px;
 	}
 

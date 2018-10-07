@@ -284,7 +284,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 	},
 	showRecruitResult: function() {
 		var thisInputVal = parseInt($('#spRangeInput').val()),
-			recruitCost = thisInputVal * App.Constants.COST_PER_RECRUIT;
+			recruitCost = App.Utilities.returnRecruitCost(thisInputVal);
 
 		$('#recruitCost').text(App.Utilities.addCommas(recruitCost));
 		$('#recruitCount').text(App.Utilities.addCommas(thisInputVal));
@@ -382,7 +382,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 			var recruitMax = App.Utilities.recruitMax(),
 				recruitedUnits = parseInt($('#spRangeInput').val()),
-				newUnitCost = App.Constants.ARMY_UNIT_COST * recruitedUnits,
+				newUnitCost = App.Utilities.returnRecruitCost(recruitedUnits),
 				treasury = App.Utilities.getTreasury() - newUnitCost,
 				newEconPop = App.Models.selectedTerrModel.get('econPopulation') - recruitedUnits,
 				newSideRecruitspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('recruitSpend');

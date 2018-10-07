@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 3.2.1 Alpha
+	Release: 4.0 Beta
 	Author: Josh Harris
-	8/28/2018
+	10/6/2018
 */ 
 
 (function(){
@@ -17,6 +17,9 @@
 	App.Models.gameStartModel = new App.Models.GameStart();
 	App.Views.gameStartView = new App.Views.GameStart({model: App.Models.gameStartModel});
 	$('#setup').html(App.Views.gameStartView.$el);
+
+	App.Views.difficultySliderView = new App.Views.DifficultySlider({model: App.Models.gameStartModel});
+	$('#aiDifficulty').html(App.Views.difficultySliderView.$el);
 
 	// Add the color menus now that the starting template is on the DOM
 	// This is done so that the menus can be re-rendered when the user selects a color
@@ -50,11 +53,15 @@
 
 	} else if(document.documentElement.mozRequestFullScreen) {
 
-		document.onmozfullscreenchange = function() { App.Models.nationStats.set('fullScreen', !!document.mozFullScreenElement); };
+		document.onmozfullscreenchange = function() {
+			App.Models.nationStats.set('fullScreen', !!document.mozFullScreenElement);
+		};
 		
 	} else if(document.documentElement.webkitRequestFullScreen) {
 
-		document.onwebkitfullscreenchange = function() { App.Models.nationStats.set('fullScreen', !!document.webkitFullscreenElement); };
+		document.onwebkitfullscreenchange = function() {
+			App.Models.nationStats.set('fullScreen', !!document.webkitFullscreenElement);
+		};
 
 	}
 
@@ -63,8 +70,8 @@
 	}
 
 	console.log('[accuwar]: Turn-based strategy game and battle simulator. Play free.');
-	console.log('Release: 3.2.1 Alpha');
-	console.log('Release Date: 08.28.2018');
-	console.log('Author: Josh Harris');
+	console.log('Release: 4.0 Beta');
+	console.log('Release Date: 10.6.2018');
+	console.log('Creator/Developer: Josh Harris');
 
 })();

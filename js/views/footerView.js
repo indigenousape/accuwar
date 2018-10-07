@@ -206,14 +206,14 @@ App.Views.Footer = Backbone.View.extend({
 	},
 	trainArmy: function() {
 
-		var diffToNext = ((100 - this.model.get('armyXP')) * 0.25) * (App.Constants.ARMY_TRAINING_COST * this.model.get('armyPopulation') / 1000);
+		var diffToNext = Math.round(25 * App.Constants.ARMY_TRAINING_COST * (this.model.get('armyPopulation') / 1000));
 
 		var confModalModel = new App.Models.Modal({
 			title: "Train Units",
 			confBtnClass: 'btn-danger',
 			confBtnId: 'trainTerrArmyXP',
 			noTurnsMsg: 'Ends turn for ' + this.model.get('name') +'.',
-			impactMsg: '+' + Math.round((100 - this.model.get('armyXP')) * 0.25) + ' XP',
+			impactMsg: '+25 XP',
 			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' training the army stationed at&nbsp;' + this.model.get('name') + '?</p>',
 			diffToNext: diffToNext
 		});

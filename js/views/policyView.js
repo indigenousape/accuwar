@@ -71,9 +71,9 @@ App.Views.PolicyView = Backbone.View.extend({
 		var policyIndex = _.indexOf(_.pluck(policiesArr, 'id'), 'recruit_army');
 		policiesArr[policyIndex].amount = thisVal;
 
-		var perYearCost = App.Constants.ARMY_UNIT_COST * policiesArr[policyIndex].amount * App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length;
-		$('#recruitsPerYear').text(App.Utilities.addCommas(thisVal));
-		$('#recruitPerYearCost').text(App.Utilities.addCommas(perYearCost));
+		var perYearCost = App.Utilities.returnRecruitCost(policiesArr[policyIndex].amount) * App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length;
+		$('#recruitsPerYearPol').text(App.Utilities.addCommas(thisVal));
+		$('#recruitPerYearPolCost').text(App.Utilities.addCommas(perYearCost));
 	}
 
 });

@@ -31,6 +31,22 @@ App.Views.Terr = Backbone.View.extend({
 			classes += ' selected ';
 		}
 
+		if(this.model.get('borderLeft')) {
+			classes += ' borderLeft ';
+		}
+
+		if(this.model.get('borderRight')) {
+			classes += ' borderRight ';
+		}
+
+		if(this.model.get('borderBottom')) {
+			classes += ' borderBottom ';
+		}
+
+		if(this.model.get('borderTop')) {
+			classes += ' borderTop ';
+		}
+
 		classes += this.model.get('side') + ' ' + App.Models.nationStats.get(this.model.get('side')).get('color');
 
 		return classes;
@@ -42,18 +58,16 @@ App.Views.Terr = Backbone.View.extend({
 		this.render();
 
 	 	// If in Mobile mode a click event is bound to the territory
-	 	// If it desktop mouse up events are used to accommodate people who may click and drag 
+	 	// If in desktop mouse up events are used to accommodate people who may click and drag 
 	 	if(App.Utilities.smallScreenOnly()) {
 	 		this.events['click .army'] = 'terrClick';
-	 		this.events['click .glyphicon-screenshot'] = 'terrClick';
-	 		this.events['click .glyphicon-user'] = 'terrClick';
+	 		this.events['click .no-btn'] = 'terrClick';
 			this.events['click .army > label'] = 'terrClick';
 			this.events['click .army > h2'] = 'terrClick';
 	 		this.delegateEvents();
-	 	} else {
+		} else {
 	 		this.events['mouseup .army'] = 'terrClick';
-	 		this.events['mouseup .glyphicon-screenshot'] = 'terrClick';
-			this.events['mouseup .glyphicon-user'] = 'terrClick';
+			this.events['mouseup .no-btn'] = 'terrClick';
 			this.events['mouseup .army > label'] = 'terrClick';
 			this.events['mouseup .army > h2'] = 'terrClick';
 	 		this.delegateEvents();	
@@ -73,6 +87,7 @@ App.Views.Terr = Backbone.View.extend({
 	},
 	render: function() {
 		this.$el.html(this.template(this.model.toJSON()));
+
 		var newClasses = this.className();
 		this.$el.attr("class", "terr");
 		this.$el.addClass(newClasses);
@@ -170,6 +185,12 @@ App.Views.Terr = Backbone.View.extend({
 				// Not enough units to reinforce (with or without infrastructure constraint)
 
 			if(!App.Utilities.returnSelectedTerritoryIsLimited(App.Models.selectedTerrModel)) {
+
+				// Close any open alerts when a territory is selected
+				// to prevent the alerts from obscuring the territory they want to attack
+				$('.game-alert .close').each(function() {
+					this.click()
+				});
 
 				App.Views.battleMap.notify({
 					icon: 'glyphicon glyphicon-ok-sign',
@@ -511,7 +532,7 @@ App.Views.Terr = Backbone.View.extend({
 			showRange: true
 		});
 
-		var tpModalView = new App.Views.TwoPromptModal({model: tpModalModel});
+		App.Views.tpModalView = new App.Views.TwoPromptModal({model: tpModalModel});
 
 		$('#tp-input-2').val(App.Models.clickedTerrModel.get('name'));
 		

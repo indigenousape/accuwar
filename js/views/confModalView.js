@@ -70,6 +70,7 @@ App.Views.ConfModal = Backbone.View.extend({
 
 		if(App.Views.clickedTerrView.model.get('inRange') && !this.model.get('stopClick')) {
 			App.Views.battleMap.battle(App.Models.selectedTerrModel, App.Models.clickedTerrModel);
+			$('.alert-turn .close').click();
 			$(".modal-footer .btn-danger").focus();
 			App.Views.battleMap.smoothScroll('.modal-header');
 			this.model.set('stopClick', true);
@@ -99,43 +100,7 @@ App.Views.ConfModal = Backbone.View.extend({
     	App.Views.battleMap.smoothScroll('.terr:first-child');
 	},
 	toggleEnactPolicy: function(e) {
-		var policyID = e.currentTarget.value;
-		var polArr = _.where(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'), {side: App.Utilities.activeSide()});
-		var clickedPolIndexInSidePolicies = _.pluck(polArr, 'id');
-		var indexInSidePolicies = _.indexOf(clickedPolIndexInSidePolicies, policyID);
-		
-		polArr[indexInSidePolicies].priority = e.currentTarget.checked ? (App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') + 1) : 0;
-
-		if(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') > 1
-			&& !e.currentTarget.checked
-			&& indexInSidePolicies < polArr.length - 1) {
-			
-			for(var i = 0; i < ((polArr.length - 1) - indexInSidePolicies); i++ ) {
-				polArr[indexInSidePolicies + (i + 1)].priority = polArr[indexInSidePolicies + (i + 1)].priority - 1;
-			}
-		
-		}
-
-		if(policyID === 'recruit_army') {
-			polArr[indexInSidePolicies].amount = 25000;
-		}
-
-		polArr = _.sortBy(polArr, 'priority');
-
-		var activeCount = e.currentTarget.checked ? App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') + 1 : App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') - 1;
-
-		App.Models.nationStats.get(App.Utilities.activeSide()).set({
-			'activePolicyCount': activeCount,
-			'activePolicies': polArr,
-			'activePolicyChange': true
-		});
-
-		// Logging
-		App.Utilities.console(App.Utilities.activeSide() + ' side policies: ');
-		App.Utilities.console(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'));
-		var enemySide = App.Utilities.activeSide() === 'left' ? 'right' : 'left';
-		App.Utilities.console(enemySide + ' side policies: ');
-		App.Utilities.console(App.Models.nationStats.get(enemySide).get('activePolicies'));
+		App.Utilities.togglePolicy(e.currentTarget.value, e.currentTarget.checked);
 
 	},
 	confUpdatePolicy: function() {
@@ -156,7 +121,11 @@ App.Views.ConfModal = Backbone.View.extend({
 		if(!this.model.get('stopClick')) {
 			App.Views.battleMap.deselect();
 			$('.game-alert .close').click();
+			if($('#aiMaskLayer').hasClass('active')) {
+				App.Utilities.toggleMaskLayer();
+			}
 			App.Views.nationStatsView.updater();
+			
 			this.model.set('stopClick', true);
 		}
 	},
@@ -197,7 +166,8 @@ App.Views.ConfModal = Backbone.View.extend({
 					+ '<div class="row"><div class="col-xs-6"><h3>Empire</h3>'
 					+		'<ul class="side-list">';
 
-		detailsHTML += '<li>Territories: ' + (winningSideModel.get('terrs').length + 1) + '</li>';
+		var displayTotalTerrs = winningSideModel.get('terrs').length + 1;
+		detailsHTML += '<li>Territories: ' + displayTotalTerrs + '</li>';
 
 		var displayTreasury = App.Utilities.addCommas(winningSideModel.get('treasury'));
 		detailsHTML += '<li>Treasury: $' + displayTreasury + '</li>';
@@ -414,7 +384,9 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			$('button.close').click();
 			App.Utilities.removeClassName(['selected', 'selectedSection']);
-			App.Models.battleMapModel = new App.Models.BattleZone();
+			App.Models.battleMapModel = new App.Models.BattleZone({
+				tipsMode: App.Models.battleMapModel.get('tipsMode')
+			});
 			App.Views.battleMap = new App.Views.BattleZone({model: App.Models.battleMapModel});
 			$('#game').html(App.Views.battleMap.$el);
 			$('#game').removeClass('fadein');
@@ -432,7 +404,8 @@ App.Views.ConfModal = Backbone.View.extend({
 			});
 			App.Models.nationStats = new App.Models.NationStats({
 				'left' : LeftModel,
-				'right' : RightModel
+				'right' : RightModel,
+				'fullScreen': App.Models.nationStats.get('fullScreen')
 			});
 
 			for(var i = 0; i < App.Constants.POLICIES.length; i++) {
@@ -442,9 +415,15 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Views.nationStatsView = new App.Views.NationStats({model: App.Models.nationStats});
 			App.Collections.terrCollection = new App.Collections.Territories();
 			App.Utilities.makeTerritories();
-			App.Models.gameStartModel.set('stopClick', false);
+			App.Models.gameStartModel.set({
+				'stopClick': false,
+				'aiMode': App.Models.gameStartModel.get('aiMode'),
+				'inFullScreen': App.Models.nationStats.get('fullScreen')
+			});
 			App.Views.gameStartView = new App.Views.GameStart({model: App.Models.gameStartModel});
 			$('#setup').html(App.Views.gameStartView.$el);
+			App.Views.difficultySliderView = new App.Views.DifficultySlider({model: App.Models.gameStartModel});
+			$('#aiDifficulty').html(App.Views.difficultySliderView.$el);
 			App.Views.p1ColorView = new App.Views.ColorView({model: App.Models.gameStartModel});
 			App.Views.p2ColorView = new App.Views.RightColorView({model: App.Models.gameStartModel});
 			$('#p1ColorMenu').html(App.Views.p1ColorView.$el);
@@ -524,9 +503,8 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Models.nationStats.get(App.Utilities.activeSide()).set('armyTrainingSpend', (newSideTrainingspend + this.model.get('diffToNext')));
 			App.Utilities.trainTerrArmy();
 
-
 			App.Views.battleMap.notify({
-				titleTxt : "+" + (App.Models.selectedTerrModel.get('armyXP') - startXP) + " Army XP in&nbsp;" + App.Models.selectedTerrModel.get('name'),
+				titleTxt : "+25 Army XP in&nbsp;" + App.Models.selectedTerrModel.get('name'),
 				msgType:'success',
 				delay: App.Constants.DELAY_SHORTEST,
 				icon: 'glyphicon glyphicon-signal'

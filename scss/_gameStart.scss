@@ -87,6 +87,10 @@
 
 .terr-slider-control {
 	width: 345px;
+}
+
+.terr-slider-control,
+.difficulty-slider-control {
 	margin: 43px auto 0;
 
 	label {
@@ -102,10 +106,18 @@
 	}
 }
 
+.difficulty-slider-control {
+	width: 250px;
+	label {
+		float: none;
+	}
+}
+
 .game-controls {
 	position: fixed;
 	top: 0;
 	left: 0;
+	z-index: 1001;
 
 	label {
 		margin: 4px 0;
@@ -150,8 +162,17 @@
 	}
 }
 
-.error ~ .terr-slider-control {
+.ai-mode ~ .terr-slider-control {
+	margin: 20px auto 0;
+}
+
+.error ~ .terr-slider-control,
+.error ~ #aiDifficulty .difficulty-slider-control {
 	margin: 0 auto;
+}
+
+.error ~ #aiDifficulty .difficulty-slider-control {
+	margin: 0 auto 20px;
 }
 
 #terrNumberInput {

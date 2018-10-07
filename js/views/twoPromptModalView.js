@@ -310,7 +310,7 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 					'armyCasualties' : 0,
 					'inRange': false
 				});
-				
+
 				// Update Civilian Morale and GDP in invaders original territory
 				var newAttackPop = attacking.get('armyPopulation') - transferringUnits;
 				var invaderEconMorale = App.Utilities.updateEconMorale({
@@ -340,6 +340,8 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 				});
 
 				App.Collections.terrCollection.nextTreasury();
+
+				App.Collections.terrCollection.updateAllBorders();
 
 				$('#oneModal').modal('hide');
 
