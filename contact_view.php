@@ -4,12 +4,12 @@
 <!--[if gt IE 8]><!-->
 <html lang="en" role="main"> <!--<![endif]-->
 <head>
-  <title>[ accuwar ] - Turn-based strategy game and war simulator. Play free.</title>
+  <title>[ accuwar ] - Turn-based strategy game and battle simulator. Play free.</title>
 
   <meta charset="utf-8">
 
-  <meta name="description" content="Build your empire and raise armies to defeat your enemy in a turn-based browser game. Play alone or side-by-side on most devices.">
-  <meta name="keywords" content="strategy games, war games, war simulators, empire builders, turn-based strategy games, free games, web games, turn-based games, free web games, free strategy games, free HTML5 games, free war games, browser games, games like risk, games like civilization">
+  <meta name="description" content="Build your empire and raise armies to defeat your enemy in this turn-based strategy game. Play alone or side-by-side on all devices.">
+  <meta name="keywords" content="strategy games, war games, battle simulator, war simulator, empire builders, turn-based strategy games, free games, web games, turn-based games, free web games, free strategy games, free HTML5 games, free war games, browser games, games like risk, games like civilization, free games">
   <link rel="author" href="https://www.linkedin.com/in/joshmharris" />
   <link rel="canonical" href="http://www.accuwar.com" />
 
@@ -112,7 +112,7 @@ function generateFormToken($form) {
 
 </div>
 
-<p class="small text-muted version-text">Alpha <span class="release-txt">Release 3.1.2</span></p>
+<p class="small text-muted version-text">Beta <span class="release-txt">Release 4.1.0</span></p>
 
 <script src="js/jquery-3.2.1.min.js"></script>
 <script src="js/contact.js"></script>

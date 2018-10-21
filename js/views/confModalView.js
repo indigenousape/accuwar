@@ -64,7 +64,9 @@ App.Views.ConfModal = Backbone.View.extend({
 		'focusout .fort-label' : 'mouseOutBar',
 		'click #battleNot' : 'battleNotification',
 		'click #confUpdatePolicy' : 'confUpdatePolicy',
-		'change .available-policies' : 'toggleEnactPolicy'
+		'change .available-policies' : 'toggleEnactPolicy',
+		'click #repairInfPol' : 'policyLinkClick',
+		'click #repairFortPol' : 'policyLinkClick'
 	},
 	attackTheTerritory: function() {
 
@@ -103,16 +105,19 @@ App.Views.ConfModal = Backbone.View.extend({
 		App.Utilities.togglePolicy(e.currentTarget.value, e.currentTarget.checked);
 
 	},
+	policyLinkClick: function(e) {
+		App.Views.nationStatsView.policyClick(e);
+	},
 	confUpdatePolicy: function() {
 		if(!this.model.get('stopClick')) {
 
-			if(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyChange')) {
+			if(App.Utilities.activeEmpire().get('activePolicyChange')) {
 				App.Views.battleMap.notify({
 					icon: "glyphicon glyphicon-globe",
 					titleTxt : "Polices Updated in&nbsp;" + App.Utilities.getActiveEmpireName(),
 					msgType: 'left'
 				});
-				App.Models.nationStats.get(App.Utilities.activeSide()).set('activePolicyChange', false);
+				App.Utilities.activeEmpire().set('activePolicyChange', false);
 			}
 			this.model.set('stopClick', true);
 		}
@@ -131,22 +136,17 @@ App.Views.ConfModal = Backbone.View.extend({
 	},
 	getFinalScore: function() {
 
-		var winningSide = App.Utilities.activeSide();
-		var winningSideModel = App.Models.nationStats.get(winningSide);
-		var enemySide = winningSide === 'left' ? 'right' : 'left';
-		var enemySideModel = App.Models.nationStats.get(enemySide);
-
-		var winnerScore = App.Utilities.computeScore(winningSide);
-
-		var detailsHTML = '<h3>Battle Record <span>(' + winningSideModel.get('overallBattleWins') + ' - ' + winningSideModel.get('overallBattleLosses') +')</span></h3>'
+		var winnerScore = App.Utilities.computeScore(),
+			detailsHTML = '<h3>Battle Record <span>(' + App.Utilities.activeEmpire().get('overallBattleWins') + ' - ' + App.Utilities.activeEmpire().get('overallBattleLosses') +')</span></h3>'
 						+ '<div class="row"><div class="col-xs-6"><p class="battle-stats-label">Enemy Kills</p>'
 						+	'<ul class="side-list">';
 
-		var displayEnemyArmyKilled = App.Utilities.addCommas(enemySideModel.get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'army'));
+		var displayEnemyArmyKilled = App.Utilities.addCommas(App.Utilities.enemyEmpire().get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.enemySide(), 'army'));
+		
 		detailsHTML += '<li>Army: ' + displayEnemyArmyKilled + ' units</li>';
 	
-		if(enemySideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ') > 0) {
-			var displayEnemyEconKilled = App.Utilities.addCommas(enemySideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ'));
+		if(App.Utilities.enemyEmpire().get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.enemySide(), 'econ') > 0) {
+			var displayEnemyEconKilled = App.Utilities.addCommas(App.Utilities.enemyEmpire().get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.enemySide(), 'econ'));
 			detailsHTML += '<li>Civilians: ' + displayEnemyEconKilled + '</li>';
 		}
 
@@ -154,11 +154,11 @@ App.Views.ConfModal = Backbone.View.extend({
 					+	'<div class="col-xs-6"><p class="battle-stats-label">Casualties</p>'
 					+		'<ul class="side-list">';
 		
-		var displayArmyCas = App.Utilities.addCommas(winningSideModel.get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(winningSide, 'army'));
+		var displayArmyCas = App.Utilities.addCommas(App.Utilities.activeEmpire().get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.activeSide(), 'army'));
 		detailsHTML += '<li>Army: ' + displayArmyCas + ' units</li>';
 
-		if(winningSideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(winningSide, 'econ') > 0) {
-			var displayEconCasualties = App.Utilities.addCommas(winningSideModel.get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(winningSide, 'econ'));
+		if(App.Utilities.activeEmpire().get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.activeSide(), 'econ') > 0) {
+			var displayEconCasualties = App.Utilities.addCommas(App.Utilities.activeEmpire().get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.activeSide(), 'econ'));
 			detailsHTML += '<li>Civilians: ' + displayEconCasualties + '</li>';
 		}
 
@@ -166,56 +166,55 @@ App.Views.ConfModal = Backbone.View.extend({
 					+ '<div class="row"><div class="col-xs-6"><h3>Empire</h3>'
 					+		'<ul class="side-list">';
 
-		var displayTotalTerrs = winningSideModel.get('terrs').length + 1;
+		var displayTotalTerrs = App.Utilities.activeEmpire().get('terrs').length + 1;
 		detailsHTML += '<li>Territories: ' + displayTotalTerrs + '</li>';
 
-		var displayTreasury = App.Utilities.addCommas(winningSideModel.get('treasury'));
+		var displayTreasury = App.Utilities.addCommas(App.Utilities.activeEmpire().get('treasury'));
 		detailsHTML += '<li>Treasury: $' + displayTreasury + '</li>';
 
-		var displayGDP = App.Utilities.addCommas(winningSideModel.get('econOutput'));
+		var displayGDP = App.Utilities.addCommas(App.Utilities.activeEmpire().get('econOutput'));
 		detailsHTML += '<li>GDP: $' + displayGDP + '</li>';
 
-		var displayEconPopulation = App.Utilities.addCommas(App.Collections.terrCollection.returnSideTotal(winningSide, 'econPopulation'));
+		var displayEconPopulation = App.Utilities.addCommas(App.Collections.terrCollection.returnSideTotal(App.Utilities.activeSide(), 'econPopulation'));
 		detailsHTML += '<li>Population: ' + displayEconPopulation + '</li>';
 
-		var displayArmyUnits = App.Utilities.addCommas(App.Collections.terrCollection.returnSideTotal(winningSide, 'armyPopulation'));
+		var displayArmyUnits = App.Utilities.addCommas(App.Collections.terrCollection.returnSideTotal(App.Utilities.activeSide(), 'armyPopulation'));
 		detailsHTML += '<li>Army: ' + displayArmyUnits + ' units</li>'
 
 					+ '</ul></div>';
 
-
 		detailsHTML += '<div class="col-xs-6"><h3>Achievements</h3>'
 					+		'<ul class="side-list special-list">';
 
-		detailsHTML += '<li><span class="glyphicon glyphicon-signal" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('armyTechLvl')) + ' Average Tech Level </li>';
+		detailsHTML += '<li><span class="glyphicon glyphicon-signal" aria-hidden="true"></span> Weapons Tech: Level ' + parseInt(App.Utilities.activeEmpire().get('armyTechLvl')) + '</li>';
 
-		if (winningSideModel.get('invadedThisTurn').length + winningSideModel.get('overallInvasions') > 0) {
-			var terrTxt = winningSideModel.get('invadedThisTurn').length + winningSideModel.get('overallInvasions') === 1 ? 'Territory' : 'Territories';
-			detailsHTML += '<li><span class="glyphicon glyphicon-bookmark" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('invadedThisTurn').length + winningSideModel.get('overallInvasions')) + 'x ' + terrTxt + ' Invaded </li>';
+		if (App.Utilities.activeEmpire().get('invadedThisTurn').length + App.Utilities.activeEmpire().get('overallInvasions') > 0) {
+			var terrTxt = App.Utilities.activeEmpire().get('invadedThisTurn').length + App.Utilities.activeEmpire().get('overallInvasions') === 1 ? 'Territory' : 'Territories';
+			detailsHTML += '<li><span class="glyphicon glyphicon-bookmark" aria-hidden="true"></span> ' + parseInt(App.Utilities.activeEmpire().get('invadedThisTurn').length + App.Utilities.activeEmpire().get('overallInvasions')) + 'x ' + terrTxt + ' Invaded </li>';
 		}
 
-		if (winningSideModel.get('terrLostThisTurn').length + winningSideModel.get('overallLostTerrs') > 0) { 
-			var terrTxt = winningSideModel.get('terrLostThisTurn').length + winningSideModel.get('overallLostTerrs') === 1 ? 'Territory' : 'Territories';
-			detailsHTML += '<li><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('terrLostThisTurn').length + winningSideModel.get('overallLostTerrs')) + 'x ' + terrTxt + ' Lost </li>';
+		if (App.Utilities.activeEmpire().get('terrLostThisTurn').length + App.Utilities.activeEmpire().get('overallLostTerrs') > 0) { 
+			var terrTxt = App.Utilities.activeEmpire().get('terrLostThisTurn').length + App.Utilities.activeEmpire().get('overallLostTerrs') === 1 ? 'Territory' : 'Territories';
+			detailsHTML += '<li><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> ' + parseInt(App.Utilities.activeEmpire().get('terrLostThisTurn').length + App.Utilities.activeEmpire().get('overallLostTerrs')) + 'x ' + terrTxt + ' Lost </li>';
 		}
 
-		if (winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions') > 0) {
-			var promTxt = winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions') === 1 ? 'Promotion' : 'Promotions';
-			detailsHTML += '<li><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('armiesPromoted').length + winningSideModel.get('overallArmyPromotions')) + 'x Army ' + promTxt + '</li>';
+		if (App.Utilities.activeEmpire().get('armiesPromoted').length + App.Utilities.activeEmpire().get('overallArmyPromotions') > 0) {
+			var promTxt = App.Utilities.activeEmpire().get('armiesPromoted').length + App.Utilities.activeEmpire().get('overallArmyPromotions') === 1 ? 'Promotion' : 'Promotions';
+			detailsHTML += '<li><span class="glyphicon glyphicon-star" aria-hidden="true"></span> ' + parseInt(App.Utilities.activeEmpire().get('armiesPromoted').length + App.Utilities.activeEmpire().get('overallArmyPromotions')) + 'x Army ' + promTxt + '</li>';
 		}
 
-		if (enemySideModel.get('fortsLost').length + winningSideModel.get('overallFortsDestroyed') > 0) {
-			var fortTxt = enemySideModel.get('fortsLost').length + winningSideModel.get('overallFortsDestroyed') === 1 ? 'Fort' : 'Forts';
-			detailsHTML += '<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> ' + parseInt(enemySideModel.get('fortsLost').length + winningSideModel.get('overallFortsDestroyed')) + 'x ' + fortTxt + ' Destroyed</li>';
+		if (App.Utilities.enemyEmpire().get('fortsLost').length + App.Utilities.activeEmpire().get('overallFortsDestroyed') > 0) {
+			var fortTxt = App.Utilities.enemyEmpire().get('fortsLost').length + App.Utilities.activeEmpire().get('overallFortsDestroyed') === 1 ? 'Fort' : 'Forts';
+			detailsHTML += '<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> ' + parseInt(App.Utilities.enemyEmpire().get('fortsLost').length + App.Utilities.activeEmpire().get('overallFortsDestroyed')) + 'x ' + fortTxt + ' Destroyed</li>';
 		}
 
-		if (winningSideModel.get('fortsLost').length + winningSideModel.get('overallFortsLost') > 0) {
-			var fortTxt = winningSideModel.get('fortsLost').length + winningSideModel.get('overallFortsLost') === 1 ? 'Fort' : 'Forts';
-			detailsHTML += '<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> ' + parseInt(winningSideModel.get('fortsLost').length + winningSideModel.get('overallFortsLost')) + 'x ' + fortTxt + ' Lost</li>';
+		if (App.Utilities.activeEmpire().get('fortsLost').length + App.Utilities.activeEmpire().get('overallFortsLost') > 0) {
+			var fortTxt = App.Utilities.activeEmpire().get('fortsLost').length + App.Utilities.activeEmpire().get('overallFortsLost') === 1 ? 'Fort' : 'Forts';
+			detailsHTML += '<li><span class="glyphicon glyphicon-fire" aria-hidden="true"></span> ' + parseInt(App.Utilities.activeEmpire().get('fortsLost').length + App.Utilities.activeEmpire().get('overallFortsLost')) + 'x ' + fortTxt + ' Lost</li>';
 		}
 
-		if (winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits') > 0) {
-			detailsHTML += '<li><span class="glyphicon glyphicon-user" aria-hidden="true"></span> ' + App.Utilities.addCommas(parseInt(winningSideModel.get('recruitsThisTurn') + winningSideModel.get('overallRecruits'))) + ' Recruits</li>';
+		if (App.Utilities.activeEmpire().get('recruitsThisTurn') + App.Utilities.activeEmpire().get('overallRecruits') > 0) {
+			detailsHTML += '<li><span class="glyphicon glyphicon-user" aria-hidden="true"></span> ' + App.Utilities.addCommas(parseInt(App.Utilities.activeEmpire().get('recruitsThisTurn') + App.Utilities.activeEmpire().get('overallRecruits'))) + ' Recruits</li>';
 		}
 
 		detailsHTML += '</ul></div></div><div class="clearfix"></div>';
@@ -235,7 +234,9 @@ App.Views.ConfModal = Backbone.View.extend({
 		});
 
 		var confModalView = new App.Views.ConfModal({model: confModalModel});
-		// Animate the score total
+		
+		// Animates the score total and rank stars in 2 seconds
+
 	    $('#finalScore').prop('Counter',0).animate({
 	        Counter: $('#finalScore').attr('data-final-score')
 	    }, {
@@ -301,20 +302,20 @@ App.Views.ConfModal = Backbone.View.extend({
 			var cost = this.model.get('diffToNext'),
 				treasury = App.Utilities.getTreasury() - cost,
 				diff = 100 - App.Models.selectedTerrModel.get('econStrength'),
-				newSideInfraspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('infrastructureSpend');
+				newSideInfraspend = App.Utilities.activeEmpire().get('infrastructureSpend');
 
 			App.Utilities.upgradeTerrEconStr();
 			App.Utilities.flipEls(['.econStrength-bar', '.econMorale-bar', '.econMorale-bar', '.economicOutput-bar']);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('repairAllInfrastructureCost', App.Collections.terrCollection.returnTotalCost('econStrength'));
+			App.Utilities.activeEmpire().set('repairAllInfrastructureCost', App.Collections.terrCollection.returnTotalCost('econStrength'));
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('infrastructureSpend', (newSideInfraspend + cost));
+			App.Utilities.activeEmpire().set('infrastructureSpend', (newSideInfraspend + cost));
 			App.Utilities.displayInRange();
 			App.Utilities.setClickedTreasuryLimits();
 
 			var infraMsgsArr = [
-					['Traffic flowing', _.random(Math.round(diff/2), diff), 'more smoothly through'],
+					['Traffic flowing', _.random(Math.max(Math.round(diff/2), 1), diff), 'more smoothly through'],
 					['Highways re-open in', diff, 'of'],
-					['Commute times down',  _.random(Math.round(diff/2), diff), 'in'],
+					['Commute times down',  _.random(Math.max(Math.round(diff/2), 1), diff), 'in'],
 					['Army surveyors declare', 100, 'of roads passable in']
 				],
 				msgArrNum = _.random(0, infraMsgsArr.length - 1);
@@ -336,25 +337,25 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			var cost = App.Collections.terrCollection.returnTotalCost('econStrength'),
 				treasury = App.Utilities.getTreasury() - cost,
-				newSideInfraspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('infrastructureSpend');
+				newSideInfraspend = App.Utilities.activeEmpire().get('infrastructureSpend');
 
 			App.Collections.terrCollection.repairAllInfrastructure();
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('repairAllInfrastructureCost', 0);
+			App.Utilities.activeEmpire().set('repairAllInfrastructureCost', 0);
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('infrastructureSpend', (newSideInfraspend + cost));
+			App.Utilities.activeEmpire().set('infrastructureSpend', (newSideInfraspend + cost));
 			
 			if(App.Models.battleMapModel.get('selectedMode')) {
 				App.Utilities.flipEls(['.econStrength-bar', '.econMorale-bar', '.econMorale-bar', '.economicOutput-bar']);
 				App.Utilities.displayInRange();
 			}
 
-			var minNum = Math.round(cost / App.Constants.ECON_STR_COST / App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length * 10);
+			var minNum = Math.round(cost / App.Constants.ECON_STR_COST / App.Utilities.activeEmpire().get('terrs').length * 10);
 
 			var allInfraMsgsArr = [
 					['Traffic flowing', _.random(Math.round(minNum/2), minNum), 'more smoothly through'],
 					['Highways re-open in', minNum, 'of'],
 					['Commute times down',  _.random(Math.round(minNum/2), minNum), 'in'],
-					['Army engineers report', 100, 'of roads clear for unit movements across']
+					['Army engineers report', 100, 'of roads clear across']
 				],
 				allMsgArrNum = _.random(0, allInfraMsgsArr.length - 1);
 
@@ -439,7 +440,7 @@ App.Views.ConfModal = Backbone.View.extend({
 		if(!this.model.get('stopClick')) {
 
 			var treasury = App.Utilities.getTreasury() - this.model.get('diffToNext'),
-				newSideFortspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('fortSpend');
+				newSideFortspend = App.Utilities.activeEmpire().get('fortSpend');
 
 			App.Views.battleMap.notify({
 				titleTxt : "+" + (100 - App.Models.selectedTerrModel.get('fortStrength')) + "% Fort Strength",
@@ -449,7 +450,7 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			App.Utilities.repairTerrFortStr();
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('fortSpend', (newSideFortspend + this.model.get('diffToNext')));
+			App.Utilities.activeEmpire().set('fortSpend', (newSideFortspend + this.model.get('diffToNext')));
 			App.Utilities.displayInRange();
 			App.Utilities.flipEls(['.econMorale-bar', '.econMorale-bar', '.fortStrength-main', '.economicOutput-bar']);
 
@@ -464,7 +465,7 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			var cost = App.Collections.terrCollection.returnTotalCost('fortStrength'),
 				treasury = App.Utilities.getTreasury() - cost,
-				newSideFortspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('fortSpend');
+				newSideFortspend = App.Utilities.activeEmpire().get('fortSpend');
 
 			App.Collections.terrCollection.repairAllForts();
 			
@@ -474,7 +475,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			}
 
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+			App.Utilities.activeEmpire().set({
 				'fortSpend': (newSideFortspend + cost),
 				'repairAllFortCost' : 0
 			});
@@ -497,10 +498,10 @@ App.Views.ConfModal = Backbone.View.extend({
 
 			var treasury = App.Utilities.getTreasury() - this.model.get('diffToNext')
 				startXP = App.Models.selectedTerrModel.get('armyXP'),
-				newSideTrainingspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('armyTrainingSpend');
+				newSideTrainingspend = App.Utilities.activeEmpire().get('armyTrainingSpend');
 
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('armyTrainingSpend', (newSideTrainingspend + this.model.get('diffToNext')));
+			App.Utilities.activeEmpire().set('armyTrainingSpend', (newSideTrainingspend + this.model.get('diffToNext')));
 			App.Utilities.trainTerrArmy();
 
 			App.Views.battleMap.notify({
@@ -522,21 +523,14 @@ App.Views.ConfModal = Backbone.View.extend({
 		if(!this.model.get('stopClick')) {
 
 			var treasury = Math.round(App.Utilities.getTreasury() - this.model.get('diffToNext')),
-				newSideLevelspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('econLevelSpend');
+				newSideLevelspend = App.Utilities.activeEmpire().get('econLevelSpend');
 
 			App.Utilities.upgradeTerrEconLevel();
 
 			App.Utilities.flipEls(['.econMorale-bar', '.econMorale-bar', '.econLevel-bar', '.economicOutput-bar']);
 
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('econLevelSpend', (newSideLevelspend + this.model.get('diffToNext')));
-
-			App.Views.battleMap.notify({
-				icon: 'glyphicon glyphicon-education',
-				titleTxt : "Tech Level Upgraded in&nbsp;" + App.Models.selectedTerrModel.get('name'),
-				msgType:'success',
-				delay: App.Constants.DELAY_SHORTEST,
-			});
+			App.Utilities.activeEmpire().set('econLevelSpend', (newSideLevelspend + this.model.get('diffToNext')));
 
 			this.model.set('stopClick', true);
 
@@ -548,12 +542,12 @@ App.Views.ConfModal = Backbone.View.extend({
 		if(!this.model.get('stopClick')) {
 
 			var treasury = App.Utilities.getTreasury() - this.model.get('diffToNext'),
-				newSideFortLevelspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('fortLevelSpend');
+				newSideFortLevelspend = App.Utilities.activeEmpire().get('fortLevelSpend');
 
 			App.Utilities.upgradeTerrArmyFortLevel();
 			App.Utilities.flipEls(['.econMorale-bar', '.econMorale-bar', '.fortStrength-main', '.economicOutput-bar']);
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('fortLevelSpend', (newSideFortLevelspend + this.model.get('diffToNext')));
+			App.Utilities.activeEmpire().set('fortLevelSpend', (newSideFortLevelspend + this.model.get('diffToNext')));
 			App.Utilities.displayInRange();
 
 			App.Views.battleMap.notify({

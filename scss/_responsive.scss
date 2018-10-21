@@ -244,10 +244,35 @@
 		line-height: 20px;
 	}
 
-	.small .army {
-		height: 30vh;
-		overflow: hidden;
-	} 
+	.small {
+		.army {
+			height: 30vh;
+			overflow: hidden;
+		}
+
+		&.selected {
+			&.borderTop {
+				.army {
+					height: calc(30vh - 2px);
+				}
+
+				&.borderBottom {
+					.army {
+						height: calc(30vh - 4px);
+					}
+				}
+
+			}
+
+			&.borderBottom {
+				.army {
+					height: calc(30vh - 2px);
+				}
+			}
+		}
+
+	}
+
 
 	#battleZone > .small {
 		height: 30vh;
@@ -386,6 +411,14 @@
 			}
 		}
 	}
+
+	#nationStats {
+		.sidebar {
+			.budget {
+				display: inline-block;
+			}
+		}
+	} 
 
 }
 
@@ -557,7 +590,7 @@
 	}
 
 	.modal-dialog {
-		margin: 0;
+		margin: 5px;
 	}
 
 	.audio-control {
@@ -586,10 +619,7 @@
 
 	.version-text {
 		text-align: left;
-
-		.release-txt {
-			display: block;
-		}
+		bottom: 50px;
 	}
 
 }

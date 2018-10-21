@@ -225,8 +225,11 @@ App.Collections.Territories = Backbone.Collection.extend({
             });
 
         });
+        if(App.Collections.terrCollection.newTechLevel(policiesInFullObj[0].side)) {
+            var oldTechLevel = App.Models.nationStats.get(policiesInFullObj[0].side).get('armyTechLvl');
+            App.Models.nationStats.get(policiesInFullObj[0].side).set('armyTechLvl', (oldTechLevel+1)); 
+        }
 
-        App.Models.nationStats.get(policiesInFullObj[0].side).set('armyTechLvl', App.Collections.terrCollection.returnAvgTechLevel(policiesInFullObj[0].side)); 
 
     },
 	newTurnUpdate: function() {
@@ -765,6 +768,46 @@ App.Collections.Territories = Backbone.Collection.extend({
  		}
 
 	},
+    minPointsToUpgrade: function(s) {
+        // Half of territories must be at the next level to upgrade
+        // At minimum, all other territories can have a tech level of 1 and the upgrade
+        // will still apply which is why Math.round(App.Models.nationStats.get(s).get('terrs').length / 2)
+        // is added (tech level of 1 for each of the remaining half of the territories)
+        var nextSideLevel = App.Models.nationStats.get(s).get('armyTechLvl') + 1;
+
+        return Math.round((Math.ceil(App.Models.nationStats.get(s).get('terrs').length / 2) * nextSideLevel) + (Math.floor(App.Models.nationStats.get(s).get('terrs').length / 2) * (nextSideLevel - 1)));
+    },
+    sideTechLevelPoints: function(s) {
+        return _.chain(this.models)
+                            .filter(function(model) {return model.get('side') == s})
+                            .reduce(function(memo, model){ return memo + model.get('econLevel'); }, 0)
+                            .value();
+    },
+    newTechLevel: function(s) {
+
+        if(App.Collections.terrCollection.sideTechLevelPoints(s) >= App.Collections.terrCollection.minPointsToUpgrade(s) && App.Models.nationStats.get(s).get('armyTechLvl') <= App.Constants.MAX_TECH_LEVEL) {
+
+            var sideTerrs = _.chain(this.models)
+                                .filter(function(model) {return model.get('side') == s})
+                                .value();
+
+            _.each(sideTerrs, function(model) {
+
+                var oldArmyMorale = model.get('morale'),
+                    newArmyMorale = Math.round(oldArmyMorale + (App.Constants.ARMY_TECH_LEVEL_MORALE_BOOST * oldArmyMorale)),
+                    newArmyMorale = Math.min(newArmyMorale, 100);
+
+                model.set({
+                    'morale': newArmyMorale,
+                })
+            });
+
+            return true;
+        } else {
+            return false;
+        }
+
+    },
     nextTreasury: function() {
         // Move this function from the terrCollection into the nationStats model
 
@@ -977,19 +1020,6 @@ App.Collections.Territories = Backbone.Collection.extend({
                             .value();
 
         return terrsArr;
-    },
-    returnAvgTechLevel: function(s) {
-        var totalTechLevel = _.chain(this.models)
-                        .filter(function(model) { return model.get('side') === s })
-                        .reduce(function(memo, model){ return memo + model.get('econLevel'); }, 0)
-                        .value();
-
-        var terrs = _.chain(this.models)
-                        .filter(function(model) { return model.get('side') === s })
-                        .value();
-
-        return Math.round(totalTechLevel/_.size(terrs));
-
     },
     hasTwoCapitals: function(s) {
         var hasTwoCapitalsArr = _.chain(this.models)
@@ -1308,6 +1338,7 @@ App.Collections.Territories = Backbone.Collection.extend({
             }
 
         });
+
     },
     updgradeAllFortsPolicy: function(s) {
 

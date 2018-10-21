@@ -244,14 +244,15 @@ App.Views.Terr = Backbone.View.extend({
 
 			App.Views.selectedFooterView = new App.Views.Footer({model: App.Models.clickedTerrModel});
 			$('#footerZone').html(App.Views.selectedFooterView.$el);
-			if (App.Utilities.smallScreenOnly()) {
-				$('#selectedFixedRotator').width(App.Views.selectedFooterView.armyWidth);
-			}
 
 			//Update the UI to reflect selected mode
 			$('#game').addClass('selectedSection');
 
 			App.Utilities.displayInRange();
+
+			if (App.Utilities.smallScreenOnly()) {
+				$('#selectedFixedRotator').width(App.Views.selectedFooterView.armyWidth);
+			}
 
 			$('body').addClass('terrSelected');
 
@@ -422,22 +423,22 @@ App.Views.Terr = Backbone.View.extend({
 		var titleText = 'Attack ' + App.Models.clickedTerrModel.get('name') + ' from ' + App.Models.selectedTerrModel.get('name') + '?',
 			dispAttArmyPop = App.Utilities.addCommas(App.Models.selectedTerrModel.get('armyPopulation')),
 			dispDefPop = App.Utilities.addCommas(App.Models.clickedTerrModel.get('armyPopulation')),
-			attackerTechBonus = App.Models.nationStats.get(App.Utilities.activeSide()).get('armyTechLvl') * 25,
-			defenderTechBonus = App.Models.nationStats.get(App.Models.clickedTerrModel.get('side')).get('armyTechLvl') * 25,
+			attackerTechBonus = App.Utilities.activeEmpire().get('armyTechLvl') * 25,
+			defenderTechBonus = App.Utilities.enemyEmpire().get('armyTechLvl') * 25,
 
 			toStr = '<div class="pull-right"><span class="glyphicon glyphicon-user"></span> ('+App.Models.clickedTerrModel.get('armyWins') +' - '+ App.Models.clickedTerrModel.get('armyLosses') + ')</div>' +
 			'<div><label class="top-label">Defender: '+App.Models.clickedTerrModel.get('name')+'</label></div><div><label>Army:</label> ' + dispDefPop + ' units</div>' +
 				'<div><label>Rank: ' + App.Utilities.makeStarGroup({newRank: App.Models.clickedTerrModel.get('armyRank'), armyPromoted: false}) + '</label></div>' + 
 				'<div><label>Experience:</label> ' + App.Models.clickedTerrModel.get('armyXP') + ' XP</div>' +
-				'<div><label>Morale:</label> ' + App.Models.clickedTerrModel.get('morale') + '%</div><div><label>Avg Tech:</label> +' + defenderTechBonus + '%</div>' +
-				'<div class="fort-data"><div><label>Fort Strength: </label> ' + App.Models.clickedTerrModel.get('fortStrength') + '%</div><div><label>Fort Level:</label> ' + App.Models.clickedTerrModel.get('fortLevel') + '</div>' +
+				'<div><label>Morale:</label> ' + App.Models.clickedTerrModel.get('morale') + '%</div><div><label>Weapons Tech:</label> +' + defenderTechBonus + '%</div>' +
+				'<div class="fort-data"><div><label>Fort Strength: </label> ' + App.Models.clickedTerrModel.get('fortStrength') + '%</div><div><label>Fort Level:</label> +' + (App.Models.clickedTerrModel.get('fortLevel') * App.Constants.FORT_LVL_STRENGTH_BONUS) + '%</div>' +
 				'</div>',
 			fromStr = '<div class="pull-right"><span class="glyphicon glyphicon-user"></span> ('+App.Models.selectedTerrModel.get('armyWins') +' - '+ App.Models.selectedTerrModel.get('armyLosses') + ')</div>' +
 			'<div><label class="top-label">Attacker: '+App.Models.selectedTerrModel.get('name')+'</label></div><div><label>Army:</label> ' + dispAttArmyPop + ' units</div>' +
 				'<div><label>Rank: ' + App.Utilities.makeStarGroup({newRank: App.Models.selectedTerrModel.get('armyRank'), armyPromoted: false}) + '</label></div>' +
 				'<div><label>Experience:</label> ' + App.Models.selectedTerrModel.get('armyXP') + ' XP</div>' +
 				'<div><label>Morale:</label> ' + App.Models.selectedTerrModel.get('morale') + '%</div>' +
-				'<div><label>Avg Tech:</label> +' + attackerTechBonus + '%</div>',
+				'<div><label>Weapons Tech:</label> +' + attackerTechBonus + '%</div>',
 			invasionLimit = Math.round(App.Models.selectedTerrModel.get('armyPopulation') * (App.Models.selectedTerrModel.get('econStrength') / 100)),
 			infraWarningHTML = App.Models.selectedTerrModel.get('econStrength') < 100 ? '<small class="text-danger text-center center-block">Only '+ App.Utilities.addCommas(invasionLimit) +' units available to invade due to '+App.Models.selectedTerrModel.get('econStrength')+'% infrastructure in ' + App.Models.selectedTerrModel.get('name') + '.</small>' : '',
 			

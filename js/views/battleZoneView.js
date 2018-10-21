@@ -74,9 +74,9 @@ App.Views.BattleZone = Backbone.View.extend({
 		App.Utilities.console('\n\n===================================ATTACK===================================');
 		App.Utilities.console(attacking.get('name') + ' (' + attacking.get('armyPopulation') + ' units) attacks ' + defending.get('name') + ' (' + defending.get('armyPopulation') + ' units)!');
 
-		// Fort Strength can give up to 50% strength bonus to a defending army depending on fort level
+		// Each fort level is a +25% defensive strength bonus
 		var fortLevel = defending.get('fortLevel'),
-			defenderFortBonus = ((fortLevel * 500) + defending.get('fortStrength')) / 10000,
+			defenderFortBonus = ((fortLevel * App.Constants.FORT_LVL_STRENGTH_BONUS * 100) + (fortLevel * defending.get('fortStrength'))) / 10000,
 			defenderCapitalBonus;
 
 		var attackXP = App.Utilities.returnArmyXP(attacking),
@@ -635,7 +635,7 @@ App.Views.BattleZone = Backbone.View.extend({
 						showCancelBtn: false
 					});
 
-					if (App.Models.gameStartModel.get('aiMode') && App.Utilities.activeSide() === 'right') {
+					if (App.Models.gameStartModel.get('aiMode') && App.Collections.terrCollection.hasTwoCapitals('right') && $('#aiMaskLayer:visible').length > 0) {
 						App.Utilities.toggleMaskLayer();
 					}
 
@@ -1177,7 +1177,7 @@ App.Views.BattleZone = Backbone.View.extend({
 			onClose: null,
 			onClosed: null,
 			icon_type: 'class',
-			template: '<div data-notify="container" class="' + colClass + ' game-alert alert alert-{0} '+App.Models.nationStats.get(App.Utilities.activeSide()).get('color') +'" role="alert">' +
+			template: '<div data-notify="container" class="' + colClass + ' game-alert alert alert-{0} '+App.Utilities.activeEmpire().get('color') +'" role="alert">' +
 				'<button type="button" class="close" aria-label="Dismiss notification." data-notify="dismiss"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>' +
 				'<span data-notify="icon" aria-hidden="true"></span> ' +
 				'<label data-notify="title">{1}</label> ' +

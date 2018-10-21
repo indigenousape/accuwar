@@ -187,7 +187,7 @@ App.Models.Territory = Backbone.Model.extend({
 		if(isPurchased) {
 			var newTerrsWithRecruits = App.Collections.terrCollection.getSideTerritoriesWithRecruits(App.Utilities.activeSide());
 
-			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+			App.Utilities.activeEmpire().set({
 				'recruitsThisTurn': newNationRecruits,
 				'terrsWithRecruits' : newTerrsWithRecruits
 			});

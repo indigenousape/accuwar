@@ -150,7 +150,6 @@ App.Views.NationStats = Backbone.View.extend({
 	},
 	changeName: function(that) {
 		var side = that.currentTarget.getAttribute('data-side'),
-			oldName = this.model.get(side).get('empName'),
 			canUpdate = App.Utilities.activeSide() === side;
 
 		// User can't update enemy empire name
@@ -165,7 +164,7 @@ App.Views.NationStats = Backbone.View.extend({
 		}
 
 		var spModalModel = new App.Models.Modal({
-			title: 'Change Empire Name: ' + oldName,
+			title: 'Change Empire Name',
 			confBtnId: 'confNewEmpName',
 			modalMsg: '<p>Enter your empire\'s new name:</p>'
 		});
@@ -200,7 +199,7 @@ App.Views.NationStats = Backbone.View.extend({
 							'<p class="form-text"><label>New Tax Rate:</label> <span id="projTaxRate">' + parseInt(this.model.getTaxRate() * 100) + '</span>%</p>';
 
 		var spModalModel = new App.Models.Modal({
-			title: 'Change Tax Rate: ' + empNam,
+			title: 'Change Tax Rate',
 			confBtnId: 'confNewTaxRate',
 			modalMsg: messageHTML,
 			impactMsg: 'Changing tax rates will impact citizen&nbsp;morale.',
@@ -213,21 +212,14 @@ App.Views.NationStats = Backbone.View.extend({
 		});
 
 		var spModalView = new App.Views.SinglePromptModal({model: spModalModel});
-		if(App.Utilities.isMobile()) {
-			$('#spInput').attr('type', 'number');
-		}
-
-		$('#spInput').val(parseInt(this.model.getTaxRate() * 100));
 		
 	},
 	budgetModal: function() {
 
-		var modalHTML = '';
-		modalHTML += '<div id="budgetTable"></div>';
-
+		var modalHTML = '<div id="budgetTable"></div>';
 
 		var confModalModel = new App.Models.Modal({
-			title: App.Utilities.getActiveEmpireName() + ' ' + App.Models.nationStats.get('currentTurn') + ' Budget',
+			title: App.Models.nationStats.get('currentTurn') + ' National Budget',
 			confBtnId: '',
 			modalMsg: modalHTML,
 			confBtnClass: 'btn-primary',
@@ -235,18 +227,36 @@ App.Views.NationStats = Backbone.View.extend({
 		});
 
 		var confModalView = new App.Views.ConfModal({model: confModalModel});
-		//$('#oneModal .modal-dialog').addClass('modal-lg');
-		App.Views.budgetView = new App.Views.BudgetView({model: App.Models.nationStats.get(App.Utilities.activeSide())});
+		App.Views.budgetView = new App.Views.BudgetView({model: App.Utilities.activeEmpire()});
 		$('#budgetTable').html(App.Views.budgetView.$el);
 
 	},
 	policyClick: function(e) {
 
-		var currSideName = this.model.get(App.Utilities.activeSide()).get('empName');
 		var clickedPolicy = e.currentTarget.getAttribute('data-pol-id');
 		App.Models.nationStats.set('clickedPolicy', clickedPolicy);
-		var clickedPolIndex = _.pluck(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'), 'id');
+		var clickedPolIndex = _.pluck(App.Utilities.activeEmpire().get('activePolicies'), 'id');
 		var clickedPolIndex = _.indexOf(clickedPolIndex, clickedPolicy);
+
+		// When clicked from the side menu's Active Policy section
+		// the clicked policy should have an index
+		// When clicked from the Actions Menu, it won't
+
+		if(clickedPolIndex != -1) {
+			
+			var isArmyPol = clickedPolicy === 'recruit_army';
+
+			if(App.Utilities.activeEmpire().get('activePolicies')[clickedPolIndex].priority && !isArmyPol) {
+				App.Utilities.togglePolicy(clickedPolicy, false);
+			} else if (App.Utilities.activeEmpire().get('activePolicies')[clickedPolIndex].priority && isArmyPol) {
+				App.Utilities.togglePolicy(clickedPolicy, false, 25000);
+			} else if (App.Utilities.activeEmpire().get('activePolicies')[clickedPolIndex].priority === 0 && isArmyPol) {
+				App.Utilities.togglePolicy(clickedPolicy, true, 25000);
+			} else {
+				App.Utilities.togglePolicy(clickedPolicy, true);
+			}
+		
+		}
 
 		// TO DO Keeping commented construction below for use with AI
 		// if(!confirmFirst) {
@@ -256,13 +266,13 @@ App.Views.NationStats = Backbone.View.extend({
 			// Build out the HTML for the modal with the checkboxes to activate policies
 			
 			var modalHTML = '';
-			var policiesArr = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
+			var policiesArr = App.Utilities.activeEmpire().get('activePolicies');
 
 			// Element for the active policies view
 
 			modalHTML += '<h3>Available Policies</h3>';
 
-			modalHTML += '<p>Policies are tasks that can be carried out automatically throughout your empire with any leftover funds before the start of the next year.</p>';
+			modalHTML += '<p>Policies are tasks that can be carried out across the empire automatically before each year starts. Costs are deducted from the remaining treasury balance.</p>';
 
 			modalHTML += '<div class="available-policies-container">';
 
@@ -280,9 +290,8 @@ App.Views.NationStats = Backbone.View.extend({
 
 			modalHTML += '<div id="enactedPolicies" role="status" aria-live="assertive"></div>';
 
-
 			var confModalModel = new App.Models.Modal({
-				title: 'Update Policies',
+				title: 'Update Policies: Tech Level ' + App.Utilities.activeEmpire().get('armyTechLvl'),
 				confBtnId: 'confUpdatePolicy',
 				modalMsg: modalHTML,
 				confBtnClass: 'btn-primary',
@@ -291,7 +300,7 @@ App.Views.NationStats = Backbone.View.extend({
 
 			var confModalView = new App.Views.ConfModal({model: confModalModel});
 			$('#oneModal .modal-dialog').addClass('modal-lg');
-			App.Views.policiesView = new App.Views.PolicyView({model: App.Models.nationStats.get(App.Utilities.activeSide())});
+			App.Views.policiesView = new App.Views.PolicyView({model: App.Utilities.activeEmpire()});
 			$('#enactedPolicies').html(App.Views.policiesView.$el);
 
 		// }
@@ -299,10 +308,13 @@ App.Views.NationStats = Backbone.View.extend({
 	},
 	confirmNewTurn: function(confirmFirst) {
 
-		var currSideName = this.model.get(App.Utilities.activeSide()).get('empName');
-
 		if(!confirmFirst) {
 			App.Views.nationStatsView.updater();
+
+			if(App.Models.gameStartModel.get('aiMode') && App.Models.nationStats.get('sideTurn') === 'left') {
+				App.Utilities.toggleMaskLayer();
+			}
+
 		} else {
 
 			var confModalModel = new App.Models.Modal({
@@ -333,8 +345,7 @@ App.Views.NationStats = Backbone.View.extend({
 	},
 	recruitSidebar: function() {
 		var modelCid = $('.sidebar-recruit-menu').val();
-		var modelParentView = App.Collections.terrCollection.returnSelectedView(modelCid);
-		modelParentView.terrClick();
+		App.Collections.terrCollection.returnSelectedView(modelCid).terrClick();
 		App.Utilities.recruitUnitsModal(App.Models.selectedTerrModel);
 		App.Views.selectedFooterView.raiseFooter();
 	},
@@ -462,14 +473,14 @@ App.Views.NationStats = Backbone.View.extend({
 
 
 		/* Start of AI Logic */
+		//
 		// - A mask layer is used to prevent user interaction during the AI player's turn
 		// - Modal views need to be namespaced so that the code can reach their methods within the timeout functions
 		// - Logic needs ultimately should be updated so that it does not depend on the "right" side player being AI 
 		//
-		// A series of functions are executed within nested setTimeout functions (these functions should be namespaced)
-		// to simulate the AI user playing the game.
+		// A series of functions are executed within nested setTimeout functions
 		//
-		// The difficulties need to be namespaced to the App to avoid cluttering this up
+		// Difficulty levels should be namespaced to the App to avoid cluttering this
 		// - Each difficulty logic chain should be its own utility eg App.Utilities.easyAIturn
 
 		if(currLeftTurn && App.Models.gameStartModel.get('aiMode')) {
@@ -491,7 +502,7 @@ App.Views.NationStats = Backbone.View.extend({
 				var sideTerrArr = App.Collections.terrCollection.returnSortedByArmyPopulation('right'),
 					estCost = sideTerrArr.length > 0 ? ( App.Constants.MIN_ARMY_FOR_MORALE - (sideTerrArr[0].get('armyPopulation') - 100) ) * App.Constants.ARMY_UNIT_COST : 0;
 
-				if(sideTerrArr.length > 0 && App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury') > estCost) {
+				if(sideTerrArr.length > 0 && App.Utilities.activeEmpire().get('treasury') > estCost) {
 
 					App.Collections.terrCollection.returnSelectedView(sideTerrArr[0].cid).terrClick();
 
@@ -506,7 +517,7 @@ App.Views.NationStats = Backbone.View.extend({
 								setTimeout(function() {
 									var sideTerrArr = App.Collections.terrCollection.returnSortedByArmyPopulation('right'),
 										estCost = sideTerrArr.length > 0 ? ( App.Constants.MIN_ARMY_FOR_MORALE - (sideTerrArr[0].get('armyPopulation') ) - 100) * App.Constants.ARMY_UNIT_COST : 0;
-									if(sideTerrArr && sideTerrArr.length > 0 && App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury') > estCost) {
+									if(sideTerrArr && sideTerrArr.length > 0 && App.Utilities.activeEmpire().get('treasury') > estCost) {
 										// Next recruit method brings recruits to min needed for morale
 										App.Utilities.nextRecruitForMorale(sideTerrArr[0].cid);
 									} else if (App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0) {
@@ -529,7 +540,9 @@ App.Views.NationStats = Backbone.View.extend({
 			/* Easy Difficulty AI */
 			// Currently:
 			// - Activates Repair Forts and Repair Infrastructure policies
-			// - Randomy activates the Recruiting policy
+			// - Randomy activates the Recruiting policy 2/3 of the time
+			// - Recruits units to keep up with the average enemy army size
+			// - Attacks territories based on relative battle strength (ignores fort strength)
 
 			if (App.Models.gameStartModel.get('aiDifficulty') === 1) {
 
@@ -540,7 +553,7 @@ App.Views.NationStats = Backbone.View.extend({
 				}
 
 				// Randomly set the recruiting policy off and on
-				var polArr = _.where(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'), {side: App.Utilities.activeSide()});
+				var polArr = _.where(App.Utilities.activeEmpire().get('activePolicies'), {side: App.Utilities.activeSide()});
 				var clickedPolIndexInSidePolicies = _.pluck(polArr, 'id');
 				var indexInSidePolicies = _.indexOf(clickedPolIndexInSidePolicies, 'recruit_army');
 
@@ -619,72 +632,22 @@ App.Views.NationStats = Backbone.View.extend({
 
 		}
 
-		// if(currLeftTurn) {
-		// 	App.Utilities.console("AI LOGIC TIME");
-
-			// Sample Attack Structure
-		// 	setTimeout(function() {
-
-		// 		$("#collapseTerrsRight .sidebarTerr")[0].click();
-
-		// 		setTimeout(function() {
-		// 			$('.inrange .army').mouseup();
-
-		// 			setTimeout(function() {
-		// 				$('#confAttack').click();
-
-		// 				setTimeout(function() {
-		// 					$('#battleNot').click();
-
-		// 					setTimeout(function() {
-		// 						nextAttack();
-		// 					}, 1500);
-
-		// 				}, 600);
-
-		// 			}, 600);
-
-		// 		}, 800);
-
-		// 	}, 1500);
-
-		// }
-
-		// function nextAttack() {
-
-		// 	setTimeout(function() {
-
-		// 			$("#collapseTerrsRight .sidebarTerr")[2].click();
-
-		// 			setTimeout(function() {
-		// 				$('.inrange .army').mouseup();
-
-		// 				setTimeout(function() {
-		// 					$('#confAttack').click();
-
-		// 					setTimeout(function() {
-		// 						$('#battleNot').click();
-		// 					}, 600);
-
-		// 				}, 600);
-
-		// 			}, 800);
-
-		// 	}, 1500);
-
-		// }
-
 	},
 	rebuildEmpInfrastructure: function() {
 
 		var allTxt = App.Collections.terrCollection.getSideTerritoriesWithTurns(App.Utilities.activeSide()).length === App.Collections.terrCollection.getSideTerritories(App.Utilities.activeSide()).length ? '' : ' with turns&nbsp;remaining';
 		var messageHTML = '<p>Spend $' + App.Utilities.addCommas(App.Collections.terrCollection.returnTotalCost('econStrength')) + ' to repair damaged infrastructure in all territories'+allTxt+'?</p>';
 
+		var polIndex = _.pluck(App.Utilities.activeEmpire().get('activePolicies'), 'id'),
+			polIndex = _.indexOf(polIndex, 'repair_infra'),
+			polIsActive = polIndex != -1 ? App.Utilities.activeEmpire().get('activePolicies')[polIndex].priority : false,
+			repairPolHTML = !polIsActive ? '<p class="small">To automate repairs, activate the <a href="#" class="modal-link" id="repairInfPol" data-pol-id="repair_infra">Repair infrastructure policy</a>.</p>' : '';
+
 		var confModalModel = new App.Models.Modal({
-			title: 'Repair All Infrastructure: ' + App.Utilities.getActiveEmpireName(),
+			title: 'Repair All Infrastructure',
 			confBtnId: 'repairAllInfrastructure',
 			impactMsg: 'Strengthens citizen morale, population growth, and&nbsp;GDP.',
-			modalMsg: messageHTML,
+			modalMsg: messageHTML + repairPolHTML,
 			affordAll: false,
 			confBtnTxt: 'Repair All',
 			repairAllId: ''
@@ -696,11 +659,16 @@ App.Views.NationStats = Backbone.View.extend({
 		var allTxt = App.Collections.terrCollection.getSideTerritoriesWithTurns(App.Utilities.activeSide()).length === App.Collections.terrCollection.getSideTerritories(App.Utilities.activeSide()).length ? '' : ' in territories with turns&nbsp;remaining';
 		var messageHTML = '<p>Spend $' + App.Utilities.addCommas(App.Collections.terrCollection.returnTotalCost('fortStrength')) + ' to repair all damaged forts'+allTxt+'?</p>';
 
+		var polIndex = _.pluck(App.Utilities.activeEmpire().get('activePolicies'), 'id'),
+			polIndex = _.indexOf(polIndex, 'repair_forts'),
+			polIsActive = polIndex != -1 ? App.Utilities.activeEmpire().get('activePolicies')[polIndex].priority : false,
+			repairPolHTML = !polIsActive ? '<p>To automate repairs, activate the <a href="#" class="modal-link" id="repairFortPol" data-pol-id="repair_forts">Repair forts policy</a>.</p>' : '';
+
 		var confModalModel = new App.Models.Modal({
-			title: 'Repair All Forts: ' + App.Utilities.getActiveEmpireName(),
+			title: 'Repair All Forts',
 			confBtnId: 'repairAllFortStr',
 			impactMsg: 'Improves defense Strength bonus. Impacts citizen and army&nbsp;morale.',
-			modalMsg: messageHTML,
+			modalMsg: messageHTML + repairPolHTML,
 			affordAll: false,
 			repairAllId: '',
 			confBtnTxt: 'Repair All'

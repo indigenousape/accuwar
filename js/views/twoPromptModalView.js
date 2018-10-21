@@ -63,7 +63,7 @@ App.Views.TwoPromptModal = Backbone.View.extend({
  				fortCost = App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel);
  			}
 
- 			var affordable = infCost + fortCost < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury');
+ 			var affordable = infCost + fortCost < App.Utilities.activeEmpire().get('treasury');
 
  			if (!affordable) {
  				$('#repairFortCost').text(0);
@@ -88,7 +88,7 @@ App.Views.TwoPromptModal = Backbone.View.extend({
  				infCost = App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel);
  			}
 
- 			var affordable = infCost + fortCost < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury');
+ 			var affordable = infCost + fortCost < App.Utilities.activeEmpire().get('treasury');
 
  			if (!affordable) {
  				$('#repairInfCost').text(0);
@@ -211,10 +211,10 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 				infraCost = repairInfra ? App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) : 0;
 
 			if(fortCost + infraCost > 0) {
-				App.Models.nationStats.payForUpgrade(App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury') - (fortCost + infraCost));
-				App.Models.nationStats.get(App.Utilities.activeSide()).set({
-					'infrastructureSpend': infraCost + App.Models.nationStats.get(App.Utilities.activeSide()).get('infrastructureSpend'),
-					'fortSpend': fortCost + App.Models.nationStats.get(App.Utilities.activeSide()).get('fortSpend')
+				App.Models.nationStats.payForUpgrade(App.Utilities.activeEmpire().get('treasury') - (fortCost + infraCost));
+				App.Utilities.activeEmpire().set({
+					'infrastructureSpend': infraCost + App.Utilities.activeEmpire().get('infrastructureSpend'),
+					'fortSpend': fortCost + App.Utilities.activeEmpire().get('fortSpend')
 				});
 			}
 
@@ -385,8 +385,11 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 
 				}
 
-				// Update the army tech level
-				App.Models.nationStats.get(App.Utilities.activeSide()).set('armyTechLvl', App.Collections.terrCollection.returnAvgTechLevel(App.Utilities.activeSide()));
+				// App.Utilities.activeEmpire().set('armyTechLvl', App.Collections.terrCollection.returnAvgTechLevel(App.Utilities.activeSide()));
+				if (App.Collections.terrCollection.newTechLevel(App.Utilities.activeSide())) {
+					var oldTechLevel = App.Utilities.activeEmpire().get('armyTechLvl');
+					App.Utilities.activeEmpire().set('armyTechLvl', (oldTechLevel + 1));
+				}
 
 			}
 

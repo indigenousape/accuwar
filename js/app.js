@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 4.0 Beta
+	Release: 4.1.0 Beta
 	Author: Josh Harris
-	10/6/2018
+	10/21/2018
 */
 
 var startYear = new Date();
@@ -25,7 +25,8 @@ window.App = {
 						'audio/ambient-11.mp3', 'audio/ambient-12.mp3', 'audio/ambient-13.mp3', 'audio/ambient-14.mp3', 'audio/ambient-15.mp3',
 						'audio/ambient-16.mp3', 'audio/ambient-17.mp3', 'audio/ambient-18.mp3', 'audio/ambient-19.mp3'],
 		ARMY_TRAINING_COST: 10000000, // Training cost per 1000 units
-		ARMY_UNIT_COST: 50000, // Per unit cost
+		ARMY_TECH_LEVEL_MORALE_BOOST: 0.5, // Percent of current morale boosted in each territory by tech upgrades
+		ARMY_UNIT_COST: 50000, // Base per unit cost
 		ATTACK_ARMY_MINIMUM: 2000, // Minimum army units required to attack 
 		ATTACK_INVADE_ARMY_MINIMUM: 10000, // Minimum army units required to invade
 		ATTACK_MORALE_MINIMUM: 20, // Minimum unit morale required to attack
@@ -34,16 +35,17 @@ window.App = {
 		DELAY_SHORTEST: 3, // Notification delays (in seconds)
 		DELAY_DEFAULT: 6,
 		DELAY_INFINITE: 0,
-		ECON_LVL_UP_AMT: 10000000000, // Base cost for tech level upgrades, multiplied by the next level
-		ECON_STR_COST: 1000000000, // Per 10 strength added
+		ECON_LVL_UP_AMT: 10000000000, // Base per tech level upgrade cost
+		ECON_STR_COST: 1000000000, // Base cost per 10 infrastructure strength added (multiplied times econ level)
 		FORT_LVL_COST: 10000000000, // Per fort level, per territory
-		FORT_STR_COST: 500000000, // Per 10 strength added
+		FORT_LVL_STRENGTH_BONUS: 25, // Per fort level
+		FORT_STR_COST: 500000000, // Per 10 strength added (multiplied by fort level)
 		GDP_PENALTY_LOW_TAX: 0.86, // Worst case GDP loss during low tax crash
 		GDP_PENALTY_REG_CRASH: 0.88, // Worst case GDP loss during regular crash
-		HIGH_TAX_MORALE_AMT: 0.5,
+		HIGH_TAX_MORALE_AMT: 0.5, // Limit that triggers "high tax" mode - morale and market impacts, messages
 		LEVEL_0_MOR_PER_TURN_MULT: 1.05, // Army morale growth rate
 		LOGGING: false, // Sets whether console messages are logged
-		LOW_TAX_EC_CRASH_AMT: 0.15,
+		LOW_TAX_EC_CRASH_AMT: 0.15, // Limit to trigger "low tax" mode - morale and market impacts, messages
 		MAX_FORT_LEVEL: 10,
 		MAX_RANK: 5,
 		MAX_TECH_LEVEL: 10,
@@ -133,6 +135,8 @@ window.App = {
 		SCORE_TOTAL_VICTORY: 150000,
 		START_TURN: startYear,
 		START_ARMY_UNITS: 250000,
+		START_ECON_POP: 10000000,
+		START_TERR_GDP: 80000000000,
 		STARTING_TERRITORIES: 25,
 		STARTING_TERRITORIES_MOB: 9,
 		STARTING_TREASURY: 500000000000,
@@ -189,6 +193,15 @@ window.App = {
 	Utilities: {
 		activeSide: function() {
 			return App.Models.nationStats.get('sideTurn');
+		},
+		enemySide: function() {
+			return App.Utilities.activeSide() === 'left' ? 'right' : 'left';
+		},
+		activeEmpire: function() {
+			return App.Models.nationStats.get(App.Utilities.activeSide());
+		},
+		enemyEmpire: function() {
+			return App.Models.nationStats.get(App.Utilities.enemySide());
 		},
 		addCommas: function(num) {
 			return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -251,23 +264,23 @@ window.App = {
 
 			return rankHTML;
 		},
-		computeScore: function(side) {
+		computeScore: function() {
 
-			var enemySide = side === 'left' ? 'right' : 'left';
-			var totalTerrsForTotalVictory = App.Models.nationStats.get(side).get('terrs').length + 1;
+			var enemySide = App.Utilities.activeSide() === 'left' ? 'right' : 'left';
+			var totalTerrsForTotalVictory = App.Utilities.activeEmpire().get('terrs').length + 1;
 
-			var promotionsTotal = App.Constants.SCORE_PROMOTIONS * (parseInt(App.Models.nationStats.get(side).get('overallArmyPromotions') + App.Models.nationStats.get(side).get('armiesPromoted').length)),
-				fortsDestroyedTotal = App.Constants.SCORE_FORTS_DESTROYED * (parseInt(App.Models.nationStats.get(side).get('overallFortsDestroyed') + App.Models.nationStats.get(enemySide).get('fortsLost').length) - parseInt(App.Models.nationStats.get(enemySide).get('overallFortsDestroyed') + App.Models.nationStats.get(side).get('fortsLost').length)),
-				recruitsTotal = Math.round(App.Constants.SCORE_RECRUITS * (App.Models.nationStats.get(side).get('overallRecruits') + App.Models.nationStats.get(side).get('recruitsThisTurn'))),
-				armyKills = Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(enemySide).get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'army'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(side).get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(side, 'army'))),
-				econKills = Math.round(App.Constants.SCORE_ECON_KILLS * (App.Models.nationStats.get(enemySide).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Models.nationStats.get(side).get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(side, 'econ'))),
-				techLevel = App.Constants.SCORE_AVG_TECH * App.Models.nationStats.get(side).get('armyTechLvl'),
-				battleWins = App.Constants.SCORE_WINS * (App.Models.nationStats.get(side).get('overallBattleWins') - App.Models.nationStats.get(enemySide).get('overallBattleWins')),
-				invasions = App.Constants.SCORE_INVASIONS * (parseInt(App.Models.nationStats.get(side).get('overallInvasions') + App.Models.nationStats.get(side).get('invadedThisTurn').length) - parseInt(App.Models.nationStats.get(enemySide).get('overallInvasions') + App.Models.nationStats.get(enemySide).get('invadedThisTurn').length)),
-				treasury = Math.round(App.Constants.SCORE_TREASURY * App.Models.nationStats.get(side).get('treasury')),
-				population = Math.round(App.Constants.SCORE_ECON_POPULATION * App.Collections.terrCollection.returnSideTotal(side, 'econPopulation')),
-				gdp = Math.round(App.Constants.SCORE_GDP * App.Models.nationStats.get(side).get('econOutput')),
-				armyUnits = Math.round(App.Constants.SCORE_ARMY_UNITS * App.Collections.terrCollection.returnSideTotal(side, 'armyPopulation')),
+			var promotionsTotal = App.Constants.SCORE_PROMOTIONS * (parseInt(App.Utilities.activeEmpire().get('overallArmyPromotions') + App.Utilities.activeEmpire().get('armiesPromoted').length)),
+				fortsDestroyedTotal = App.Constants.SCORE_FORTS_DESTROYED * (parseInt(App.Utilities.activeEmpire().get('overallFortsDestroyed') + App.Utilities.enemyEmpire().get('fortsLost').length) - parseInt(App.Utilities.enemyEmpire().get('overallFortsDestroyed') + App.Utilities.activeEmpire().get('fortsLost').length)),
+				recruitsTotal = Math.round(App.Constants.SCORE_RECRUITS * (App.Utilities.activeEmpire().get('overallRecruits') + App.Utilities.activeEmpire().get('recruitsThisTurn'))),
+				armyKills = Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Utilities.enemyEmpire().get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'army'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Utilities.activeEmpire().get('overallArmyCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.activeSide(), 'army'))),
+				econKills = Math.round(App.Constants.SCORE_ECON_KILLS * (App.Utilities.enemyEmpire().get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(enemySide, 'econ'))) - Math.round(App.Constants.SCORE_ARMY_KILLS * (App.Utilities.activeEmpire().get('overallEconCasualties') + App.Collections.terrCollection.getSideCasualties(App.Utilities.activeSide(), 'econ'))),
+				techLevel = App.Constants.SCORE_AVG_TECH * App.Utilities.activeEmpire().get('armyTechLvl'),
+				battleWins = App.Constants.SCORE_WINS * (App.Utilities.activeEmpire().get('overallBattleWins') - App.Utilities.enemyEmpire().get('overallBattleWins')),
+				invasions = App.Constants.SCORE_INVASIONS * (parseInt(App.Utilities.activeEmpire().get('overallInvasions') + App.Utilities.activeEmpire().get('invadedThisTurn').length) - parseInt(App.Utilities.enemyEmpire().get('overallInvasions') + App.Utilities.enemyEmpire().get('invadedThisTurn').length)),
+				treasury = Math.round(App.Constants.SCORE_TREASURY * App.Utilities.activeEmpire().get('treasury')),
+				population = Math.round(App.Constants.SCORE_ECON_POPULATION * App.Collections.terrCollection.returnSideTotal(App.Utilities.activeSide(), 'econPopulation')),
+				gdp = Math.round(App.Constants.SCORE_GDP * App.Utilities.activeEmpire().get('econOutput')),
+				armyUnits = Math.round(App.Constants.SCORE_ARMY_UNITS * App.Collections.terrCollection.returnSideTotal(App.Utilities.activeSide(), 'armyPopulation')),
 				territories = App.Constants.SCORE_PER_TERRITORY * (totalTerrsForTotalVictory),
 				turns = Math.round(App.Constants.SCORE_FOR_TURN_BONUS / (Math.max(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN, 1))),
 				totalVictory = totalTerrsForTotalVictory === (2 * App.Models.battleMapModel.get('territories')) ? App.Constants.SCORE_TOTAL_VICTORY : 0;
@@ -276,13 +289,13 @@ window.App = {
 
 			if(App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN < 5) {
 				qualify = 'Quick&nbsp;';
-			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/App.Models.nationStats.get(enemySide).get('overallBattleWins')) < 0.5) {
+			} else if ((App.Utilities.activeEmpire().get('overallBattleWins')/App.Utilities.enemyEmpire().get('overallBattleWins')) < 0.5) {
 				qualify = 'Upset&nbsp;';
 			} else if (armyKills < 0 && econKills < 0) {
 				qualify = 'Costly&nbsp;';
 			} else if (totalTerrsForTotalVictory === (2 * App.Models.battleMapModel.get('territories'))) {
 				qualify = 'Total&nbsp;';
-			} else if ((App.Models.nationStats.get(side).get('overallBattleWins')/(App.Models.nationStats.get(enemySide).get('overallBattleWins') + App.Models.nationStats.get(side).get('overallBattleWins'))) >= (2/3) || App.Models.nationStats.get(side).get('terrs').length >= ((App.Models.battleMapModel.get('territories') * 2) * (2/3))) {
+			} else if ((App.Utilities.activeEmpire().get('overallBattleWins')/(App.Utilities.enemyEmpire().get('overallBattleWins') + App.Utilities.activeEmpire().get('overallBattleWins'))) >= (2/3) || App.Utilities.activeEmpire().get('terrs').length >= ((App.Models.battleMapModel.get('territories') * 2) * (2/3))) {
 				qualify = 'Dominant&nbsp;';
 			} else if(armyKills < 2000 && (invasions < App.Constants.SCORE_INVASIONS * 3)) {
 				qualify = 'Close&nbsp;';
@@ -320,13 +333,13 @@ window.App = {
 		crashNotification: function(currGDPPenalty) {
 
 			var formattedGDPPenalty = currGDPPenalty > 1000000000 ? currGDPPenalty - (currGDPPenalty%1000000000) : currGDPPenalty - (currGDPPenalty%1000000),
-				sinceLastCrash = App.Models.nationStats.get(this.activeSide()).get('econCrashTurn') - App.Models.nationStats.get(this.activeSide()).get('econCrashTurnPrv');
+				sinceLastCrash = App.Utilities.activeEmpire().get('econCrashTurn') - App.Utilities.activeEmpire().get('econCrashTurnPrv');
 
 			var againTxt = sinceLastCrash <= 2 && sinceLastCrash > 0 ? 'again' : '';
 
 			var msgObj = {
 				icon: "glyphicon glyphicon-globe",
-				titleTxt : this.randomSource() + ": Market " + this.marketAdjective() + " "+ againTxt + " in&nbsp;" + App.Models.nationStats.get(this.activeSide()).get('empName'),
+				titleTxt : this.randomSource() + ": Market " + this.marketAdjective() + " "+ againTxt + " in&nbsp;" + App.Utilities.activeEmpire().get('empName'),
 				msgTxt : "$" + this.addCommas(Math.round(formattedGDPPenalty)) + " wiped out from the economy in " + App.Models.nationStats.get('currentTurn') + ". Market fever blamed. Economists recommend raising taxes to stabilize&nbsp;nerves."
 			};
 			App.Views.battleMap.notify(msgObj);
@@ -375,13 +388,13 @@ window.App = {
 			$('#aiMaskLayer').toggleClass('active');
 		},
 		togglePolicy: function(policyID, activatePolicy, recruitAmount) {
-			var polArr = _.where(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'), {side: App.Utilities.activeSide()});
+			var polArr = _.where(App.Utilities.activeEmpire().get('activePolicies'), {side: App.Utilities.activeSide()});
 			var clickedPolIndexInSidePolicies = _.pluck(polArr, 'id');
 			var indexInSidePolicies = _.indexOf(clickedPolIndexInSidePolicies, policyID);
 			
-			polArr[indexInSidePolicies].priority = activatePolicy ? App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') + 1 : 0;
+			polArr[indexInSidePolicies].priority = activatePolicy ? App.Utilities.activeEmpire().get('activePolicyCount') + 1 : 0;
 
-			if(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') > 1
+			if(App.Utilities.activeEmpire().get('activePolicyCount') > 1
 				&& !activatePolicy
 				&& indexInSidePolicies < polArr.length - 1) {
 				
@@ -399,9 +412,9 @@ window.App = {
 
 			polArr = _.sortBy(polArr, 'priority');
 
-			var activeCount = activatePolicy ? App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') + 1 : App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') - 1;
+			var activeCount = activatePolicy ? App.Utilities.activeEmpire().get('activePolicyCount') + 1 : App.Utilities.activeEmpire().get('activePolicyCount') - 1;
 
-			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+			App.Utilities.activeEmpire().set({
 				'activePolicyCount': activeCount,
 				'activePolicies': polArr,
 				'activePolicyChange': true
@@ -409,10 +422,10 @@ window.App = {
 
 			// Logging
 			App.Utilities.console(App.Utilities.activeSide() + ' side policies: ');
-			App.Utilities.console(App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies'));
+			App.Utilities.console(App.Utilities.activeEmpire().get('activePolicies'));
 			var enemySide = App.Utilities.activeSide() === 'left' ? 'right' : 'left';
 			App.Utilities.console(enemySide + ' side policies: ');
-			App.Utilities.console(App.Models.nationStats.get(enemySide).get('activePolicies'));
+			App.Utilities.console(App.Utilities.enemyEmpire().get('activePolicies'));
 		},
 		enoughMoraleToAttack: function(territory) {
 			return territory.get('morale') > App.Constants.ATTACK_MORALE_MINIMUM;
@@ -434,6 +447,9 @@ window.App = {
 			} else {
 				return false;
 			}
+		},
+		enoughPopToRecruit: function(territory) {
+			return territory.get('econPopulation') >= App.Constants.MIN_ECON_POP_RECRUITING; 
 		},
 		enoughPopToReinforce: function(territory) {
 
@@ -477,17 +493,16 @@ window.App = {
 			return App.Models.nationStats.get(side).get('empName') ? App.Models.nationStats.get(side).get('empName') : '';
 		},
 		getActiveEmpireName: function() {
-			return App.Models.nationStats.get(App.Utilities.activeSide()).get('empName');
+			return App.Utilities.activeEmpire().get('empName');
 		},
 		getEnemyEmpireName: function() {
-			var enemySide = App.Utilities.activeSide() === 'left' ? 'right' : 'left';
-			return App.Models.nationStats.get(enemySide).get('empName');
+			return App.Utilities.enemyEmpire().get('empName');
 		},
 		getTreasuryAuto: function(side) {
 			return App.Models.nationStats.get(side).get('treasury');
 		},
 		getTreasury: function() {
-			return App.Models.nationStats.get(this.activeSide()).get('treasury');
+			return App.Utilities.activeEmpire().get('treasury');
 		},
 		growthDrags: function(property) {
 			var drag = property < 50 ? 5 - (property * 10 / 100) : 0
@@ -624,16 +639,8 @@ window.App = {
 			return smallScreen;
 		},
 		isSafari: function() {
-			var ua = navigator.userAgent.toLowerCase(); 
-			if (ua.indexOf('safari') != -1) { 
-			  if (ua.indexOf('chrome') === -1) {
-			    return true;
-			  } else {
-			  	return false;
-			  }
-			} else {
-				return false;
-			}
+			var iOs = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);; 
+			return iOs;
 		},
 		isMobileDevice: function() {
 			var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0),
@@ -738,7 +745,7 @@ window.App = {
 			        showMsg = true;
 			        break;
 			    case 15:
-			    	var fraudAmt = App.Models.nationStats.get(this.activeSide()).get('treasury') > 100000000000 ? _.random(50, 250) + '&nbsp;billion' : _.random(50, 250) + '&nbsp;million';
+			    	var fraudAmt = App.Utilities.activeEmpire().get('treasury') > 100000000000 ? _.random(50, 250) + '&nbsp;billion' : _.random(50, 250) + '&nbsp;million';
 			        msgTitle = "MSNBC: Corporate Scandals Make&nbsp;Headlines";
 			        msgText = "<p>Industry titans face charges as investors seek damages following $"+fraudAmt+" financial fraud. Leaders promise stronger&nbsp;regulations.</p>";
 			        showMsg = true;
@@ -1085,7 +1092,6 @@ window.App = {
 					aiHandicap = 0.25;
 
 			}
-			// var aiHandicap = (3 - App.Models.gameStartModel.get('aiDifficulty')) / 10;
 
 			if(inRangeTerrs.length > 0 && minBattleStrength - (aiHandicap * minBattleStrength) <= App.Utilities.returnBattleStrength(App.Models.selectedTerrModel)) {
 				return inRangeTerrs[arrayIndex].cid;
@@ -1097,33 +1103,59 @@ window.App = {
 
 			$('#investEconStr').click();
 
-			setTimeout(function() {
-				$('#rebuildInfrastructure').click();
-				App.Utilities.aiDoNextAttack();
-			}, 3000);
+			if($('#repairAllInfrastructure').length > 0) {
+
+				setTimeout(function() {
+						$('#repairAllInfrastructure').click();
+						App.Utilities.aiDoNextAttack();
+					}, 3000);
+
+			} else {
+
+				setTimeout(function() {
+					$('#rebuildInfrastructure').click();
+					App.Utilities.aiDoNextAttack();
+				}, 3000);
+			}
+
 
 		},
 		aiRepairFort: function() {
 			$('#repairFort').click();
 
-			setTimeout(function() {
-				$('#repairTerrFort').click();
-				App.Utilities.aiDoNextAttack();
-			}, 3000);
+			if($('#repairAllFortStr').length > 0) {
+				setTimeout(function() {
+					$('#repairAllFortStr').click();
+					App.Utilities.aiDoNextAttack();
+				}, 3000);
+			} else {
+				setTimeout(function() {
+					$('#repairTerrFort').click();
+					App.Utilities.aiDoNextAttack();
+				}, 3000);
+			}
+
+
 		},
 		nextAttack: function(terrCID) {
 
 			if(App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0) {
 				setTimeout(function() {
 
-					if(_.isEmpty(App.Views.selectedTerrView) || App.Views.selectedTerrView.model.cid != terrCID) {
+					// is selected territory (represented by terrCID) in the border territories array?
+					// if it is, ignore the statement below and let it remain selected
+					// App.Collections.terrCollection.returnTerrsWithBorders('right')
+					var selectedTerrHasBorder = _.isEmpty(App.Views.selectedTerrView) ? false : _.some(App.Collections.terrCollection.returnTerrsWithBorders('right'), function(model) { return model.cid === terrCID });
+
+					if(_.isEmpty(App.Views.selectedTerrView) || (App.Models.selectedTerrModel.cid != terrCID && selectedTerrHasBorder)) {
 						App.Collections.terrCollection.returnSelectedView(terrCID).terrClick();
 					}
 
 					var repairInfraFirst = App.Models.selectedTerrModel.get('econStrength') < 100 ? App.Models.nationStats.get('right').get('treasury') > App.Utilities.returnEconStrengthCost(App.Models.selectedTerrModel) : false,
 						repairFortFirst = App.Models.selectedTerrModel.get('fortStrength') < 100 ? App.Models.nationStats.get('right').get('treasury') > App.Utilities.returnFortStrengthCost(App.Models.selectedTerrModel) : false,
 						readyToAttack = App.Utilities.returnTerritoryCanAttack(App.Models.selectedTerrModel) && !repairInfraFirst && !repairFortFirst && !App.Models.selectedTerrModel.get('isCapital'),
-						capitalIsAlone = App.Models.selectedTerrModel.get('isCapital') && App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length == 1;
+						capitalIsAlone = App.Models.selectedTerrModel.get('isCapital') && App.Utilities.activeEmpire().get('terrs').length == 1,
+						avgEnemyArmySize = Math.round(App.Models.nationStats.get('left').get('armyPopulationNow') / App.Models.nationStats.get('left').get('terrs').length);
 
 					// If the territory CAN attack and has full infrastructure and fort strength AND
 					// it's not the capital, proceed with the attack
@@ -1195,18 +1227,17 @@ window.App = {
 
 													} else if (!App.Collections.terrCollection.hasTwoCapitals('right')) {
 														App.Utilities.aiDoNextAttack();
-													} else {
-														App.Utilities.toggleMaskLayer();
 													}
 													
 												}, 2400);
 
 											}
+												
 
 										}, 3000);
 
 									}, 3000);
-								} else {
+								} else if ($('#recruitUnits').length > 0) {
 									App.Utilities.recruitForMorale(terrCID);
 								}
 
@@ -1241,7 +1272,7 @@ window.App = {
 										}, 1200);
 									}
 
-								}, 1200);
+								}, 2000);
 
 								// What about when you need units to be able to attack???
 
@@ -1255,16 +1286,14 @@ window.App = {
 
 						setTimeout(function() {
 							if($('#investEconStr').length > 0) {
-
 								App.Utilities.aiRepairInfrastructure();
-
 							} else if($('#repairFort').length > 0) {
 								App.Utilities.aiRepairFort();
 							}
 
 						}, 2000);
 
-					} else if ($('#recruitUnits').length > 0 && App.Models.selectedTerrModel.get('armyPopulation') < App.Constants.MIN_ARMY_FOR_MORALE) {
+					} else if ($('#recruitUnits').length > 0 && (App.Models.selectedTerrModel.get('armyPopulation') < App.Constants.MIN_ARMY_FOR_MORALE || App.Models.selectedTerrModel.get('isCapital'))) {
 						// Doesn't have enough units to attack, roads and forts are in good shape
 						// Recruit units
 						App.Utilities.recruitForMorale(terrCID);
@@ -1288,9 +1317,6 @@ window.App = {
 					}
 
 				}, 1600);
-			} else {
-				// Think this is needed
-				App.Utilities.toggleMaskLayer();
 			}
 
 		},
@@ -1299,7 +1325,12 @@ window.App = {
 			// Used during AI attacks
 			var timer = 300;
 
-			if(_.isEmpty(App.Views.selectedTerrView) || App.Views.selectedTerrView.model.cid != terrCID) {
+			// is selected territory (represented by terrCID) in the border territories array?
+			// if it is, ignore the statement below and let it remain selected
+			// App.Collections.terrCollection.returnTerrsWithBorders('right')
+			var selectedTerrHasBorder = _.isEmpty(App.Views.selectedTerrView) ? false : _.some(App.Collections.terrCollection.returnTerrsWithBorders('right'), function(model) { return model.cid === terrCID });
+
+			if(_.isEmpty(App.Views.selectedTerrView)|| (App.Models.selectedTerrModel.cid != terrCID && selectedTerrHasBorder)) {
 				App.Collections.terrCollection.returnSelectedView(terrCID).terrClick();
 				timer = 600;
 			}
@@ -1311,21 +1342,39 @@ window.App = {
 					avgEnemyTerrSize = Math.round(App.Models.nationStats.get('left').get('armyPopulationNow') / App.Models.nationStats.get('left').get('terrs').length),
 					recruitTarget = avgEnemyTerrSize - App.Models.selectedTerrModel.get('armyPopulation');
 
-				if(!App.Models.selectedTerrModel.get('isCapital') && App.Models.selectedTerrModel.get('armyPopulation') >= avgEnemyTerrSize) {
+				if(App.Models.selectedTerrModel.get('armyPopulation') >= avgEnemyTerrSize || avgEnemyTerrSize < App.Constants.MIN_ARMY_FOR_MORALE || recruitTarget < App.Constants.MIN_ARMY_FOR_MORALE) {
 					amt = App.Constants.MIN_ARMY_FOR_MORALE,
 					estCost = App.Utilities.returnRecruitCost(App.Constants.MIN_ARMY_FOR_MORALE),
-					affordable = App.Utilities.getTreasury() > estCost;
-				} else if(App.Models.selectedTerrModel.get('armyPopulation') < avgEnemyTerrSize && avgEnemyTerrSize > App.Constants.MIN_ARMY_FOR_MORALE && App.Utilities.returnRecruitCost(recruitTarget) < App.Utilities.getTreasury()) {
+					affordable = App.Utilities.getTreasury() > estCost && App.Constants.MIN_ARMY_FOR_MORALE < App.Utilities.recruitMax();
+				} else if(avgEnemyTerrSize > App.Constants.MIN_ARMY_FOR_MORALE && App.Utilities.returnRecruitCost(recruitTarget) < App.Utilities.getTreasury()) {
+					// For advanced, should recruit more than the average here
 					amt = recruitTarget,
 					estCost = App.Utilities.returnRecruitCost(recruitTarget),
-					affordable = App.Utilities.getTreasury() > estCost;
-				} else if (App.Utilities.returnRecruitCost(App.Constants.MIN_ARMY_FOR_MORALE - (App.Models.selectedTerrModel.get('armyPopulation') - 100)) < App.Utilities.getTreasury()) {
-					amt = App.Constants.MIN_ARMY_FOR_MORALE - (App.Models.selectedTerrModel.get('armyPopulation') - 100),
-					estCost = App.Utilities.returnRecruitCost(App.Constants.MIN_ARMY_FOR_MORALE - (App.Models.selectedTerrModel.get('armyPopulation') - 100)),
-					affordable = App.Utilities.getTreasury() > estCost;
+					affordable = App.Utilities.getTreasury() > estCost && recruitTarget < App.Utilities.recruitMax();
 				}
 
-				if (affordable) {
+				// If still not affordable, try to recruit a minimal amount and go up until you get to a cost greater than 20% of the treasury
+
+				if (!affordable) {
+					amt = App.Constants.RECRUIT_ARMY_MINIMUM,
+					estCost = App.Utilities.returnRecruitCost(amt),
+					affordable = App.Utilities.getTreasury() > estCost && amt < App.Utilities.recruitMax();
+
+					if(affordable) {
+						while (affordable) {
+							amt += App.Constants.RECRUIT_ARMY_MINIMUM,
+							estCost = App.Utilities.returnRecruitCost(amt),
+							affordable = App.Utilities.getTreasury() * 0.25 > estCost && amt < App.Utilities.recruitMax();
+						}
+
+						amt -= App.Constants.RECRUIT_ARMY_MINIMUM,
+						affordable = true,
+						estCost = App.Utilities.returnRecruitCost(amt);
+					}
+				}
+
+
+				if (affordable && App.Utilities.terrCanRecruit(App.Models.selectedTerrModel)) {
 
 					setTimeout(function() {
 						$('#recruitUnits').click();
@@ -1341,8 +1390,6 @@ window.App = {
 										App.Utilities.aiDoNextAttack();
 									} else if (App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0) {
 										App.Utilities.aiEndTurn();
-									} else {
-										App.Utilities.toggleMaskLayer();
 									}
 
 								}, 1200)
@@ -1506,17 +1553,26 @@ window.App = {
 
 		},
 		recruitMax: function() {
-			var side = this.activeSide(),
-				affordMax = parseInt(this.getTreasury() / (App.Constants.ARMY_UNIT_COST * (1 + (App.Models.nationStats.get(App.Utilities.activeSide()).get('armyTechLvl')/4)))),
+			var affordMax = parseInt(this.getTreasury() / (App.Constants.ARMY_UNIT_COST * (1 + (App.Utilities.activeEmpire().get('armyTechLvl')/4)))),
 				popMax = Math.round(App.Models.selectedTerrModel.get('econPopulation') / 2) - App.Constants.MIN_ECON_POP_RECRUITING;
+
+			if(popMax <= 0) {
+				popMax = 0;
+			}
 
 			return Math.min(affordMax, popMax); 
 		},
 		recruitUnitsModal: function(model) {
+
+			var polIndex = _.pluck(App.Utilities.activeEmpire().get('activePolicies'), 'id'),
+				polIndex = _.indexOf(polIndex, 'recruit_army'),
+				polIsActive = polIndex != -1 ? App.Utilities.activeEmpire().get('activePolicies')[polIndex].priority : false,
+				repairPolHTML = !polIsActive ? '<p class="small">To automate recruiting, activate the <a href="#" class="modal-link" id="recruitArmyPol" data-pol-id="recruit_army">Recruit army units policy</a>.</p>' : '';
+
 			var spModalModel = new App.Models.Modal({
-					title: 'Recruit Army Units: Tech Level ' + App.Models.nationStats.get(App.Utilities.activeSide()).get('armyTechLvl'),
+					title: 'Recruit Army Units: Weapons Level ' + App.Utilities.activeEmpire().get('armyTechLvl'),
 					confBtnId: 'confNewRecruits',
-					modalMsg: '<p class="form-text" id="recruit-label">How many army units should ' + model.get('name') + ' recruit from the civilian population?</p>',
+					modalMsg: '<p class="form-text" id="recruit-label">How many army units should ' + model.get('name') + ' recruit from the civilian population?</p>' + repairPolHTML,
 					impactMsg: '<span><span id="recruitCount">10,000</span> Units</span><span class="pull-right">Cost $<span id="recruitCost">' + App.Utilities.addCommas( App.Utilities.returnRecruitCost(10000) ) + '</span></span>',
 					impactClass: 'text-muted',
 					noTurnsMsg: 'Ends turn for ' + model.get('name') + '.',
@@ -1586,12 +1642,13 @@ window.App = {
 
 			var initTreasury = App.Utilities.isMobile() ? App.Constants.STARTING_TREASURY_MOB : App.Constants.STARTING_TREASURY,
 				initInfraCost = App.Utilities.isMobile() ? 18000000000 : 50000000000,
-				initEconPopulation = App.Utilities.isMobile() ? 90000000 : 250000000,
-				initArmyPopulation = App.Utilities.isMobile() && !App.Constants.TESTING_MODE ? 2250000 : 6250000,
-				initEconOutput = App.Utilities.isMobile() && !App.Constants.TESTING_MODE ? 720000000000 : 2000000000000;
+				initEconPopulation = App.Models.battleMapModel.get('territories') * App.Constants.START_ECON_POP,
+				initArmyPopulation = App.Models.battleMapModel.get('territories') * App.Constants.START_ARMY_UNITS,
+				initEconOutput = App.Models.battleMapModel.get('territories') * App.Constants.START_TERR_GDP;
 
 			var LeftModel = new Emp({
 				armyPopulationStart: initArmyPopulation,
+				armyPopulationNow: initArmyPopulation,
 				color: App.Models.nationStats.get('left').get('color'),
 				econPopulationStart: initEconPopulation,
 				econPopulationNow: initEconPopulation,
@@ -1606,6 +1663,7 @@ window.App = {
 			        	
 			var RightModel = new Emp({
 				armyPopulationStart: initArmyPopulation,
+				armyPopulationNow: initArmyPopulation,
 				color: App.Models.nationStats.get('right').get('color'),
 				econPopulationStart: initEconPopulation,
 				econPopulationNow: initEconPopulation,
@@ -1696,7 +1754,7 @@ window.App = {
 				turns = 3;
 			}
 
-			return App.Models.nationStats.get('currentTurn') - App.Models.nationStats.get(App.Utilities.activeSide()).get('econCrashTurnPrv') > turns;
+			return App.Models.nationStats.get('currentTurn') - App.Utilities.activeEmpire().get('econCrashTurnPrv') > turns;
 
 		},
 		returnRecruitMoraleXPRank: function(arriving, reinforceAmt) {
@@ -1848,7 +1906,7 @@ window.App = {
 			}
 		},
 		returnRecruitCost: function(recruits) {
-			return App.Constants.ARMY_UNIT_COST * (1 + (App.Models.nationStats.get(App.Utilities.activeSide()).get('armyTechLvl')/4)) * recruits;
+			return App.Constants.ARMY_UNIT_COST * (1 + (App.Utilities.activeEmpire().get('armyTechLvl')/4)) * recruits;
 		},
 		returnFortLevelCost: function(model) {
 			if(model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL) {
@@ -1944,7 +2002,7 @@ window.App = {
 				'trainingArmyCost' : diffToArmyTraining
 			});
 
-			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+			App.Utilities.activeEmpire().set({
 				'repairAllInfrastructureCost' : App.Collections.terrCollection.returnTotalCost('econStrength', App.Utilities.activeSide()),
 				'repairAllFortCost': App.Collections.terrCollection.returnTotalCost('fortStrength', App.Utilities.activeSide())
 			});
@@ -1988,6 +2046,9 @@ window.App = {
 		},
 		template: function(id){
 			return _.template( $('#' + id).html() );
+		},
+		terrCanRecruit: function(territory) {
+			return App.Utilities.enoughPopToRecruit(territory) && App.Utilities.getTreasury() > App.Utilities.returnRecruitCost(App.Constants.RECRUIT_ARMY_MINIMUM);
 		},
 		territoryNames: function(namesTogether) {
 
@@ -2191,6 +2252,45 @@ window.App = {
 			});		
 
 		},
+		randomEmpireDiscoveryAdj: function() {
+			var adjectives = ['breakthrough', 'dramatic', 'amazing', 'incredible', 'unbelievable', 'revolutionary'];
+			var adj = adjectives[_.random(0, (adjectives.length - 1))];
+
+			return adj;
+
+		},
+		returnDefenseOfficialsReactionToNewEconLevelTxt: function() {
+
+			if(App.Utilities.activeEmpire().get('armyTechLvl') === App.Utilities.enemyEmpire().get('armyTechLvl')) {
+				return '<p>Military officials say new weapons capabilities are <strong>equal to</strong> the enemy\'s. Make more investments in technology to gain an advantage on the&nbsp;battlefield.</p>';
+			} else if (App.Utilities.activeEmpire().get('armyTechLvl') < App.Utilities.enemyEmpire().get('armyTechLvl')) {
+				return '<p>Military officials say new weapons capabilities are better, but <strong>less advanced</strong> than the enemy\'s. Continue investing in technology to draw even on the&nbsp;battlefield.</p>';
+			} else if (App.Utilities.activeEmpire().get('armyTechLvl') - App.Utilities.enemyEmpire().get('armyTechLvl') >= 1 && App.Utilities.activeEmpire().get('armyTechLvl') - App.Utilities.enemyEmpire().get('armyTechLvl') < 3) {
+				return '<p>Military officials say new weapons are <strong>more advanced</strong> than the enemy\'s. Continue to invest in technology to gain an even greater advantage on the&nbsp;battlefield.</p>';
+			} else {
+				return '<p>Military officials say new weapons are <strong>far more advanced</strong> than the enemy\'s. Continue to invest in technology to maintain supremacy on the&nbsp;battlefield.</p>';
+			}
+
+		},
+		launchNewEmpEconLevelModal: function() {
+			var defenseOfficialsTxt = App.Utilities.returnDefenseOfficialsReactionToNewEconLevelTxt();
+
+			var messageHTML = '<p>Defense industry engineers in ' + App.Models.selectedTerrModel.get('name') + ' make ' + App.Utilities.randomEmpireDiscoveryAdj() + ' new discovery!</p>'
+							+ defenseOfficialsTxt
+							+ '<p>Army units celebrate as new weapons shipments arrive at forts across the&nbsp;empire.</p>'
+							+ '<p class="small"><strong>Note:</strong> Army recruiting costs increase as weapons technology&nbsp;advances.</p>';
+
+			var confModalModel = new App.Models.Modal({
+				title: 'Weapons Technology Advances to Level ' + App.Utilities.activeEmpire().get('armyTechLvl'),
+				confBtnId: '',
+				modalMsg: messageHTML,
+				impactMsg: '+' + 100 * (App.Utilities.returnArmyTechBonus(App.Models.selectedTerrModel) - 1) + '% Battle Bonus for All Army&nbsp;Units',
+				confBtnClass: 'btn-primary',
+				showCancelBtn: false
+			});
+
+			var confModalView = new App.Views.ConfModal({model: confModalModel});
+		},
 		upgradeTerrEconLevel: function(model, policyMode) {
 
 			if(typeof model === "undefined") {
@@ -2222,14 +2322,46 @@ window.App = {
 				'econLevelCost': App.Constants.ECON_LVL_UP_AMT * (1 + nextLvl)
 			});
 
-			App.Models.nationStats.get(model.get('side')).set('armyTechLvl', App.Collections.terrCollection.returnAvgTechLevel(model.get('side'))); 
+			var oldEmpTech = App.Models.nationStats.get(model.get('side')).get('armyTechLvl');
+
+			if(!policyMode && App.Collections.terrCollection.newTechLevel(model.get('side'))) {
+
+				App.Models.nationStats.get(model.get('side')).set('armyTechLvl', (oldEmpTech+1));
+				// Launch a modal to confirm and explain the impact
+				App.Utilities.launchNewEmpEconLevelModal();
+
+			} else if (!policyMode) {
+
+				var notifyMsgTxt = "";
+				if(App.Collections.terrCollection.sideTechLevelPoints(model.get('side')) >= 0.9 * App.Collections.terrCollection.minPointsToUpgrade(model.get('side'))) {
+					notifyMsgTxt = "Defense industry researchers in " + App.Models.selectedTerrModel.get('name') + " claim the empire is close to a breakthrough in weapons&nbsp;technology.";
+				} else {
+					notifyMsgTxt = "Economy booms in " + App.Models.selectedTerrModel.get('name') + " after major investment advances technology to Level&nbsp;" +  model.get('econLevel') + ".";
+				}
+
+				App.Views.battleMap.notify({
+					icon: 'glyphicon glyphicon-education',
+					titleTxt : "Tech Level&nbsp;Upgraded",
+					msgTxt : notifyMsgTxt,
+					msgType:'success',
+					delay: App.Constants.DELAY_DEFAULT,
+				});
+			} else if (policyMode && App.Collections.terrCollection.newTechLevel(model.get('side'))) {
+				App.Models.nationStats.get(model.get('side')).set('armyTechLvl', (oldEmpTech+1));
+			}
 
 		},
 		upgradeTerrEconStr: function(model) {
 
+			var side = App.Utilities.activeSide();
+
 			if(typeof model === "undefined") {
 				model = App.Models.selectedTerrModel;
+				side = model.get('side');
 			}
+
+			var newNationRepairAllInfraCost = App.Models.nationStats.get(side).get('repairAllInfrastructureCost') - model.get('econStrengthCost');
+			App.Models.nationStats.get(side).set('repairAllInfrastructureCost', newNationRepairAllInfraCost);
 
 			var econMorale = App.Utilities.updateEconMorale({
 					econStrength : 100,

@@ -74,7 +74,8 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 		'click #confNewTerrName' : 'changeTheTerritoryName',
 		'click #confNewRecruits' : 'recruitTheUnits',
 		'click #confReinforce' : 'sendTheReinforcements',
-		'keyup #spRangeInput' : 'rangeSliderKeypress'
+		'keyup #spRangeInput' : 'rangeSliderKeypress',
+		'click #recruitArmyPol' : 'policyLinkClick'
 	},
 	changeTheEmpireName: function() {
 
@@ -123,7 +124,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 			var updatedTaxRate = parseInt($('#spRangeInput').val()) / 100;
 
-			if(updatedTaxRate != App.Models.nationStats.get(App.Utilities.activeSide()).get('taxRate')) {
+			if(updatedTaxRate != App.Utilities.activeEmpire().get('taxRate')) {
 
 				App.Collections.terrCollection.updateAllMoraleGDP(updatedTaxRate, App.Utilities.activeSide());
 
@@ -141,8 +142,8 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 					ecQualifier = 'downward';
 				}
 
-				var msgHTML = 'Citizens across the empire are ' + msgQualifier + ' with the news. Economic forecasts revised&nbsp;' + ecQualifier + '.',
-					confTitleText = App.Utilities.getActiveEmpireName() + " empire tax rate " + titleQualifier + " to&nbsp;" + Math.round(updatedTaxRate * 100) + "%.";
+				var msgHTML = 'Citizens across ' + App.Utilities.getActiveEmpireName() + ' are ' + msgQualifier + ' with the news. Economic forecasts revised&nbsp;' + ecQualifier + '.',
+					confTitleText = 'Tax rate ' + titleQualifier + ' to&nbsp;' + Math.round(updatedTaxRate * 100) + '%.';
 
 				App.Models.nationStats.setTaxRate(updatedTaxRate);
 				$('.' + App.Utilities.activeSide() + '-stats .changeTax').removeClass('tada').addClass('tada');
@@ -282,6 +283,9 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 		}
 
 	},
+	policyLinkClick: function(e) {
+		App.Views.nationStatsView.policyClick(e);
+	},
 	showRecruitResult: function() {
 		var thisInputVal = parseInt($('#spRangeInput').val()),
 			recruitCost = App.Utilities.returnRecruitCost(thisInputVal);
@@ -322,7 +326,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 	},
 	showTaxResult: function() {
 
-		var currTaxRate = parseInt(App.Models.nationStats.get(App.Utilities.activeSide()).get('taxRate') * 100),
+		var currTaxRate = parseInt(App.Utilities.activeEmpire().get('taxRate') * 100),
 			outputTotal = App.Collections.terrCollection.returnSideTotal(App.Utilities.activeSide(), 'economicOutput'),
 			estNextTaxes = parseInt(outputTotal * App.Models.nationStats.getTaxRate()),
 			dispNextTaxes = App.Utilities.addCommas(estNextTaxes),
@@ -380,20 +384,22 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 		if(!this.model.get('stopClick')) {
 
-			var recruitMax = App.Utilities.recruitMax(),
-				recruitedUnits = parseInt($('#spRangeInput').val()),
+			var recruitedUnits = parseInt($('#spRangeInput').val()),
 				newUnitCost = App.Utilities.returnRecruitCost(recruitedUnits),
 				treasury = App.Utilities.getTreasury() - newUnitCost,
 				newEconPop = App.Models.selectedTerrModel.get('econPopulation') - recruitedUnits,
-				newSideRecruitspend = App.Models.nationStats.get(App.Utilities.activeSide()).get('recruitSpend');
+				newSideRecruitspend = App.Utilities.activeEmpire().get('recruitSpend');
 
 			App.Models.selectedTerrModel.incomingUnits(App.Models.selectedTerrModel, recruitedUnits);
 			App.Utilities.flipEls(['.armyPopulation-main']);
 
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('armyPopulationNow', App.Models.nationStats.get(App.Utilities.activeSide()).get('armyPopulationNow') + recruitedUnits);
-
 			App.Models.nationStats.payForUpgrade(treasury);
-			App.Models.nationStats.get(App.Utilities.activeSide()).set('recruitSpend', (newSideRecruitspend + newUnitCost));
+
+			App.Utilities.activeEmpire().set({
+				'armyPopulationNow': (App.Utilities.activeEmpire().get('armyPopulationNow') + recruitedUnits),
+				'econPopulationNow': (App.Utilities.activeEmpire().get('econPopulationNow') - recruitedUnits),
+				'recruitSpend': (newSideRecruitspend + newUnitCost)
+			});
 
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-user',
@@ -417,8 +423,7 @@ App.Views.SinglePromptModal = Backbone.View.extend({
 
 		if(!this.model.get('stopClick')) {
 
-			var thisInput = $('#spRangeInput'),
-				newUnits = parseInt(thisInput.val());
+			var newUnits = parseInt($('#spRangeInput').val());
 
 			// Calculate the impact on troop levels, morale, XP, and rank
 			App.Models.clickedTerrModel.incomingUnits(App.Models.clickedTerrModel, newUnits);

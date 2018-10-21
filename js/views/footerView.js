@@ -214,7 +214,7 @@ App.Views.Footer = Backbone.View.extend({
 			confBtnId: 'trainTerrArmyXP',
 			noTurnsMsg: 'Ends turn for ' + this.model.get('name') +'.',
 			impactMsg: '+25 XP',
-			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' training the army stationed at&nbsp;' + this.model.get('name') + '?</p>',
+			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' to train the army units stationed at Ft.&nbsp;' + this.model.get('name') + '?</p>',
 			diffToNext: diffToNext
 		});
 
@@ -246,12 +246,17 @@ App.Views.Footer = Backbone.View.extend({
 			affordAllMsg = showAffordAll ? '<p>Or spend $' + App.Utilities.addCommas(App.Collections.terrCollection.returnTotalCost('econStrength')) + ' to repair damaged infrastructure in all&nbsp;territories'+allTxt+'?</p>' : '',
 			confBtnTxt = showAffordAll ? 'Repair ' + this.model.get('name') : 'Confirm';
 
+		var polIndex = _.pluck(App.Utilities.activeEmpire().get('activePolicies'), 'id'),
+			polIndex = _.indexOf(polIndex, 'repair_infra'),
+			polIsActive = polIndex != -1 ? App.Utilities.activeEmpire().get('activePolicies')[polIndex].priority : false,
+			repairPolHTML = !polIsActive ? '<p class="small">To automate repairs, activate the <a href="#" class="modal-link" id="repairInfPol" data-pol-id="repair_infra">Repair infrastructure policy</a>.</p>' : '';
+
 		var confModalModel = new App.Models.Modal({
-			title: 'Repair Infrastructure',
+			title: 'Repair Infrastructure: Tech Level&nbsp;' + this.model.get('econLevel'),
 			confBtnId: 'rebuildInfrastructure',
-			impactMsg: 'Strengthens citizen morale, population growth, and&nbsp;GDP.',
-			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' to repair damaged infrastructure in ' + this.model.get('name') + ' (Tech Level&nbsp;' + (this.model.get('econLevel')) + ')?</p>'
-							+ affordAllMsg,
+			impactMsg: 'Strengthens growth, citizen morale, and&nbsp;GDP.',
+			modalMsg: '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' to repair damaged infrastructure in ' + this.model.get('name') + '?</p>'
+							+ affordAllMsg + repairPolHTML,
 			diffToNext: diffToNext,
 			affordAll: showAffordAll,
 			repairAllId: 'repairAllInfrastructure',
@@ -268,7 +273,7 @@ App.Views.Footer = Backbone.View.extend({
 		var confModalModel = new App.Models.Modal({
 			title: 'Upgrade Fort Level',
 			confBtnId: 'upgradeTerrFortLevel',
-			impactMsg: '+' + newLvl + '0% Defense Strength bonus at full strength. Strengthens army and citizen&nbsp;morale.',
+			impactMsg: '+' + App.Constants.FORT_LVL_STRENGTH_BONUS + '% Defense Bonus. Strengthens army and civilian&nbsp;morale.',
 			modalMsg: '<p>Spend $' + App.Utilities.addCommas(App.Constants.FORT_LVL_COST * newLvl) + ' to upgrade the defenses at ' + this.model.get('name') + ' to Level&nbsp;' + newLvl + '?</p>',
 			diffToNext: App.Constants.FORT_LVL_COST * newLvl
 		});
@@ -283,12 +288,17 @@ App.Views.Footer = Backbone.View.extend({
 			affordAllMsg = showAffordAll ?  '<p>Or spend $' + App.Utilities.addCommas(App.Collections.terrCollection.returnTotalCost('fortStrength')) + ' to repair all damaged forts'+allTxt+'?</p>' : '',
 			confBtnTxt = showAffordAll ? 'Repair ' + this.model.get('name') : 'Confirm';
 
+		var polIndex = _.pluck(App.Utilities.activeEmpire().get('activePolicies'), 'id'),
+			polIndex = _.indexOf(polIndex, 'repair_forts'),
+			polIsActive = polIndex != -1 ? App.Utilities.activeEmpire().get('activePolicies')[polIndex].priority : false,
+			repairPolHTML = !polIsActive ? '<p class="small">To automate repairs, activate the <a href="#" class="modal-link" id="repairFortPol" data-pol-id="repair_forts">Repair forts policy</a>.</p>' : '';
+
 		var confModalModel = new App.Models.Modal({
-			title: 'Repair Fort',
+			title: 'Repair Fort: Level&nbsp;' + this.model.get('fortLevel'),
 			confBtnId: 'repairTerrFort',
-			impactMsg: 'Up to ' + this.model.get('fortLevel') + '0% Defense Strength bonus. Impacts citizen and army&nbsp;morale.',
-			modalMsg: '<p>Spend $' + App.Utilities.addCommas(App.Utilities.returnTerrFortCost(this.model)) + ' to repair the damage at Ft. ' + this.model.get('name') + ' (Level&nbsp;' + this.model.get('fortLevel') + ')?</p>'
-							+ affordAllMsg,
+			impactMsg: 'Protects territory from attack. Impacts citizen and army&nbsp;morale.',
+			modalMsg: '<p>Spend $' + App.Utilities.addCommas(App.Utilities.returnTerrFortCost(this.model)) + ' to repair the damage at Ft. ' + this.model.get('name') + '?</p>'
+							+ affordAllMsg + repairPolHTML,
 			diffToNext: App.Utilities.returnTerrFortCost(this.model),
 			affordAll: showAffordAll,
 			repairAllId: 'repairAllFortStr',
@@ -304,12 +314,35 @@ App.Views.Footer = Backbone.View.extend({
 	investEcon: function() {
 		var nextLvl = parseInt(this.model.get('econLevel')) + 1,
 			diffToNext = App.Constants.ECON_LVL_UP_AMT * nextLvl,
-			messageHTML = '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' to upgrade the economy of ' + this.model.get('name') + ' to Level&nbsp;' + nextLvl + '?</p>';
+			aboveOrBelowTxt = '',
+			aboveOrBelowArmyTechLevelTxt = '';
+		
+		if(this.model.get('econLevel') > App.Utilities.activeEmpire().get('armyTechLvl')) {
+			aboveOrBelowTxt = 'above';
+		} else if (this.model.get('econLevel') < App.Utilities.activeEmpire().get('armyTechLvl')) {
+			aboveOrBelowTxt = 'below';
+		}
+
+		if(App.Utilities.activeEmpire().get('armyTechLvl') > App.Utilities.enemyEmpire().get('armyTechLvl')) {
+			aboveOrBelowArmyTechLevelTxt = '<strong>more advanced</strong> than';
+		} else if (App.Utilities.activeEmpire().get('armyTechLvl') < App.Utilities.enemyEmpire().get('armyTechLvl')) {
+			aboveOrBelowArmyTechLevelTxt = '<strong>less advanced</strong> than';
+		} else {
+			aboveOrBelowArmyTechLevelTxt = '<strong>equally advanced</strong> as';
+		}
+		
+		var messageHTML = '<p>Spend $' + App.Utilities.addCommas(diffToNext) + ' to upgrade the technology in ' + App.Models.selectedTerrModel.get('name') + ' to Level&nbsp;' + nextLvl + '?</p>';
+			
+		messageHTML += '<p class="small">' + this.model.get('name') + ' has <strong>' + aboveOrBelowTxt + ' average</strong> technology compared to the other territories in the ' + App.Utilities.getActiveEmpireName() + '&nbsp;empire.</p>';
+
+		messageHTML += '<p class="small">Weapons technology in the ' + App.Utilities.getActiveEmpireName() + ' empire is ' + aboveOrBelowArmyTechLevelTxt + ' the&nbsp;enemy\'s.</p>';
+
+		messageHTML += '<p class="small"><strong>Note:</strong> Infrastructure repair costs in ' + this.model.get('name') + ' will rise as Tech Level increases.</p>';
 
 		var confModalModel = new App.Models.Modal({
-			title: 'Upgrade Economy Tech Level',
+			title: 'Upgrade Tech Level',
 			confBtnId: 'upgradeTerrEcon',
-			impactMsg: 'Strengthens citizen morale, population growth, and&nbsp;GDP.',
+			impactMsg: 'Stengthens growth, citizen morale, and&nbsp;GDP.',
 			modalMsg: messageHTML,
 			diffToNext: diffToNext
 		});

@@ -51,6 +51,16 @@
 	}
 }
 
+.modal-link {
+	color: #337ab7;
+	text-decoration: underline;
+
+	&:hover {
+		color: #337ab7;
+		text-decoration: underline;
+	}
+}
+
 /* Specific modal styles */
 
 #oneModal {
@@ -116,6 +126,16 @@
 
 	& > p:last-child {
 		margin-bottom: 0;
+	}
+
+	> h3 {
+		margin-top: 0;
+	}
+
+	.final-rank { 
+		& + h2 {
+			margin-top: 0;
+		}
 	}
 }
 

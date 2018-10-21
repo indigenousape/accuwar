@@ -212,19 +212,23 @@
 				}
 
 				&.army-sidebar {
-					.pop-tot + .small {
+					.pop-tot {
+						margin-top: 0;
+					}
+
+					.pop-tot + .small + .small {
 						margin-bottom: 10px;
 					}
 				}
 
-				.glyphicon-edit {
-					font-size: 15px;
-					margin-left: 5px;
+				.glyphicon-resize-vertical {
+					font-size: 13px;
+					margin-left: 2px;
+					margin-right: 2px;
 					top: 2px;
 				}
 
-				.glyphicon-list,
-				.glyphicon-edit {
+				.glyphicon-list {
 					margin-right: 5px;
 				}
 
@@ -232,18 +236,22 @@
 					float: none;
 					display: inline-block;
 					font-size: 14px;
+					margin-bottom: 3px;
 
 					&+ .small {
 						margin-bottom: 3px;
 
 						&+ .small {
+							display: inline-block;
 							margin-bottom: 3px;
+							margin-right: 10px;
 						}
 					}
 				}
 
 				.pop-tot {
 					margin-bottom: 3px;
+					margin-top: 10px;
 
 					&+ .small {
 						margin-bottom: 3px;
@@ -253,10 +261,6 @@
 				.changeTax {
 					float: none;
 					display: inline-block;
-				}
-
-				.small {
-					margin-bottom: 10px;
 				}
 
 				.glyphicon-chevron-down {
@@ -284,8 +288,12 @@
 			}
 		}
 
-		.changeTax,
 		.budget {
+			display: block;
+			cursor: pointer;
+		}
+
+		.changeTax {
 			cursor: pointer;
 			display: inline-block;
 		}

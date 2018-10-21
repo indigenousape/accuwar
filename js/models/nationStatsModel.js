@@ -10,7 +10,13 @@ var initTreasury = App.Utilities.isMobile() ? App.Constants.STARTING_TREASURY_MO
 	initInfraCost = App.Utilities.isMobile() ? 18000000000 : 50000000000,
 	initEconPopulation = App.Utilities.isMobile() ? 90000000 : 250000000,
 	initArmyPopulation = App.Utilities.isMobile() && !App.Constants.TESTING_MODE ? 2250000 : 6250000,
-	initEconOutput = App.Utilities.isMobile() && !App.Constants.TESTING_MODE ? 720000000000 : 2000000000000;
+	initEconOutput = 0;
+
+if (App.Utilities.isMobile() && !App.Constants.TESTING_MODE) {
+	initEconOutput = App.Constants.START_TERR_GDP * App.Constants.STARTING_TERRITORIES_MOB;
+} else if (!App.Utilities.isMobile() && !App.Constants.TESTING_MODE) {
+	initEconOutput = App.Constants.START_TERR_GDP * STARTING_TERRITORIES;
+}
 
 // Class Side represents each empire
 var Emp = Backbone.Model.extend({
@@ -75,6 +81,12 @@ var Emp = Backbone.Model.extend({
 		treasury: initTreasury,
 		treasuryPrev: initTreasury,
 		treasuryStart: initTreasury
+    },
+    hasInfDamageAndTurns: function() {
+    	return _.some(this.get('terrsWithTurns'), function(model) { return model.get('remainingTurns') > 0 && model.get('econStrength') < 100 });
+    },
+    hasFortDamageAndTurns: function() {
+    	return _.some(this.get('terrsWithTurns'), function(model) { return model.get('remainingTurns') > 0 && model.get('fortStrength') < 100 });
     },
     returnLowTaxInfraDrag: function() {
 		return Math.min(this.get('lowTaxTurnLength'), 5);
@@ -146,7 +158,7 @@ App.Models.NationStats = Backbone.Model.extend({
 
 		App.Collections.terrCollection.nextTreasury();
 
-		App.Models.nationStats.get(App.Utilities.activeSide()).set({
+		App.Utilities.activeEmpire().set({
 			'treasury' : treasury,
 			'treasuryPrev': treasury
 		});
@@ -187,9 +199,9 @@ App.Models.NationStats = Backbone.Model.extend({
  		App.Utilities.highTaxNotification(currHighTaxTurnLength);
 
  		var currLowTaxTurnLength = App.Utilities.activeSide() === 'left' ? leftLowTaxTurnLength : rightLowTaxTurnLength,
- 			currGDPPenalty = App.Models.nationStats.get(App.Utilities.activeSide()).get('econCrashPenalty');
+ 			currGDPPenalty = App.Utilities.activeEmpire().get('econCrashPenalty');
 
- 		if(!App.Models.nationStats.get(App.Utilities.activeSide()).get('econCrash')) {
+ 		if(!App.Utilities.activeEmpire().get('econCrash')) {
  			App.Utilities.lowTaxNotification(currLowTaxTurnLength);
  		} else {
  			App.Utilities.crashNotification(currGDPPenalty);

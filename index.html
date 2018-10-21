@@ -117,15 +117,15 @@
 				<% if (!showRange) {%>
 	        		<input type="text" class="form-control" aria-labelledby="send-label" id="tp-input-1">
 	        	<% } else {%>
-	        		<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-<%= App.Utilities.activeSide() %> slider-<%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color')%>" aria-labelledby="send-label" min="<%= rangeMin %>" max="<%= rangeMax %>" step="<%= rangeStep %>" value="<%= rangeVal %>" defaultValue="<%= rangeVal %>" id="tp-input-1">
+	        		<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-<%= App.Utilities.activeSide() %> slider-<%= App.Utilities.activeEmpire().get('color')%>" aria-labelledby="send-label" min="<%= rangeMin %>" max="<%= rangeMax %>" step="<%= rangeStep %>" value="<%= rangeVal %>" defaultValue="<%= rangeVal %>" id="tp-input-1">
 	        	<% } %>
 				<p id="error-message" class="text-danger" aria-role="status" aria-live="assertive"></p>
-				<% if(App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) > 0 && App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury')) { %>
+				<% if(App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) > 0 && App.Utilities.returnEconStrengthCost(App.Models.clickedTerrModel) < App.Utilities.activeEmpire().get('treasury')) { %>
 				<div class="inv-repair">
 					<input type="checkbox" id="repairInvInfra"> <label for="repairInvInfra">Repair Infrastructure:</label> $<span id="repairInfCost">0</span></label>
 				</div>
 				<% } %>
-				<% if(App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel) > 0 && App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel) < App.Models.nationStats.get(App.Utilities.activeSide()).get('treasury')) { %>
+				<% if(App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel) > 0 && App.Utilities.returnFortStrengthCost(App.Models.clickedTerrModel) < App.Utilities.activeEmpire().get('treasury')) { %>
 				<div class="inv-repair">
 					<input type="checkbox" id="repairInvFort"> <label for="repairInvFort">Repair Fort:</label> $<span id="repairFortCost">0</span>
 				</div>
@@ -154,7 +154,7 @@
 	        	<% if (!showRange) {%>
 	        		<input type="text" class="form-control" aria-labelledby="modal-msg" id="spInput">
 	        	<% } else {%>
-	        		<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-<%= App.Utilities.activeSide() %> slider-<%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" min="<%= rangeMin %>" max="<%= rangeMax %>" step="<%= rangeStep %>" value="<%= rangeVal %>" defaultValue="<%= rangeVal %>" id="spRangeInput" aria-labelledby="<%= ariaLabel %>">
+	        		<input type="range" class="<% if (!App.Utilities.detectIE()){%>form-control<% }%> range-slider slider-<%= App.Utilities.activeSide() %> slider-<%= App.Utilities.activeEmpire().get('color') %>" min="<%= rangeMin %>" max="<%= rangeMax %>" step="<%= rangeStep %>" value="<%= rangeVal %>" defaultValue="<%= rangeVal %>" id="spRangeInput" aria-labelledby="<%= ariaLabel %>">
 	        	<% } %>
 	        	<p id="error-message" class="text-danger"></p>
 				<p id="impact-msg" class="<%= impactClass %>"  tabindex="0"><%= impactMsg %></p>
@@ -191,11 +191,11 @@
 			<% } %>
 
 			<% if (typeof affordAll !== "undefined" && affordAll) { %>
-				<button type="button" class="btn <%= App.Utilities.activeSide() %> <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" data-dismiss="modal" id="<%= repairAllId %>">Repair All</button>
+				<button type="button" class="btn <%= App.Utilities.activeSide() %> <%= App.Utilities.activeEmpire().get('color') %>" data-dismiss="modal" id="<%= repairAllId %>">Repair All</button>
 			<% } %>
 
 			<% if (typeof gameEnd !== "undefined" && gameEnd) {  %>
-				<button type="button" class="btn <%= App.Utilities.activeSide() %> <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" data-dismiss="modal" id="<%= seeStatsId %>"><%= seeStatsBtnTxt %></button>
+				<button type="button" class="btn <%= App.Utilities.activeSide() %> <%= App.Utilities.activeEmpire().get('color') %>" data-dismiss="modal" id="<%= seeStatsId %>"><%= seeStatsBtnTxt %></button>
 			<% } %>
 
 			<button type="button" class="btn <%= confBtnClass %>" data-dismiss="modal" id="<%= confBtnId %>"><%= confBtnTxt %></button>
@@ -224,32 +224,29 @@
 			<!-- Single button -->
 			<div class="btn-group">
 			  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-			    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span><span class="hide-phone"> Menu</span>
+			    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Menu
 			  </button>
 			  <ul class="dropdown-menu">
 			  	<li>
-			  		<label><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Settings</label>
+			  		<label><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Other Settings</label>
 			  	</li>
+				<li role="separator" class="divider"></li>
+				<li>
+					<input class="aiMode" id="aiMode1" name="aiMode" value="ai" type="radio" <% if(aiMode) {%>checked<% } %> />
+					<label for="aiMode1">Play vs CPU</label>
+				</li>
+				<li>
+					<input class="aiMode" name="aiMode" value="sandbox" id="aiMode2" type="radio" <% if(!aiMode) {%>checked<% } %> />
+					<label for="aiMode2">2-Player Sandbox</label>
+				</li>
+				<li role="separator" class="divider"></li>
 			    <li>
 			    	<input id="randomMap" type="checkbox" /> 
-			    	<label for="randomMap">Random Map: </label>
-					<span id="randomMapState">Off</span>
+			    	<label for="randomMap">Random Map</label>
 				</li>
-				<% if (!App.Utilities.isSafari()) { %>
-					<li>
-						<% if (inFullScreen) { %>
-				    		<input id="fullScreen" type="checkbox" checked /> 
-				    	<% } else { %>
-				    		<input id="fullScreen" type="checkbox" /> 
-				    	<% } %>
-				    	<label for="fullScreen">Full Screen: </label>
-						<span id="fullScreenState"><% if (inFullScreen) { %>On<% } else { %>Off<% } %></span>
-					</li>
-				<% } %>
 				<li>
 					<input id="noSound" type="checkbox" />
-					<label for="noSound">Music: </label>
-					<span id="soundState">Off</span>
+					<label for="noSound">Music</label>
 				</li>
 				<li class="hide-tab-landscape">
 					<% if (App.Models.battleMapModel.get('tipsMode')) { %>
@@ -258,17 +255,7 @@
 						<input id="showTips" type="checkbox" />
 					<% } %>
 
-					<label for="showTips">Show Tips: </label>
-					<% if (App.Models.battleMapModel.get('tipsMode')) { %>
-						<span id="tipsState">On</span>
-					<% } else { %>
-						<span id="tipsState">Off</span>
-					<% } %>
-				</li>
-				<li>
-					<input id="aiMode" type="checkbox" <% if(aiMode) {%>checked<% } %> />
-					<label for="aiMode">Play vs AI: </label>
-					<span id="aiState"><% if(aiMode) {%>On<%} else {%>Off<%}%></span>
+					<label for="showTips">Tips</label>
 				</li>
 			    <li role="separator" class="divider"></li>
 			    <li><a href="#" id="howToPlayModal"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> How to Play</a></li>
@@ -321,8 +308,19 @@
 
 		<button id="declareWar" disabled>Declare War</button>
 
-		<p class="small text-muted version-text">Beta <span class="release-txt">Release 4.0</span></p>
-
+		<p class="small text-muted version-text">Beta <span class="release-txt">4.1.0</span></p>
+		
+		<% if (!App.Utilities.isSafari()) { %>
+			<div class="secondary-fullscreen-checkbox">
+				<% if (inFullScreen) { %>
+		    		<input class="fullScreen" type="checkbox" id="fullScreenState" checked /> 
+		    	<% } else { %>
+		    		<input class="fullScreen" id="fullScreenState" type="checkbox" /> 
+		    	<% } %>
+		    	<label for="fullScreenState">Full Screen</label>
+			</div>
+		<% } %>
+			
 		<div class="sm-container">
 
 			<div class="fb-share-button" data-href="http://www.accuwar.com" data-layout="button" data-size="small" data-mobile-iframe="true"><a target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.accuwar.com%2F&amp;src=sdkpreparse" class="fb-xfbml-parse-ignore">Share</a></div>
@@ -400,40 +398,42 @@
 
 	<script id="enactedPolicies" type="text/template">
 
-		<% if (App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') > 0 ) {%>
+		<% if (App.Utilities.activeEmpire().get('activePolicyCount') > 0 ) {%>
 			<h3>Active Policies</h3>
 
-			<% if (App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') > 1) { %>
-				<p>Active policies will be carried out before the start of each year in the order below. Territories with the greatest needs will receive assistance&nbsp;first.</p>
+			<% if (App.Utilities.activeEmpire().get('activePolicyCount') > 1) { %>
+				<p>Active policies will be carried out before the next year starts in the order below. Territories with greater needs will receive assistance&nbsp;first.</p>
+			<% } else { %>
+				<p>Active policies will be carried out before the next year starts. Territories with greater needs will receive assistance&nbsp;first.</p>
 			<% } %>
 
-				<% var policies = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
+				<% var policies = App.Utilities.activeEmpire().get('activePolicies');
 					for (var i = 0; i < policies.length; i++) { %>
 					
 					<% if (policies[i].priority != 0) { %>
 						<label data-enacted-id="<%= policies[i].id %>" data-priority="<%= policies[i].priority %>">
 							
 							<% if (policies[i].priority > 1) { %>
-								<button class="no-btn" aria-label="Raise priority for <%= policies[i].title %> policy. Current priority is <%= policies[i].priority %> of <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') %>.">
+								<button class="no-btn" aria-label="Raise priority for <%= policies[i].title %> policy. Current priority is <%= policies[i].priority %> of <%= App.Utilities.activeEmpire().get('activePolicyCount') %>.">
 									<span class="glyphicon glyphicon-chevron-up"></span>
 								</button>
-							<% } else if (App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') > 1) { %>
+							<% } else if (App.Utilities.activeEmpire().get('activePolicyCount') > 1) { %>
 								<span class="glyphicon glyphicon-chevron-up disabled" disabled></span>
 							<% } %>
 
-							<% if (policies[i].priority < App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount')) { %>
-								<button class="no-btn" aria-label="Lower priority for <%= policies[i].title %> policy. Current priority is <%= policies[i].priority %> of <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') %>.">
+							<% if (policies[i].priority < App.Utilities.activeEmpire().get('activePolicyCount')) { %>
+								<button class="no-btn" aria-label="Lower priority for <%= policies[i].title %> policy. Current priority is <%= policies[i].priority %> of <%= App.Utilities.activeEmpire().get('activePolicyCount') %>.">
 									<span class="glyphicon glyphicon-chevron-down"></span>
 								</button>
-							<% } else if (App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicyCount') > 1) { %>
+							<% } else if (App.Utilities.activeEmpire().get('activePolicyCount') > 1) { %>
 								<span class="glyphicon glyphicon-chevron-down disabled" disabled></span>
 							<% } %>
 
-							<%= policies[i].title %> (Tech Level <%= App.Models.nationStats.get(App.Utilities.activeSide()).get('armyTechLvl') %>)
+							<%= policies[i].title %>
 
 							<% if (policies[i].id === 'recruit_army') { %>
-								<input type="range" min="25000" value="<%= policies[i].amount %>" max="500000" step="25000" id="armyUnitsRange" class="form-control range-slider slider-<%= App.Utilities.activeSide()%> slider-<%= App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" aria-label="Recruits army units in all territories each turn.">
-								<span class="recruit-impact text-muted" tabindex="0"><span><span id="recruitsPerYearPol"><%= App.Utilities.addCommas(policies[i].amount) %></span> units per territory</span> <span>$<span id="recruitPerYearPolCost"><%= App.Utilities.addCommas(App.Utilities.returnRecruitCost(policies[i].amount) * App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length) %></span> total</span> <span class="clearfix"></span></span>
+								<input type="range" min="25000" value="<%= policies[i].amount %>" max="500000" step="25000" id="armyUnitsRange" class="form-control range-slider slider-<%= App.Utilities.activeSide()%> slider-<%= App.Utilities.activeEmpire().get('color') %>" aria-label="Recruits army units in all territories each turn.">
+								<span class="recruit-impact text-muted" tabindex="0"><span><span id="recruitsPerYearPol"><%= App.Utilities.addCommas(policies[i].amount) %></span> units per territory</span> <span>$<span id="recruitPerYearPolCost"><%= App.Utilities.addCommas(App.Utilities.returnRecruitCost(policies[i].amount) * App.Utilities.activeEmpire().get('terrs').length) %></span> total</span> <span class="clearfix"></span></span>
 							<% } %>
 
 						</label>
@@ -615,9 +615,9 @@
 					<% if (econLevel < 10 && !econLeveledUp && econStrength === 100 && currTreasury >= econLevelCost) { %>
 
 						<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-							<button class="btn btn-default" id="investEcon" data-toggle="popover" data-trigger="hover" data-placement="top" title="Upgrade Economy" data-content="Makes a significant investment in research and education in <%= name %> to boost the local economy. An empire's average tech level also impacts the battle strength of all of its&nbsp;armies." aria-label="Upgrade Economy. Makes a significant investment in research and education in <%= name %> to boost the local economy. An empire's average tech level also impacts the battle strength of all of its armies."><span class="glyphicon glyphicon-education" aria-hidden="true"></span><span class="hide-mob"> Upgrade</span></button>
+							<button class="btn btn-default" id="investEcon" data-toggle="popover" data-trigger="hover" data-placement="top" title="Upgrade Economy" data-content="Make a significant investment in technology research and development in <%= name %>. Boosts the local economy and improves the battle strength of army&nbsp;units." aria-label="Upgrade Economy. Make a significant investment in technology research and development in <%= name %>. Boosts the local economy and improves the battle strength of army&nbsp;units."><span class="glyphicon glyphicon-education" aria-hidden="true"></span><span class="hide-mob"> Upgrade</span></button>
 						<% } else {%>
-							<button class="btn btn-default" id="investEcon" aria-label="Upgrade Economy. Makes a significant investment in research and education in <%= name %> to boost the local economy. An empire's average tech level also impacts the battle strength of all of its armies."><span class="glyphicon glyphicon-education" aria-hidden="true"></span><span class="hide-mob"> Upgrade</span></button>
+							<button class="btn btn-default" id="investEcon" aria-label="Upgrade Economy. Make a significant investment in technology research and development in <%= name %>. Boosts the local economy and improves the battle strength of army&nbsp;units."><span class="glyphicon glyphicon-education" aria-hidden="true"></span><span class="hide-mob"> Upgrade</span></button>
 						<% } %>
 
 					<% } %>
@@ -680,7 +680,7 @@
 										<% } %>
 									<% } %>
 								</label>
-								<% if (remainingTurns > 0 && currTreasury >= armyPopulationCost) { %>
+								<% if (remainingTurns > 0 && App.Utilities.terrCanRecruit(this.model)) { %>
 									
 									<% if (App.Models.battleMapModel.get('tipsMode')) {%>
 										<button class="btn btn-default" id="recruitUnits" data-toggle="popover" data-trigger="hover" data-placement="top" title="Recruit Units" data-content="Drafts local civilians into the army. To recruit units in all territories between turns, visit your Active Policies in the side&nbsp;menu." aria-label="Recruit Units. Drafts local civilians into the army. To recruit units in all territories between turns, visit your Active Policies in the side menu."><span class="glyphicon glyphicon-user" aria-hidden="true"></span><span class="hide-mob"> Recruit</span></button>
@@ -814,7 +814,7 @@
 		<div class="left-stats stats-container">
 
 			<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'left') {%>
-			    <button id="sidebar-main-trigger" class="btn btn-default pull-left left <%= left.get('color') %>" <% if(App.Utilities.activeSide() != 'left' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= left.get('empName') %> Menu" data-content="Shows game settings, empire actions, policies, and details about your empire's military and&nbsp;economy." aria-label="<%= left.get('empName') %> Empire Menu" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">
+			    <button id="sidebar-main-trigger" class="btn btn-default pull-left left <%= left.get('color') %>" <% if(App.Utilities.activeSide() != 'left' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= left.get('empName') %> Menu" data-content="Game settings, empire actions, policies, and details about your empire's military and&nbsp;economy." aria-label="<%= left.get('empName') %> Empire Menu" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">
 	        		<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> <span class="hide-mob">Menu</span>
 	      		</button>
 			<% } else { %>
@@ -841,7 +841,7 @@
 				
 				<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'left') {%>
 					<% var displayTaxRate = Math.round((100 * left.get('taxRate'))) + '%'; %>
-					<button data-side="left" class="no-btn changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Click to raise or lower the tax rate in your empire. Your current tax rate is&nbsp;<%= displayTaxRate %>." aria-label="Projected Tax Income: +$<%=displayLeftNextTreas%>. Activate to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">(+$<%=displayLeftNextTreas%>)</button>
+					<button data-side="left" class="no-btn changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Raise or lower the tax rate in your empire. Your current tax rate is&nbsp;<%= displayTaxRate %>." aria-label="Projected Tax Income: +$<%=displayLeftNextTreas%>. Activate to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">(+$<%=displayLeftNextTreas%>)</button>
 				<% } else {%>
 					<button data-side="left" class="no-btn changeTax animated" aria-label="Projected Tax Income: +$<%=displayLeftNextTreas%>. Activate to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">(+$<%=displayLeftNextTreas%>)</button>
 				<% } %>
@@ -849,10 +849,10 @@
 			</div>
 		</div>
 
-		<div class="turn-counter"><span class="glyphicon glyphicon-globe ic-<%=sideTurn%> ic-<%=App.Models.nationStats.get(App.Utilities.activeSide()).get('color') %>" aria-hidden="true"></span> Year: <%= currentTurn %>
+		<div class="turn-counter"><span class="glyphicon glyphicon-globe ic-<%=sideTurn%> ic-<%=App.Utilities.activeEmpire().get('color') %>" aria-hidden="true"></span> Year: <%= currentTurn %>
 
 			<% if (App.Models.battleMapModel.get('tipsMode')) {%>
-				<button class="btn btn-primary quitter newTurn" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="End Turn" data-content="Ends the current year for&nbsp;<%= App.Utilities.getActiveEmpireName() %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">End Turn</button>
+				<button class="btn btn-primary quitter newTurn" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="End Turn" data-content="End the current year for&nbsp;<%= App.Utilities.getActiveEmpireName() %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">End Turn</button>
 			<% } else { %>
 				<button class="btn btn-primary quitter newTurn" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">End Turn</button>
 			<% } %>
@@ -861,7 +861,7 @@
 		<div class="right-stats stats-container">
 
 			<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() === 'right') {%>
-				<button id="sidebar-secondary-trigger" class="btn btn-default pull-right right <%= right.get('color') %>" <% if(App.Utilities.activeSide() != 'right' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= right.get('empName') %> Menu" data-content="Shows game settings, empire actions, policies, and details about your empire's military and&nbsp;economy." aria-label="<%= right.get('empName') %> Empire Menu" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">
+				<button id="sidebar-secondary-trigger" class="btn btn-default pull-right right <%= right.get('color') %>" <% if(App.Utilities.activeSide() != 'right' || !_.isEmpty(App.Models.selectedTerrModel)) { %>disabled<%}%> data-toggle="popover" data-trigger="hover" data-placement="bottom" title="<%= right.get('empName') %> Menu" data-content="Game settings, empire actions, policies, and details about your empire's military and&nbsp;economy." aria-label="<%= right.get('empName') %> Empire Menu" tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">
 		      		<span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> <span class="hide-mob">Menu</span>
 		    	</button>
 			<% } else {%>
@@ -889,7 +889,7 @@
 
 				<% var displayTaxRate = Math.round(100 * right.get('taxRate')) + '%'; %>
 				<% if (App.Models.battleMapModel.get('tipsMode') && App.Utilities.activeSide() != 'left') {%>
-					<button data-side="right" class="no-btn changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Click to raise or lower the tax rate in your empire. Your current tax rate is&nbsp;<%= displayTaxRate %>." aria-label="Projected Tax Income: +$<%=displayRightNextTreas%>. Activate to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">(+$<%=displayRightNextTreas%>)</button>
+					<button data-side="right" class="no-btn changeTax animated" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Projected Tax Income" data-content="Raise or lower the tax rate in your empire. Your current tax rate is&nbsp;<%= displayTaxRate %>." aria-label="Projected Tax Income: +$<%=displayRightNextTreas%>. Activate to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">(+$<%=displayRightNextTreas%>)</button>
 				<% } else { %>
 					<button data-side="right" class="no-btn changeTax animated" aria-label="Projected Tax Income: +$<%=displayRightNextTreas%>. Activate to raise or lower the tax rate in your empire. Your current tax rate is <%= displayTaxRate %>." tabindex="<% if (!App.Models.nationStats.get('gameStarted')) { %>-1<% } %>">(+$<%=displayRightNextTreas%>)</button>
 				<% } %>
@@ -898,7 +898,7 @@
 		</div>
 
 		<%	
-			var side  = App.Models.nationStats.get(App.Utilities.activeSide());
+			var side  = App.Utilities.activeEmpire();
 			var mainOrSecondary = App.Utilities.activeSide() === 'left' ? 'main' : 'secondary';
 			var enemySide = App.Utilities.activeSide() === 'left' ? App.Models.nationStats.get('right') : App.Models.nationStats.get('left');
 		%>
@@ -916,11 +916,11 @@
 				  </button>
 				  <ul class="dropdown-menu sidebar-menu">
 
-				    <% if(side.get('repairAllInfrastructureCost') < side.get('treasury') && side.get('repairAllInfrastructureCost') > 0) {%>
+				    <% if(side.get('repairAllInfrastructureCost') < side.get('treasury') && side.get('repairAllInfrastructureCost') > 0 && side.hasInfDamageAndTurns()) {%>
 				    <li><button class="no-btn sideRebuildAllInf" tabindex="-1">Repair All Infrastucture</button></li>
 				    <% } %>
 
-				    <% if(side.get('repairAllFortCost') < side.get('treasury') && side.get('repairAllFortCost') > 0) {%>
+				    <% if(side.get('repairAllFortCost') < side.get('treasury') && side.get('repairAllFortCost') > 0 && side.hasFortDamageAndTurns()) {%>
 				    <li><button class="no-btn sideRebuildAllFort" tabindex="-1">Repair All Forts</button></li>
 				    <% } %>
 
@@ -968,10 +968,10 @@
 		      			
 						<% if (App.Models.battleMapModel.get('tipsMode')) {%>
 
-							<button data-side="<%= App.Utilities.activeSide() %>" class="no-btn changeTax" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Change Tax Rate" data-content="Raise or lower the tax rate in your&nbsp;empire." aria-label="Change tax rate. Current tax rate <%= (100 * side.get('taxRate')) %>%" tabindex="-1"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span><span class="hide-mob">Change</span></button>
+							<button data-side="<%= App.Utilities.activeSide() %>" class="no-btn changeTax" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Change Tax Rate" data-content="Raise or lower the tax rate in your&nbsp;empire." aria-label="Change tax rate. Current tax rate <%= (100 * side.get('taxRate')) %>%" tabindex="-1"><span class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></span><span class="hide-mob">Change</span></button>
 
 						<% } else { %>
-							<button data-side="<%= App.Utilities.activeSide() %>" class="no-btn changeTax" aria-label="Change tax rate. Current tax rate <%= (100 * side.get('taxRate')) %>%" tabindex="-1"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span><span class="hide-mob">Change</span></button>
+							<button data-side="<%= App.Utilities.activeSide() %>" class="no-btn changeTax" aria-label="Change tax rate. Current tax rate <%= (100 * side.get('taxRate')) %>%" tabindex="-1"><span class="glyphicon glyphicon-resize-vertical" aria-hidden="true"></span><span class="hide-mob">Change</span></button>
 						<% } %>
 
 		      		</p>
@@ -984,7 +984,6 @@
 
 		  			<p class="pop-tot">GDP: $<%= App.Utilities.addCommas(side.get('econOutput')) %></p>
 		  			<p class="small">Start GDP: $<%= App.Utilities.addCommas(side.get('econOutputStart')) %></p>
-					<p class="small">Avg Tech Level: <%= side.get('armyTechLvl') %></p>
 
 		  			<p class="pop-tot">Population: <%= App.Utilities.addCommas(side.get('econPopulationNow')) %></p>
 		  			<p class="small">Start Population: <%= App.Utilities.addCommas(side.get('econPopulationStart')) %></p>
@@ -1032,9 +1031,9 @@
 		  			<% } %>
 
 		  			<% if (App.Models.battleMapModel.get('tipsMode')) { %>
-	  					<p class="terr-tot" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Policies" data-content="Policies are tasks that can be carried out automatically throughout your empire with any leftover funds before the start of the each&nbsp;year."><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePolicies" aria-expanded="false" aria-controls="collapsePolicies" aria-label="Active Policies List. <%= side.get('activePolicyCount') %> out of <%= (App.Constants.POLICIES.length / 2) %> policies currently active. Activate to display a list of tasks that can be carried out automatically throughout your empire with leftover funds before the start of each year." tabindex="-1"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>Active Policies (<%= side.get('activePolicyCount') %> / <%= (App.Constants.POLICIES.length / 2) %>)</a></p>
+	  					<p class="terr-tot" data-toggle="popover" data-trigger="hover" data-placement="bottom" title="Policies" data-content="Policies are tasks that can be carried out automatically with leftover funds before each year&nbsp;starts."><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePolicies" aria-expanded="false" aria-controls="collapsePolicies" aria-label="Active Policies List. <%= side.get('activePolicyCount') %> out of <%= (App.Constants.POLICIES.length / 2) %> policies currently active. Activate to display a list of tasks that can be carried out automatically with leftover funds before each year starts." tabindex="-1"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>Active Policies (<%= side.get('activePolicyCount') %> / <%= (App.Constants.POLICIES.length / 2) %>)</a></p>
 	  				<% } else { %>
-						<p class="terr-tot"><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePolicies" aria-expanded="false" aria-controls="collapsePolicies" aria-label="Active Policies List. <%= side.get('activePolicyCount') %> policies active out of <%= (App.Constants.POLICIES.length / 2) %>. Activate to display a list of tasks that can be carried out automatically throughout your empire with leftover funds before the start of each year." tabindex="-1"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>Active Policies (<%= side.get('activePolicyCount') %> / <%= (App.Constants.POLICIES.length / 2) %>)</a></p>
+						<p class="terr-tot"><a class="collapsed" role="button" data-toggle="collapse" href="#collapsePolicies" aria-expanded="false" aria-controls="collapsePolicies" aria-label="Active Policies List. <%= side.get('activePolicyCount') %> policies active out of <%= (App.Constants.POLICIES.length / 2) %>. Activate to display a list of tasks that can be carried out automatically with leftover funds before each year starts." tabindex="-1"><span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span><span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>Active Policies (<%= side.get('activePolicyCount') %> / <%= (App.Constants.POLICIES.length / 2) %>)</a></p>
 	  				<% } %>
 
 	  				<div class="collapse" id="collapsePolicies">
@@ -1083,6 +1082,7 @@
 
 		  			<p class="pop-tot">Army Units: <%= App.Utilities.addCommas(side.get('armyPopulationNow')) %></p>
 		  			<p class="small">Start Army Units: <%= App.Utilities.addCommas(side.get('armyPopulationStart')) %></p>
+					<p class="small">Weapons Tech: Level <%= side.get('armyTechLvl') %></p>
 
 
 		  			<% if( (side.get('overallBattleWins') > 0 || side.get('overallBattleLosses') > 0)

@@ -14,6 +14,126 @@ RELEASE 4.0
  
 ===========================================================================
 Release Notes
+4.1 Beta
+Release Date 10/21/2018
+Priorities: Clarify Tech Level Concepts, Smarter AI, Bugfixes
+
+Enhancements
+
+1. UX/UI: Clarify Empire Tech Level Concept Epic
+	- 1.1 UI: Default notification message text now includes text that indicates boost to the economy
+	- 1.2 UI: When empire's tech level is close to advancing, launch an alternative notification
+	- 1.3 UI Enhancement: Added smart confirmation messages when Tech Level is upgraded.
+		- When army tech level increases "Technology Adavnces in" message displays
+		- Explains recruits and infrastructure repairs become more expensive
+		- Explains whether current empire has better equal or worse technology than the enemy
+
+	- 1.4 UX: Update game logic so that empire's tech level ONLY goes up
+		- Tech levels set in the same places they were now, just using updated logic
+
+		// Based on an accumulated technology score
+		// Each territory's tech level counts as a number of points
+		// Min required points to upgrade: half of territories (round up) at new level + other half (round down) at the previous level
+		// App.Collections.terrCollection.sideTechLevelPoints(s)
+		// App.Collections.terrCollection.minPointsToUpgrade(s)
+
+	- 1.5 UI: Upgrade Tech Level Modal
+		- Added text to indicate whether territory's tech level is at, above, or below average in the empire
+
+	- 1.6 UI: Policies Modal
+		- Removed redundant use of "Tech Level" text in Active Policies section
+		- Added "Tech Level" text to title instead
+
+	- 1.7 UI: Recruit Army Units Modal
+		- Added "Level 1" text to title to clarify distinction between territory and empire tech level impact
+
+	- 1.8 UI: Renamed the concept "Weapons Tech"
+		- Updated in Side Menu, Attack Modal, Upgrade Tech, and Final Score modals
+
+2. UX: Smarter AI player recruiting.
+	- No longer recruits when population is below a minimum
+	- Will now recruit at least 250,000 units or more if the enemy's average army size is that much or more
+
+3. UX: Smarter logic for the capital's turn.
+	- Only recruits until it is the last territory on the board. Then it will attack.
+	- If it invades, it will only send 10,000 units into the territory
+		- Ideally the AI player will be recruiting and will automatically pick up some units between turns
+
+4. UI: Cleaned up modal titles
+
+	- Budget Modal
+		- Removed empire name from title
+		- Title is now "CurrentYear National Budget"
+
+	- Change Tax Modal
+		- Removed empire name from title
+		- Removed empire name from title of tax change notification
+
+	- Change Empire/Territory name Modals
+		- Removed empire/territory names from titles
+
+6. UI: Game Start Screen
+	- Added Fullscreen control back to the game start screen.
+		- Too critical to bury in the Menu
+	- Changed Settings title to "Other Settings"
+	- Moved Beta release text to just above the social media icons
+	- Removed "off" vs "on" text logic in the settings checkbox labels
+
+7. UI: Side Menu: Active Policies
+	- Clicking a policy in the list will now automatically activate or deactivate it when the modal opens
+
+8. UI: Exposing the Policies
+	- Added context sensitive helper text and link to the Repair Infrastructure, Repair Fort, and Recruiting modals
+	- Text contains a link that opens the policies modal and activates the clicked policy
+	- Clarified role of policies and active policies, what they are and how they are paid for
+
+9. UI: Added small margins back to the modal windows.
+	Looked odd flush to the edges.
+
+10. UI: Sidebar Cleanup
+	- Replaced the "Edit" icon beside tax rate because I don't think it's intuitive
+	- In responsive views, when the "Change" text is hidden beside the tax rate, pulled the clickable budget icon and text up to the same line
+	- Moved the Tech Level label down to the Army Section and renamed it "Weapons Technology"
+
+11. UI: Fort Repair Modal
+	- Moved Level text into the title to be consistent with other modals
+
+12. UX: AI Logic - Repair All
+	- If Repair All Forts or Repair All Infrastructure is available, it will be clicked.
+		- Saves ~5s per territory after the first is selected
+		- With 8 territories, that's a difference of 1 min 20s per AI turn
+
+
+BUGFIXES
+
+- End of Game in Short and Long modes the mask layer was triggered making it impossible to click.
+	// Manually managing this was a bad solution.
+	// Refactored to simpler code
+	// In the auto-advance logic, checks whether we're in AI mode and if so (and on the right side), and if so, toggles the AI layer away
+	// In the end game logic, does the same thing
+	
+	- When AI player used it's last turn and the game automatically switches to the human player, it does not toggle the mask layer.
+
+- Repair All Fort + Repair All Infrastructure menu button would display during a turn if there was a territory that had already used its turn but needed repairs. 
+	- Created methods on the Emp's models of the nationStats model to return whether an empire has territories with turns that need repairs
+
+- Footer Recruit button displayed even when the population was too small to support it.
+
+- Removed top margin from first heading on Policies and Score modals
+
+- When AI player invaded an enemy territory that it has surrounded, the territory went into the infamous "click the next territory to start a transfer cycle" bug before ending the turn.
+
+- Starting GDP amount was off in long game mode due to an error in the restartSkip method
+
+TECHNICAL DEBT
+
+- Created utilities to standardize the way active and enemy empire models and sides are referred to
+	activeEmpire() getActiveEmpireName() enemyEmpire() enemyEmpireName()
+
+- Improved method of detecting Safari/iOS
+
+===========================================================================
+Release Notes
 4.0 Beta
 Release Date 10/6/2018
 

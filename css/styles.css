@@ -984,6 +984,11 @@ input[type=range] {
     left: 0;
     right: 0;
     bottom: 0; }
+  #setup .secondary-fullscreen-checkbox {
+    position: fixed;
+    bottom: 5px;
+    left: 15px;
+    z-index: 1051; }
   #setup .form-group {
     height: 40px;
     width: 460px;
@@ -1051,7 +1056,7 @@ input[type=range] {
     font-weight: bold; }
 
 .difficulty-slider-control {
-  width: 250px; }
+  width: 200px; }
   .difficulty-slider-control label {
     float: none; }
 
@@ -1107,8 +1112,8 @@ input[type=range] {
 
 .version-text {
   position: fixed;
-  bottom: 0;
-  left: 15px;
+  bottom: 25px;
+  right: 18px;
   z-index: 1; }
 
 /* Layout styles */
@@ -1349,32 +1354,36 @@ input[type=range] {
           margin: 0; }
         #nationStats .sidebar .sidebar-container .sidebar-section > h3 {
           margin-top: 10px; }
-        #nationStats .sidebar .sidebar-container .sidebar-section.army-sidebar .pop-tot + .small {
+        #nationStats .sidebar .sidebar-container .sidebar-section.army-sidebar .pop-tot {
+          margin-top: 0; }
+        #nationStats .sidebar .sidebar-container .sidebar-section.army-sidebar .pop-tot + .small + .small {
           margin-bottom: 10px; }
-        #nationStats .sidebar .sidebar-container .sidebar-section .glyphicon-edit {
-          font-size: 15px;
-          margin-left: 5px;
+        #nationStats .sidebar .sidebar-container .sidebar-section .glyphicon-resize-vertical {
+          font-size: 13px;
+          margin-left: 2px;
+          margin-right: 2px;
           top: 2px; }
-        #nationStats .sidebar .sidebar-container .sidebar-section .glyphicon-list,
-        #nationStats .sidebar .sidebar-container .sidebar-section .glyphicon-edit {
+        #nationStats .sidebar .sidebar-container .sidebar-section .glyphicon-list {
           margin-right: 5px; }
         #nationStats .sidebar .sidebar-container .sidebar-section .treasury-tot {
           float: none;
           display: inline-block;
-          font-size: 14px; }
+          font-size: 14px;
+          margin-bottom: 3px; }
           #nationStats .sidebar .sidebar-container .sidebar-section .treasury-tot + .small {
             margin-bottom: 3px; }
             #nationStats .sidebar .sidebar-container .sidebar-section .treasury-tot + .small + .small {
-              margin-bottom: 3px; }
+              display: inline-block;
+              margin-bottom: 3px;
+              margin-right: 10px; }
         #nationStats .sidebar .sidebar-container .sidebar-section .pop-tot {
-          margin-bottom: 3px; }
+          margin-bottom: 3px;
+          margin-top: 10px; }
           #nationStats .sidebar .sidebar-container .sidebar-section .pop-tot + .small {
             margin-bottom: 3px; }
         #nationStats .sidebar .sidebar-container .sidebar-section .changeTax {
           float: none;
           display: inline-block; }
-        #nationStats .sidebar .sidebar-container .sidebar-section .small {
-          margin-bottom: 10px; }
         #nationStats .sidebar .sidebar-container .sidebar-section .glyphicon-chevron-down {
           display: none; }
         #nationStats .sidebar .sidebar-container .sidebar-section .collapse:last-child .side-list {
@@ -1384,8 +1393,10 @@ input[type=range] {
           display: none; }
         #nationStats .sidebar .sidebar-container .sidebar-section .collapsed .glyphicon-chevron-down {
           display: inline-block; }
-    #nationStats .sidebar .changeTax,
     #nationStats .sidebar .budget {
+      display: block;
+      cursor: pointer; }
+    #nationStats .sidebar .changeTax {
       cursor: pointer;
       display: inline-block; }
     #nationStats .sidebar .sidebar-top {
@@ -1893,6 +1904,13 @@ input[type=range] {
   .modal-footer .btn:hover, .modal-footer .btn:focus {
     box-shadow: 2px 2px 6px #333; }
 
+.modal-link {
+  color: #337ab7;
+  text-decoration: underline; }
+  .modal-link:hover {
+    color: #337ab7;
+    text-decoration: underline; }
+
 /* Specific modal styles */
 #oneModal .fort-label {
   height: 34px;
@@ -1933,6 +1951,10 @@ input[type=range] {
     padding: 0; }
   #modal-msg > p:last-child {
     margin-bottom: 0; }
+  #modal-msg > h3 {
+    margin-top: 0; }
+  #modal-msg .final-rank + h2 {
+    margin-top: 0; }
 
 .noturns-msg {
   float: left;
@@ -2434,6 +2456,12 @@ input[type=range] {
   .small .army {
     height: 30vh;
     overflow: hidden; }
+  .small.selected.borderTop .army {
+    height: calc(30vh - 2px); }
+  .small.selected.borderTop.borderBottom .army {
+    height: calc(30vh - 4px); }
+  .small.selected.borderBottom .army {
+    height: calc(30vh - 2px); }
   #battleZone > .small {
     height: 30vh;
     width: 16.6667%; }
@@ -2504,7 +2532,9 @@ input[type=range] {
   .turn-counter .newTurn {
     font-size: 18px; }
   #military .rank-stars .glyphicon {
-    font-size: 12px; } }
+    font-size: 12px; }
+  #nationStats .sidebar .budget {
+    display: inline-block; } }
 
 @media screen and (max-width: 812px) {
   .difficulty-slider-control {
@@ -2605,7 +2635,7 @@ input[type=range] {
   .hide-med-phone {
     display: none; }
   .modal-dialog {
-    margin: 0; }
+    margin: 5px; }
   .audio-control {
     bottom: 60px;
     width: auto; }
@@ -2621,9 +2651,8 @@ input[type=range] {
     float: none;
     display: block; }
   .version-text {
-    text-align: left; }
-    .version-text .release-txt {
-      display: block; } }
+    text-align: left;
+    bottom: 50px; } }
 
 @media screen and (max-width: 580px) {
   .hide-sm-phones {

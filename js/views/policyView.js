@@ -34,13 +34,13 @@ App.Views.PolicyView = Backbone.View.extend({
 		if(!thisEl.hasClass('disabled')) {
 			var policyID = $(e.currentTarget).parent().parent().attr('data-enacted-id');
 			var currentPriority = parseInt($(e.currentTarget).parent().parent().attr('data-priority'));
-			var currPolicies = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
+			var currPolicies = App.Utilities.activeEmpire().get('activePolicies');
 			var reorderedIndex = _.indexOf(_.pluck(currPolicies, 'id'), policyID);
 
 			currPolicies[reorderedIndex].priority = currentPriority - 1;
 			currPolicies[(reorderedIndex - 1)].priority = currentPriority;
 			currPolicies = _.sortBy(currPolicies, 'priority');
-			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+			App.Utilities.activeEmpire().set({
 				'activePolicies': currPolicies,
 				'activePolicyChange' : true
 			});
@@ -53,13 +53,13 @@ App.Views.PolicyView = Backbone.View.extend({
 		if(!thisEl.hasClass('disabled')) {
 			var policyID = $(e.currentTarget).parent().parent().attr('data-enacted-id');
 			var currentPriority = parseInt($(e.currentTarget).parent().parent().attr('data-priority'));
-			var currPolicies = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
+			var currPolicies = App.Utilities.activeEmpire().get('activePolicies');
 			var reorderedIndex = _.indexOf(_.pluck(currPolicies, 'id'), policyID);
 
 			currPolicies[reorderedIndex].priority = currentPriority + 1;
 			currPolicies[(reorderedIndex + 1)].priority = currentPriority;
 			currPolicies = _.sortBy(currPolicies, 'priority');
-			App.Models.nationStats.get(App.Utilities.activeSide()).set({
+			App.Utilities.activeEmpire().set({
 				'activePolicies': currPolicies,
 				'activePolicyChange': true
 			});
@@ -67,11 +67,11 @@ App.Views.PolicyView = Backbone.View.extend({
 	},
 	showRecruits: function(e) {
 		var thisVal = parseInt($('#armyUnitsRange').val());
-		var policiesArr = App.Models.nationStats.get(App.Utilities.activeSide()).get('activePolicies');
+		var policiesArr = App.Utilities.activeEmpire().get('activePolicies');
 		var policyIndex = _.indexOf(_.pluck(policiesArr, 'id'), 'recruit_army');
 		policiesArr[policyIndex].amount = thisVal;
 
-		var perYearCost = App.Utilities.returnRecruitCost(policiesArr[policyIndex].amount) * App.Models.nationStats.get(App.Utilities.activeSide()).get('terrs').length;
+		var perYearCost = App.Utilities.returnRecruitCost(policiesArr[policyIndex].amount) * App.Utilities.activeEmpire().get('terrs').length;
 		$('#recruitsPerYearPol').text(App.Utilities.addCommas(thisVal));
 		$('#recruitPerYearPolCost').text(App.Utilities.addCommas(perYearCost));
 	}

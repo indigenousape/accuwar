@@ -46,16 +46,16 @@ App.Views.GameStart = Backbone.View.extend({
 		'change #randomMap' : 'toggleRandomMap',
 		'change #showTips' : 'toggleTips',
 		'click #howToPlayModal' : 'howToPlay',
-		'change #fullScreen' : 'toggleFullScreen',
-		'change #aiMode' : 'toggleAIMode'
+		'change .fullScreen' : 'toggleFullScreen',
+		'change .aiMode' : 'toggleAIMode'
 	},
 	howToPlay: function() {
 
 		var modalHTML = '<p><strong>Each player</strong> controls an empire made up of territories at opposite ends of the screen. Players take turns managing territories and attacking one another to expand their empires. <strong>The first player to invade the enemy\'s capital <span class="glyphicon glyphicon-star"></span> wins the&nbsp;game.</strong></p>'
 			+ ' <p><strong>Each territory</strong> contains army units and a fort to protect its citizens and infrastructure. Army units can be sent to reinforce allied territories or to '
-			+ ' attack neighboring enemies. To manage a territory, select it on the map and expand the window at the bottom of the screen.</p>'
-			+ ' <p><strong>Each empire</strong> collects taxes from its territories at the end of each year. Costs for repairs, recruiting, upgrades, and training are deducted from the treasury. Policies can be enabled to spend leftover funds automatically '
-			+ ' between turns. To see budget details, battle statistics, and policy information, visit the menu in the top corner of the game&nbsp;screen.</p>';
+			+ ' attack neighboring enemies. To manage a territory, select it on the map and expand the window at the bottom of the&nbsp;screen.</p>'
+			+ ' <p><strong>Each empire</strong> collects taxes from its territories at the end of each year. Costs for repairs, recruiting, upgrades, and training are deducted from the treasury. Policies can be enabled to spend leftover funds automatically after '
+			+ ' each year. To see budget details, battle statistics, and policy information, visit the menu in the top corner of the game&nbsp;screen.</p>';
 
 		var confModalModel = new App.Models.Modal({
 			title: 'How to Play',
@@ -68,18 +68,16 @@ App.Views.GameStart = Backbone.View.extend({
 
 	},
 	toggleAIMode: function(e) {
-		var isChecked = $(e.currentTarget)[0].checked;
-		if(!isChecked) {
+		var isAIMode = $(e.currentTarget)[0].value == "ai";
+		if(!isAIMode) {
 			App.Models.nationStats.set('aiMode', false);
 			App.Models.gameStartModel.set('aiMode', false);
-			$('#aiState').text('Off');
 			$('#empStartTxt').text('names');
 			$('.player2').show();
 			$('.ai-mode').removeClass('ai-mode');
 		} else {
 			App.Models.nationStats.set('aiMode', true);
 			App.Models.gameStartModel.set('aiMode', true);
-			$('#aiState').text('On');
 			$('#empStartTxt').text('name');
 			$('.player2').hide();
 			$('#leftName').trigger('keyup');
@@ -90,13 +88,11 @@ App.Views.GameStart = Backbone.View.extend({
 
 		if(!isChecked) {
 			App.Models.nationStats.set('fullScreen', false);
-			$('#fullScreenState').text('Off');
 			App.Models.gameStartModel.set('inFullScreen', false);
 			App.Utilities.exitFullScreen();
 		} else {
 			App.Models.nationStats.set('fullScreen', true);
 			App.Models.gameStartModel.set('inFullScreen', true);
-			$('#fullScreenState').text('On');
 			App.Utilities.launchFullScreen(document.documentElement);
 		}
 	},
@@ -107,7 +103,6 @@ App.Views.GameStart = Backbone.View.extend({
 		if(!isChecked) {
 			$('#ambientMusic')[0].pause();
 			App.Models.battleMapModel.set('audio', false);
-			$('#soundState').text('Off');
 		} else {
 			
 			if($('#ambientMusic').length === 0) {
@@ -126,7 +121,6 @@ App.Views.GameStart = Backbone.View.extend({
 
 			$('#ambientMusic')[0].play();
 			App.Models.battleMapModel.set('audio', true);
-			$('#soundState').text('On');
 		}
 
 	},
@@ -136,10 +130,8 @@ App.Views.GameStart = Backbone.View.extend({
 
 		if(!isChecked) {
 			App.Models.battleMapModel.set('randomMap', false);
-			$('#randomMapState').text('Off');
 		} else {
 			App.Models.battleMapModel.set('randomMap', true);
-			$('#randomMapState').text('On');
 		}
 
 	},
@@ -149,10 +141,8 @@ App.Views.GameStart = Backbone.View.extend({
 
 		if(!isChecked) {
 			App.Models.battleMapModel.set('tipsMode', false);
-			$('#tipsState').text('Off');
 		} else {
 			App.Models.battleMapModel.set('tipsMode', true);
-			$('#tipsState').text('On');
 		}
 
 	},
@@ -423,7 +413,7 @@ App.Views.GameStart = Backbone.View.extend({
 			App.Views.battleMap.notify({
 				icon: "glyphicon glyphicon-globe",
 				titleTxt : "War Declared!",
-				msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p>To change tax rates, enact policies, and see details about your empire click the menu button at the top corner of your screen.</p>",
+				msgTxt : specialModeText + "<p>Attack neighboring territories occupied by the enemy to expand your empire and take control of enemy resources. Invade the enemy capital ("+enemyCapital+") to win the&nbsp;game.</p><p><strong>To change tax rates, enact policies, and to see details about your empire<span class=\"show-mob\"> and treasury</span>, click the menu button beside your empire's name.</strong></p>",
 				msgType: "info",
 				delay: App.Constants.DELAY_INFINITE
 			});
