@@ -85,7 +85,7 @@ App.Views.ConfModal = Backbone.View.extend({
 			App.Views.battleMap.notify({
 				icon: 'glyphicon glyphicon-globe',
 				titleTxt : "Governor of " + App.Models.clickedTerrModel.get('name') + "&nbsp;Killed",
-				msgTxt : "Flags lowered as citizens gather to pay respects for local&nbsp;leader.",
+				msgTxt : "Flags lowered as citizens gather to pay respects to local&nbsp;leader.",
 				msgType: "success"
 			});
 		}

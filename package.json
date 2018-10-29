@@ -1,7 +1,7 @@
 {
   "name": "accuwar",
-  "version": "4.0.0",
-  "description": "Turn based strategy game and war simulator.",
+  "version": "4.2.0",
+  "description": "Turn based strategy game and battle simulator.",
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

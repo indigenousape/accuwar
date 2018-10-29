@@ -223,10 +223,10 @@
 
 			<!-- Single button -->
 			<div class="btn-group">
-			  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			  <button type="button" class="btn btn-default" data-toggle="collapse" aria-controls="gameMenu" aria-expanded="false" data-target="#gameMenu">
 			    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Menu
 			  </button>
-			  <ul class="dropdown-menu">
+			  <ul class="settings-menu collapse" id="gameMenu">
 			  	<li>
 			  		<label><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Other Settings</label>
 			  	</li>
@@ -308,7 +308,7 @@
 
 		<button id="declareWar" disabled>Declare War</button>
 
-		<p class="small text-muted version-text">Beta <span class="release-txt">4.1.0</span></p>
+		<p class="small text-muted version-text">Beta <span class="release-txt">4.2.0</span></p>
 		
 		<% if (!App.Utilities.isSafari()) { %>
 			<div class="secondary-fullscreen-checkbox">
@@ -432,7 +432,10 @@
 							<%= policies[i].title %>
 
 							<% if (policies[i].id === 'recruit_army') { %>
-								<input type="range" min="25000" value="<%= policies[i].amount %>" max="500000" step="25000" id="armyUnitsRange" class="form-control range-slider slider-<%= App.Utilities.activeSide()%> slider-<%= App.Utilities.activeEmpire().get('color') %>" aria-label="Recruits army units in all territories each turn.">
+
+								(Weapons Tech: Level <%= App.Utilities.activeEmpire().get('armyTechLvl') %>)
+
+								<input type="range" min="25000" value="<%= policies[i].amount %>" max="<%= App.Constants.RECRUITS_POLICY_MAX %>" step="25000" id="armyUnitsRange" class="form-control range-slider slider-<%= App.Utilities.activeSide()%> slider-<%= App.Utilities.activeEmpire().get('color') %>" aria-label="Recruits army units in all territories each turn.">
 								<span class="recruit-impact text-muted" tabindex="0"><span><span id="recruitsPerYearPol"><%= App.Utilities.addCommas(policies[i].amount) %></span> units per territory</span> <span>$<span id="recruitPerYearPolCost"><%= App.Utilities.addCommas(App.Utilities.returnRecruitCost(policies[i].amount) * App.Utilities.activeEmpire().get('terrs').length) %></span> total</span> <span class="clearfix"></span></span>
 							<% } %>
 

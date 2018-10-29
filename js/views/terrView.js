@@ -517,7 +517,7 @@ App.Views.Terr = Backbone.View.extend({
 			'<div class="col-xs-6 reinf-col pull-' + App.Models.clickedTerrModel.get('side') + ' '+App.Models.clickedTerrModel.get('color')+' modal-side-container">' + toStr + '</div><div class="clearfix"></div></div><div class="clearfix"></div>' + infraWarningHTML +
 			'<p class="form-text" id="send-label">How many army units would you like to send from ' + App.Models.selectedTerrModel.get('name') + ' to secure&nbsp;<span class="newTerrName">' + App.Models.clickedTerrModel.get('name') + '</span>?</p>';
 
-		var tpModalModel = new App.Models.Modal({
+		App.Models.tpModalModel = new App.Models.Modal({
 			title: '<span>'  + App.Models.clickedTerrModel.get('name') + '</span> invaded<span id="renameMsg"></span>!',
 			confBtnId: 'confInvasion',
 			modalMsg: messageHTML,
@@ -530,10 +530,11 @@ App.Views.Terr = Backbone.View.extend({
 			rangeMin: App.Constants.ATTACK_INVADE_ARMY_MINIMUM,
 			rangeMax: transferringUnitsMax,
 			rangeVal: transferringUnits,
-			showRange: true
+			showRange: true,
+			notification: App.Models.confModalModel.get('notification')
 		});
 
-		App.Views.tpModalView = new App.Views.TwoPromptModal({model: tpModalModel});
+		App.Views.tpModalView = new App.Views.TwoPromptModal({model: App.Models.tpModalModel});
 
 		$('#tp-input-2').val(App.Models.clickedTerrModel.get('name'));
 		

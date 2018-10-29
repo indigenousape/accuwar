@@ -201,8 +201,18 @@ App.Models.NationStats = Backbone.Model.extend({
  		var currLowTaxTurnLength = App.Utilities.activeSide() === 'left' ? leftLowTaxTurnLength : rightLowTaxTurnLength,
  			currGDPPenalty = App.Utilities.activeEmpire().get('econCrashPenalty');
 
+ 		// This is where notifications between turns should go
+
+ 		// If it's not an econCrash turn
  		if(!App.Utilities.activeEmpire().get('econCrash')) {
- 			App.Utilities.lowTaxNotification(currLowTaxTurnLength);
+
+ 			// If the low tax turn length is zero (standard) show the result of the random smart tips
+ 			if(currLowTaxTurnLength < 2) {
+ 				App.Utilities.tipsNotification();
+ 			} else {
+ 				App.Utilities.lowTaxNotification(currLowTaxTurnLength);
+ 			}
+
  		} else {
  			App.Utilities.crashNotification(currGDPPenalty);
  		}

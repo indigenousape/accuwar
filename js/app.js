@@ -1,8 +1,8 @@
  /*
  	[accuwar]: Turn-based Strategy Game
-	Release: 4.1.0 Beta
+	Release: 4.2.0 Beta
 	Author: Josh Harris
-	10/21/2018
+	10/28/2018
 */
 
 var startYear = new Date();
@@ -118,6 +118,7 @@ window.App = {
 			}
 		],
 		RECRUIT_ARMY_MINIMUM: 1000, // Minimum army units that can be recruited
+		RECRUITS_POLICY_MAX: 500000,
 		SCORE_ARMY_UNITS: 0.005,
 		SCORE_ECON_POPULATION: 0.0001,
 		SCORE_GDP: 0.00000001,
@@ -207,11 +208,12 @@ window.App = {
 			return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 		},
 		aiDoNextAttack: function() {
+
 			setTimeout(function() {
 				var borderTerrs = App.Collections.terrCollection.returnTerrsWithBorders('right');
-				if(borderTerrs.length > 0) {
+				if(borderTerrs.length > 0 && !App.Collections.terrCollection.hasTwoCapitals('right')) {
 					App.Utilities.nextAttack(borderTerrs[0].cid);
-				} else {
+				} else if (!App.Collections.terrCollection.hasTwoCapitals('right')) {
 					App.Utilities.aiEndTurn();
 				}
 			}, 1200);
@@ -231,13 +233,13 @@ window.App = {
 			
 			if(App.Models.battleMapModel.get('territories') === 9) {
 
-				if(score >= 320000) {
+				if(score >= 500000) {
 					rankStars = 5;			
-				} else if(score >= 240000 && score < 320000) {
+				} else if(score >= 400000 && score < 500000) {
 					rankStars = 4;			
-				} else if(score >= 160000 && score < 240000) {
+				} else if(score >= 300000 && score < 400000) {
 					rankStars = 3;
-				} else if (score >= 80000 && score < 160000) {
+				} else if (score >= 200000 && score < 300000) {
 					rankStars = 2;
 				} else {
 					rankStars = 1;
@@ -659,6 +661,111 @@ window.App = {
 			} else if (element.msRequestFullscreen) {
 				element.msRequestFullscreen();
 			}
+		},
+		tipsNotification: function() {
+			var msgTitle = "",
+				msgText = "",
+				msgsArr = [],
+				msgObj = {};
+
+			if(App.Utilities.activeEmpire().get('activePolicyCount') === 0) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Advisors Recommend Activating&nbsp;Policies",
+					msgText: "Automate repairs, recruiting, and upgrades between turns by activating&nbsp;policies."
+				}
+				msgsArr.push(msgObj);
+			}
+
+			if(App.Utilities.enemyEmpire().get('armyTechLvl') - App.Utilities.activeEmpire().get('armyTechLvl') > 0 && App.Utilities.enemyEmpire().get('armyTechLvl') - App.Utilities.activeEmpire().get('armyTechLvl') < 3) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Generals Recommend Technology&nbsp;Upgrades",
+					msgText: "\"Our units are fighting with oudated weapons! Invest in technology to give our forces better&nbsp;odds!\""
+				}
+				msgsArr.push(msgObj);
+			} else if (App.Utilities.enemyEmpire().get('armyTechLvl') - App.Utilities.activeEmpire().get('armyTechLvl') >= 3) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Generals Demand Technology&nbsp;Upgrades",
+					msgText: "\"Our units are fighting with completely oudated weapons! Invest in technology to give our forces a&nbsp;chance!\""
+				}
+				msgsArr.push(msgObj);
+			} else if (App.Utilities.enemyEmpire().get('armyTechLvl') - App.Utilities.activeEmpire().get('armyTechLvl') === 0) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Advisors Recommend Technology&nbsp;Upgrades",
+					msgText: "\"We must invest in technology to give our forces an advantage on the&nbsp;battlefield!\""
+				}
+				msgsArr.push(msgObj);
+			} else if (App.Models.nationStats.get('currentTurn') - App.Constants.START_TURN > 2) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Advisors Recommend Technology&nbsp;Upgrades",
+					msgText: "\"We must continue to invest in technology to maintain our advantage on the&nbsp;battlefield!\""
+				}
+				msgsArr.push(msgObj);
+			}
+
+			if(App.Utilities.activeEmpire().get('repairAllInfrastructureCost') > 0) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Governors Advise Repairing&nbsp;Infrastructure",
+					msgText: "\"It always pays to repair damaged&nbsp;infrastructure!\""
+				}
+				msgsArr.push(msgObj);
+			}
+
+			if(App.Utilities.activeEmpire().get('repairAllFortCost') > 0) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Governors Advise Repairing&nbsp;Forts",
+					msgText: "\"Nothing improves morale for citizens and army units more than repairing the forts that protect&nbsp;them!\""
+				}
+				msgsArr.push(msgObj);
+			}
+
+			if(App.Models.nationStats.get('currentTurn') - 3 > App.Constants.START_TURN && App.Utilities.activeEmpire().get('taxRate') < App.Constants.HIGH_TAX_MORALE_AMT && App.Utilities.activeEmpire().get('treasury') < (App.Utilities.activeEmpire().get('nextTreasuryAddedEst') * 1.25)) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Advisors Recommend Raising&nbsp;Taxes",
+					msgText: "\"We are running low on funds each year. Perhaps it's time to raise&nbsp;taxes\""
+				}
+				msgsArr.push(msgObj);
+			}
+
+			if(App.Utilities.activeEmpire().get('armyPopulationNow') < App.Utilities.enemyEmpire().get('armyPopulationNow') * 0.75) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Generals Demand Recruiting&nbsp;Drive",
+					msgText: "\"The enemy's army vastly outnumbers our own! We must recruit to gain an edge on the&nbsp;battlefield!\""
+				}
+				msgsArr.push(msgObj);
+			} else if (App.Utilities.activeEmpire().get('armyPopulationNow') < App.Utilities.enemyEmpire().get('armyPopulationNow')) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Generals Support Recruiting&nbsp;Drive",
+					msgText: "\"The enemy's army outnumbers our own! We must recruit to gain an&nbsp;advantage!\""
+				}
+				msgsArr.push(msgObj);
+			} else if (App.Utilities.activeEmpire().get('armyPopulationNow') < (App.Utilities.enemyEmpire().get('armyPopulationNow') * 1.25)) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Generals Advise Recruiting&nbsp;Drive",
+					msgText: "\"The enemy's army nearly outnumbers our own! We must recruit to maintain our advantage on the&nbsp;battlefield!\""
+				}
+				msgsArr.push(msgObj);
+			}
+
+			if(App.Utilities.activeEmpire().get('overallRecruits') === 0) {
+				msgObj = {
+					msgTitle: this.randomSource() + ": Generals Support Recruiting&nbsp;Drive",
+					msgText: "\"The empire's army must grow to gain an advantage over the&nbsp;enemy.\""
+				}
+				msgsArr.push(msgObj);
+			}
+
+			if(msgsArr.length > 0) {
+
+				var pulledMsgIndex = _.random(0, (msgsArr.length - 1));
+
+				App.Views.battleMap.notify({
+					icon: "glyphicon glyphicon-globe",
+					titleTxt : msgsArr[pulledMsgIndex].msgTitle,
+					msgTxt : msgsArr[pulledMsgIndex].msgText
+				});
+
+			}
+
 		},
 		lowTaxNotification: function(lowTaxTurnLength) {
 
@@ -1137,187 +1244,316 @@ window.App = {
 
 
 		},
-		nextAttack: function(terrCID) {
+		aiRecruitPoliciesTreasuryMax: function() {
+			return Math.max(App.Utilities.getTreasury() * 0.5 - App.Utilities.activeEmpire().get('repairAllInfrastructureCost') - App.Utilities.activeEmpire().get('repairAllFortCost'), 0);
+		},
+		aiPoliciesTurnLogic: function() {
+			var polArr = _.where(App.Utilities.activeEmpire().get('activePolicies'), {side: App.Utilities.activeSide()});
+			var clickedPolIndexInSidePolicies = _.pluck(polArr, 'id');
+			var indexInSidePolicies = _.indexOf(clickedPolIndexInSidePolicies, 'recruit_army');
+			var startRecruitAmt = polArr[indexInSidePolicies].amount;
+			var recruitingIsActive = polArr[indexInSidePolicies].priority != 0;
+			var doRecruit = Math.random() > 0.33;
+			var startRecruiting = doRecruit && !recruitingIsActive;
+			var stopRecruiting = !doRecruit && recruitingIsActive;
+			var recruitAmt = 0;
 
-			if(App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0) {
-				setTimeout(function() {
+			if (!stopRecruiting) {
+				recruitAmt = App.Constants.RECRUIT_ARMY_MINIMUM,
+				estCost = App.Utilities.returnRecruitCost(recruitAmt) * App.Utilities.activeEmpire().get('terrs').length,
+				affordable = App.Utilities.aiRecruitPoliciesTreasuryMax() > estCost;
 
-					// is selected territory (represented by terrCID) in the border territories array?
-					// if it is, ignore the statement below and let it remain selected
-					// App.Collections.terrCollection.returnTerrsWithBorders('right')
-					var selectedTerrHasBorder = _.isEmpty(App.Views.selectedTerrView) ? false : _.some(App.Collections.terrCollection.returnTerrsWithBorders('right'), function(model) { return model.cid === terrCID });
-
-					if(_.isEmpty(App.Views.selectedTerrView) || (App.Models.selectedTerrModel.cid != terrCID && selectedTerrHasBorder)) {
-						App.Collections.terrCollection.returnSelectedView(terrCID).terrClick();
+				if(affordable) {
+					while (affordable) {
+						recruitAmt += App.Constants.RECRUIT_ARMY_MINIMUM,
+						estCost = App.Utilities.returnRecruitCost(recruitAmt) * App.Utilities.activeEmpire().get('terrs').length,
+						affordable = App.Utilities.aiRecruitPoliciesTreasuryMax() > estCost;
 					}
 
-					var repairInfraFirst = App.Models.selectedTerrModel.get('econStrength') < 100 ? App.Models.nationStats.get('right').get('treasury') > App.Utilities.returnEconStrengthCost(App.Models.selectedTerrModel) : false,
-						repairFortFirst = App.Models.selectedTerrModel.get('fortStrength') < 100 ? App.Models.nationStats.get('right').get('treasury') > App.Utilities.returnFortStrengthCost(App.Models.selectedTerrModel) : false,
-						readyToAttack = App.Utilities.returnTerritoryCanAttack(App.Models.selectedTerrModel) && !repairInfraFirst && !repairFortFirst && !App.Models.selectedTerrModel.get('isCapital'),
-						capitalIsAlone = App.Models.selectedTerrModel.get('isCapital') && App.Utilities.activeEmpire().get('terrs').length == 1,
-						avgEnemyArmySize = Math.round(App.Models.nationStats.get('left').get('armyPopulationNow') / App.Models.nationStats.get('left').get('terrs').length);
+					if (!affordable) {
+						recruitAmt -= recruitAmt % 25000,
+						affordable = true,
+						estCost = App.Utilities.returnRecruitCost(recruitAmt) * App.Utilities.activeEmpire().get('terrs').length;
+					}
+				}
+			}
 
-					// If the territory CAN attack and has full infrastructure and fort strength AND
-					// it's not the capital, proceed with the attack
-					if(readyToAttack || capitalIsAlone) {
+			if(recruitAmt > App.Constants.RECRUITS_POLICY_MAX) {
+				recruitAmt = App.Constants.RECRUITS_POLICY_MAX;
+			}
+
+			var changeRecruiting = polArr[indexInSidePolicies].priority != 0 && polArr[indexInSidePolicies].amount != recruitAmt;
+
+			var obj = {
+				endRecruitPol: stopRecruiting,
+				startRecruitPol: startRecruiting,
+				updateRecruitVal: changeRecruiting,
+				howManyRecruits: recruitAmt
+			}
+
+			return obj;
+
+		},
+		aiPoliciesTurn: function() {
+
+			// Randomly set the recruiting policy off and on
+			// Turn infrastructure and fort repairs on during the first turn
+			// Turn recruiting on if it the random variable makes it work out that way
+			// If recruiting has started
+			//	determine whether to turn off recruiting or to change the recruit amount
+			// Recruit amount should be related to the treasury, recruit cost, and the number of territories
+			// Need to namespace some methods so that we don't have to repeat code in the timeouts
+			var aiPoliciesTurnObj = App.Utilities.aiPoliciesTurnLogic();
+
+			if(App.Constants.START_TURN === App.Models.nationStats.get('currentTurn') || (aiPoliciesTurnObj.startRecruitPol || aiPoliciesTurnObj.endRecruitPol || aiPoliciesTurnObj.updateRecruitVal)) {
+				setTimeout(function() {
+
+					if(aiPoliciesTurnObj.startRecruitPol || aiPoliciesTurnObj.endRecruitPol || aiPoliciesTurnObj.updateRecruitVal || App.Constants.START_TURN === App.Models.nationStats.get('currentTurn')) {
+
+						var btnEl = $("." + App.Utilities.activeSide() + "-stats .btn." + App.Utilities.activeSide());
+
+						btnEl.click();
+
 						setTimeout(function() {
-							// Grab the territories in range sorted by the lowest morale, then by lowest population so the smallest are at the start of the array
-							var inRangeTerrs = App.Collections.terrCollection.returnTerrsInRange('left');
 
-							if(inRangeTerrs.length > 0 && App.Utilities.enoughPopToInvade(App.Models.selectedTerrModel)) {
-
-								// Get the territory to attack from the group (if there is one) by passing it to the utility
-								var defendingTerrCID = App.Utilities.attackThisTerr(inRangeTerrs);
-								
-								// If you don't have half as many units as you need to keep your civilian morale up, recruit units
-								// otherwise attack
-								if(defendingTerrCID && App.Models.selectedTerrModel.get('armyPopulation') >= (App.Constants.MIN_ARMY_FOR_MORALE / 2)) {
-									App.Collections.terrCollection.returnSelectedView(defendingTerrCID).terrClick();
-
-									setTimeout(function() {
-										$('#confAttack').click();
-
-										setTimeout(function() {
-											$('#battleNot').click();
-
-											if (App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0 && !App.Collections.terrCollection.hasTwoCapitals('right')) {
-
-												setTimeout(function() {
-
-													if($('#invasionStep').length > 0) {
-														setTimeout(function() {
-															$('#invasionStep').click();
-
-															setTimeout(function() {
-
-																if($('#repairInvInfra').length > 0) {
-																	$('#repairInvInfra').click();
-																}
-
-																// Do not repair forts if invading when the capital is by itself
-																if($('#repairInvFort').length > 0 && !capitalIsAlone) {
-																	$('#repairInvFort').click();
-																}
-
-																// If you've invaded from the capital when it's the only territory left
-																// it should move only the minimum amount of troops out of the territory
-																// All other situtations territories should send the maximum
-
-																if(!capitalIsAlone) {
-																	$('#tp-input-1').val($('#tp-input-1').attr('max'));	
-																} else {
-																	$('#tp-input-1').val($('#tp-input-1').attr('min'));
-																}
-																
-																App.Views.tpModalView.showReinforcementResult();
-
-																setTimeout(function() {
-																	$('#confInvasion').click();
-
-																	// If you're not at the capital, start the cycle again
-																	if(!App.Models.clickedTerrModel.get('isCapital')) {
-																		App.Utilities.aiDoNextAttack();
-																	}
-
-																}, 1800);
-
-															}, 2000);
-
-														}, 2400);
-
-													} else if (!App.Collections.terrCollection.hasTwoCapitals('right')) {
-														App.Utilities.aiDoNextAttack();
-													}
-													
-												}, 2400);
-
-											}
-												
-
-										}, 3000);
-
-									}, 3000);
-								} else if ($('#recruitUnits').length > 0) {
-									App.Utilities.recruitForMorale(terrCID);
-								}
-
-							} else {
+							$(".sidebar-container .btn-group .dropdown-toggle").click();
 
 								setTimeout(function() {
 
-									if($('#investEconStr').length > 0) {
-
-										App.Utilities.aiRepairInfrastructure();
-
-									} else if($('#repairFort').length > 0) {
-										
-										App.Utilities.aiRepairFort();
-
-									} else if ($('#recruitUnits').length > 0) {
-
-										App.Utilities.recruitForMorale(terrCID);								
-
-									} else if ($('#trainArmy').length > 0) {
-										// Never reached
-										$('#trainArmy').click();
+									$(".sidebar-menu .policy").click();
 
 										setTimeout(function() {
-											$('#trainTerrArmyXP').click();
-											App.Utilities.aiDoNextAttack();
+
+											if(!$("#repair_infra").attr("checked")) {
+												$("#repair_infra").click();
+											}
+
+											if(!$("#repair_forts").attr("checked")) {
+												$("#repair_forts").click();
+											}
+
+											if(aiPoliciesTurnObj.startRecruitPol && !$("#recruit_army").attr("checked")) {
+												$("#recruit_army").click()
+
+											} else if (aiPoliciesTurnObj.endRecruitPol && $("#recruit_army").attr("checked")) {
+												// App.Utilities.togglePolicy('recruit_army', false);
+												$("#recruit_army").click();
+											}
+
+											// If the recruit amount is greater than zero
+											if(aiPoliciesTurnObj.howManyRecruits > 0 && (aiPoliciesTurnObj.startRecruitPol || aiPoliciesTurnObj.updateRecruitVal)) {
+												setTimeout(function() {
+													$("#armyUnitsRange").val(aiPoliciesTurnObj.howManyRecruits);
+													App.Views.policiesView.showRecruits();
+
+													setTimeout(function() {
+														$("#confUpdatePolicy").click();
+														App.Utilities.aiDoNextAttack();
+													}, 2400);
+
+												}, 1200);
+											} else {
+												setTimeout(function() {
+													$("#confUpdatePolicy").click();
+													App.Utilities.aiDoNextAttack();
+												}, 2400);
+											}
+
 										}, 1200);
 
-									} else {
-										setTimeout(function() {
-											App.Utilities.aiEndTurn();
-										}, 1200);
-									}
+								}, 1200);
 
-								}, 2000);
-
-								// What about when you need units to be able to attack???
-
-							}
-
-
-						}, 2400);
-					} else if(App.Utilities.enoughPopToAttack(App.Models.selectedTerrModel) && ($('#investEconStr').length > 0 || $('#repairFort').length > 0)) {
-						// If the territory has enough units to attack, but can afford to repair forts or infrastructure
-						// first
-
-						setTimeout(function() {
-							if($('#investEconStr').length > 0) {
-								App.Utilities.aiRepairInfrastructure();
-							} else if($('#repairFort').length > 0) {
-								App.Utilities.aiRepairFort();
-							}
-
-						}, 2000);
-
-					} else if ($('#recruitUnits').length > 0 && (App.Models.selectedTerrModel.get('armyPopulation') < App.Constants.MIN_ARMY_FOR_MORALE || App.Models.selectedTerrModel.get('isCapital'))) {
-						// Doesn't have enough units to attack, roads and forts are in good shape
-						// Recruit units
-						App.Utilities.recruitForMorale(terrCID);
-
-					} else if ($('#trainArmy').length > 0 && App.Models.selectedTerrModel.get('armyPopulation') < App.Constants.MIN_ARMY_FOR_MORALE) {
-						// This condition is never reached
-						// Not sure how I want training units to fit in yet, will definitely be an "advanced" feature
-
-						$('#trainArmy').click();
-
-						setTimeout(function() {
-							$('#trainTerrArmyXP').click();
-							App.Utilities.aiDoNextAttack();
 						}, 1200);
 
 					} else {
-
-						setTimeout(function() {
-							App.Utilities.aiEndTurn();
-						}, 1600);
+						App.Utilities.aiDoNextAttack();
 					}
 
-				}, 1600);
+				}, 1200);
+			} else {
+				App.Utilities.aiDoNextAttack();
 			}
+
+		},
+		nextAttack: function(terrCID) {
+
+			setTimeout(function() {
+
+				// is selected territory (represented by terrCID) in the border territories array?
+				// if it is, ignore the statement below and let it remain selected
+				// App.Collections.terrCollection.returnTerrsWithBorders('right')
+				var selectedTerrHasBorder = _.isEmpty(App.Views.selectedTerrView) ? false : _.some(App.Collections.terrCollection.returnTerrsWithBorders('right'), function(model) { return model.cid === terrCID });
+
+				if(_.isEmpty(App.Views.selectedTerrView) || (App.Models.selectedTerrModel.cid != terrCID && selectedTerrHasBorder)) {
+					App.Collections.terrCollection.returnSelectedView(terrCID).terrClick();
+				}
+
+				var repairInfraFirst = App.Models.selectedTerrModel.get('econStrength') < 100 ? App.Models.nationStats.get('right').get('treasury') > App.Utilities.returnEconStrengthCost(App.Models.selectedTerrModel) : false,
+					repairFortFirst = App.Models.selectedTerrModel.get('fortStrength') < 100 ? App.Models.nationStats.get('right').get('treasury') > App.Utilities.returnFortStrengthCost(App.Models.selectedTerrModel) : false,
+					readyToAttack = App.Utilities.returnTerritoryCanAttack(App.Models.selectedTerrModel) && !repairInfraFirst && !repairFortFirst && !App.Models.selectedTerrModel.get('isCapital'),
+					capitalIsAlone = App.Models.selectedTerrModel.get('isCapital') && App.Utilities.activeEmpire().get('terrs').length == 1,
+					avgEnemyArmySize = Math.round(App.Models.nationStats.get('left').get('armyPopulationNow') / App.Models.nationStats.get('left').get('terrs').length);
+
+				// If the territory CAN attack and has full infrastructure and fort strength AND
+				// it's not the capital, proceed with the attack
+				if(readyToAttack || capitalIsAlone) {
+					setTimeout(function() {
+						// Grab the territories in range sorted by the lowest morale, then by lowest population so the smallest are at the start of the array
+						var inRangeTerrs = App.Collections.terrCollection.returnTerrsInRange('left');
+
+						if(inRangeTerrs.length > 0 && App.Utilities.enoughPopToInvade(App.Models.selectedTerrModel)) {
+
+							// Get the territory to attack from the group (if there is one) by passing it to the utility
+							var defendingTerrCID = App.Utilities.attackThisTerr(inRangeTerrs);
+							
+							// If you don't have half as many units as you need to keep your civilian morale up, recruit units
+							// otherwise attack
+							if(defendingTerrCID && App.Models.selectedTerrModel.get('armyPopulation') >= (App.Constants.MIN_ARMY_FOR_MORALE / 2)) {
+								App.Collections.terrCollection.returnSelectedView(defendingTerrCID).terrClick();
+
+								setTimeout(function() {
+									$('#confAttack').click();
+
+									setTimeout(function() {
+										$('#battleNot').click();
+
+										if (App.Collections.terrCollection.getSideTerritoriesWithTurns('right').length > 0 && !App.Collections.terrCollection.hasTwoCapitals('right')) {
+
+											setTimeout(function() {
+
+												if($('#invasionStep').length > 0) {
+													setTimeout(function() {
+														$('#invasionStep').click();
+
+														setTimeout(function() {
+
+															if($('#repairInvInfra').length > 0) {
+																$('#repairInvInfra').click();
+															}
+
+															// Do not repair forts if invading when the capital is by itself
+															if($('#repairInvFort').length > 0 && !capitalIsAlone) {
+																$('#repairInvFort').click();
+															}
+
+															// If you've invaded from the capital when it's the only territory left
+															// it should move only the minimum amount of troops out of the territory
+															// All other situtations territories should send the maximum
+
+															if(!capitalIsAlone) {
+																$('#tp-input-1').val($('#tp-input-1').attr('max'));	
+															} else {
+																$('#tp-input-1').val($('#tp-input-1').attr('min'));
+															}
+															
+															App.Views.tpModalView.showReinforcementResult();
+
+															setTimeout(function() {
+																$('#confInvasion').click();
+
+																// If you're not at the capital, start the cycle again
+																if(!App.Models.clickedTerrModel.get('isCapital')) {
+																	App.Utilities.aiDoNextAttack();
+																}
+
+															}, 1800);
+
+														}, 2000);
+
+													}, 2400);
+
+												} else if (!App.Collections.terrCollection.hasTwoCapitals('right')) {
+													App.Utilities.aiDoNextAttack();
+												}
+												
+											}, 2400);
+
+										}
+											
+
+									}, 3000);
+
+								}, 3000);
+							} else if ($('#recruitUnits').length > 0) {
+								App.Utilities.recruitForMorale(terrCID);
+							}
+
+						} else {
+
+							setTimeout(function() {
+
+								if($('#investEconStr').length > 0) {
+
+									App.Utilities.aiRepairInfrastructure();
+
+								} else if($('#repairFort').length > 0) {
+									
+									App.Utilities.aiRepairFort();
+
+								} else if ($('#recruitUnits').length > 0) {
+
+									App.Utilities.recruitForMorale(terrCID);								
+
+								} else if ($('#trainArmy').length > 0) {
+									// Never reached
+									$('#trainArmy').click();
+
+									setTimeout(function() {
+										$('#trainTerrArmyXP').click();
+										App.Utilities.aiDoNextAttack();
+									}, 1200);
+
+								} else {
+									setTimeout(function() {
+										App.Utilities.aiEndTurn();
+									}, 1200);
+								}
+
+							}, 2000);
+
+							// What about when you need units to be able to attack???
+
+						}
+
+
+					}, 2400);
+				} else if(App.Utilities.enoughPopToAttack(App.Models.selectedTerrModel) && ($('#investEconStr').length > 0 || $('#repairFort').length > 0)) {
+					// If the territory has enough units to attack, but can afford to repair forts or infrastructure
+					// first
+
+					setTimeout(function() {
+						if($('#investEconStr').length > 0) {
+							App.Utilities.aiRepairInfrastructure();
+						} else if($('#repairFort').length > 0) {
+							App.Utilities.aiRepairFort();
+						}
+
+					}, 2000);
+
+				} else if ($('#recruitUnits').length > 0 && (App.Models.selectedTerrModel.get('armyPopulation') < App.Constants.MIN_ARMY_FOR_MORALE || App.Models.selectedTerrModel.get('isCapital'))) {
+					// Doesn't have enough units to attack, roads and forts are in good shape
+					// Recruit units
+					App.Utilities.recruitForMorale(terrCID);
+
+				} else if ($('#trainArmy').length > 0 && App.Models.selectedTerrModel.get('armyPopulation') < App.Constants.MIN_ARMY_FOR_MORALE) {
+					// This condition is never reached
+					// Not sure how I want training units to fit in yet, will definitely be an "advanced" feature
+
+					$('#trainArmy').click();
+
+					setTimeout(function() {
+						$('#trainTerrArmyXP').click();
+						App.Utilities.aiDoNextAttack();
+					}, 1200);
+
+				} else {
+
+					setTimeout(function() {
+						App.Utilities.aiEndTurn();
+					}, 1600);
+				}
+
+			}, 1600);
 
 		},
 		recruitForMorale: function(terrCID) {
@@ -1364,7 +1600,7 @@ window.App = {
 						while (affordable) {
 							amt += App.Constants.RECRUIT_ARMY_MINIMUM,
 							estCost = App.Utilities.returnRecruitCost(amt),
-							affordable = App.Utilities.getTreasury() * 0.25 > estCost && amt < App.Utilities.recruitMax();
+							affordable = App.Utilities.getTreasury() * 0.2 > estCost && amt < App.Utilities.recruitMax();
 						}
 
 						amt -= App.Constants.RECRUIT_ARMY_MINIMUM,
@@ -1467,18 +1703,21 @@ window.App = {
 			var title = '',
 				adjArr = [],
 				isSkirmish = (obj.attCasRate < 0.05 && obj.defCasRate < 0.05) || obj.defArmyCas < 5000 && obj.attArmyCas < 5000,
-				destroyArr = ['Annihilates', 'Nearly Destroys', 'Devastates', 'Wipes Out', 'Massacres', 'Slaughters', 'Decimates', 'Demolishes', 'Butchers', 'Mows Down', 'Obliterates'],
-				blowOutArr = ['Clobbers', 'Thrashes', 'Overpowers', 'Shreds', 'Trounces', 'Overwhelms', 'Beats Up', 'Dominates', 'Shatters', 'Crushes'],
-				winArr = ['Defeats', 'Blitzes', 'Whips', 'Assaults', 'Hammers', 'Bruises', 'Beats', 'Pummels', 'Ambushes', 'Pounds', 'Routes', 'Hits', 'Shells', 'Attacks'],
-				closeWinArr = ['Narrowly Defeats', 'Edges', 'Barely Beats'],
+				invadedArr = ['Destroys', 'Overruns', 'Wipes Out','Triumphs Over', 'Overwhelms', 'Invades'],
+				destroyArr = ['Annihilates', 'Nearly Destroys', 'Devastates', 'Massacres', 'Slaughters', 'Decimates', 'Demolishes', 'Butchers', 'Mows Down', 'Obliterates', 'Lays Waste to', 'Savages'],
+				blowOutArr = ['Clobbers', 'Thrashes', 'Overpowers', 'Shreds', 'Trounces', 'Beats Up', 'Dominates', 'Shatters', 'Crushes', 'Smashes', 'Rocks', 'Tramples'],
+				winArr = ['Defeats', 'Blitzes', 'Whips', 'Assaults', 'Hammers', 'Bruises', 'Beats', 'Pummels', 'Ambushes', 'Pounds', 'Routes', 'Hits', 'Shells', 'Attacks', 'Punishes'],
+				closeWinArr = ['Narrowly Defeats', 'Edges', 'Barely Beats', 'Duels with'],
 				closeWinHighCasArr = ['Outlasts', 'Outfights', 'Outmaneuvers', 'Outflanks'],
 				skirmishWinArr = ['Skirmishes with', 'Clashes with', 'Raids', 'Trades Mortars with', 'Exchanges Artillery Fire with', 'Exchanges Rocket Fire with'],
-				defWinArr = ['Repels', 'Defeats', 'Beats', 'Routes', 'Fends Off', 'Holds Off', 'Beats Back', 'Drives Back', 'Pushes Back', 'Fights Off'];
+				defWinArr = ['Repels', 'Defeats', 'Beats', 'Routes', 'Fends Off', 'Holds Off', 'Beats Back', 'Drives Back', 'Pushes Back', 'Fights Off', 'Stands Up to'];
 
 			if (obj.attCasRate < obj.defCasRate) {
 
 				if (isSkirmish) {
 					adjArr = skirmishWinArr;
+				} else if (obj.defCasRate === 1) {
+					adjArr = invadedArr;
 				} else if (obj.defCasRate - obj.attCasRate < 0.1 && obj.defCasRate < 0.75 && obj.attCasRate < 0.75) {
 					adjArr = closeWinArr;
 				} else if (obj.defCasRate - obj.attCasRate < 0.1 && obj.defCasRate >= 0.75 && obj.attCasRate >= 0.75) {

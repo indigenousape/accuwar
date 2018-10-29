@@ -250,6 +250,8 @@ App.Views.TwoPromptModal = Backbone.View.extend({
 					msgType: "success"
 				});
 
+				App.Views.battleMap.notify(this.model.get('notification'));
+
 				App.Views.clickedTerrView.$el.find('.army > h2').removeClass('tada').addClass('tada');
 
 				// Update Invaded Economics

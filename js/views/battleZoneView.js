@@ -416,10 +416,10 @@ App.Views.BattleZone = Backbone.View.extend({
 		}
 
 		// Defender Governor Casualty?
-		// If more than 1% of the civilian population dies, the governor has a 15% chance of being among them
+		// If more than 2% of the civilian population dies, the governor has a 15% chance of being among them
 		
 		var governorDead = false;
-		if(!defending.get('isCapital') && !defending.get('governorKilled') &&  1 - (newEconPopulation / oldEconPop) > 0.01 && Math.random() < 0.15) {
+		if(!defending.get('isCapital') && !defending.get('governorKilled') &&  1 - (newEconPopulation / oldEconPop) > 0.02 && Math.random() < 0.15) {
 			governorDead = true;
 			defending.set('governorKilled', true);
 		}
@@ -690,6 +690,13 @@ App.Views.BattleZone = Backbone.View.extend({
 					attackerCivilianMoraleImpact: newAttEconMorale - oldAttEconMorale,
 					attackerGDPImpact: updateAttGDP - oldAttGDP,
 					attackerRankUp: attRankUp,
+					battleNotification: App.Utilities.randomBattleOutcome({
+						attCasRate: attCasRate,
+						defCasRate: defCasRate,
+						attArmyCas: oldAttPop - newAttPop,
+						defArmyCas: oldDefPop - newDefPop,
+						defCivCas: oldEconPop - newEconPopulation
+					}),
 					defenderFortDamage: oldDefFortStr - newDefFortStr,
 					defenderStartFortLevel : startFortLevel,
 					defenderFortDestroyed: fortDestroyed,
@@ -1025,7 +1032,7 @@ App.Views.BattleZone = Backbone.View.extend({
 			return start > end ? 100 - (Math.abs(start - end) / start * 100) : 100;
 		}
 
-		var confModalModel = new App.Models.Modal({
+		App.Models.confModalModel = new App.Models.Modal({
 			title: titleText,
 			confBtnId: btnID,
 			showCancelBtn: false,
@@ -1040,7 +1047,7 @@ App.Views.BattleZone = Backbone.View.extend({
 			govKilled: resultObj.defGovCas
 		});
 
-		var confModalView = new App.Views.ConfModal({model: confModalModel});
+		App.Views.confModalView = new App.Views.ConfModal({model: App.Models.confModalModel});
 		$('#oneModal .modal-dialog').addClass('modal-lg');
 		$('#oneModal .modal-title').addClass('headline-title');
 
@@ -1076,7 +1083,7 @@ App.Views.BattleZone = Backbone.View.extend({
 		 	 	$('#' + barsArr[i][0] + barsArr[i][1] + 'Txt').text(barsArr[i][3]);
 			}
 
-			confModalView.model.set('animationOver', true);
+			App.Views.confModalView.model.set('animationOver', true);
 
 		}, 1200);
 

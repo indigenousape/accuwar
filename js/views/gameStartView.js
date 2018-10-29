@@ -74,6 +74,7 @@ App.Views.GameStart = Backbone.View.extend({
 			App.Models.gameStartModel.set('aiMode', false);
 			$('#empStartTxt').text('names');
 			$('.player2').show();
+			$('#rightName').trigger('keyup');
 			$('.ai-mode').removeClass('ai-mode');
 		} else {
 			App.Models.nationStats.set('aiMode', true);
@@ -243,6 +244,23 @@ App.Views.GameStart = Backbone.View.extend({
 				}
 
 			}
+
+			// If enter key was pressed and either input is empty, move focus to the empty input
+			if(!App.Models.gameStartModel.get('aiMode') && isEnterKey && e.currentTarget.id === "leftName" && !invalidName && $("#rightName").val() === "") {
+				$("#rightName").focus();
+			} else if (isEnterKey && e.currentTarget.id === "rightName" && !invalidName && $("#leftName").val() === "") {
+				$("#leftName").focus();
+			}
+
+		} else {
+			var errorEl = $('<p class="error" role="alert" aria-live="assertive"></p>'),
+				key = window.event ? e.keyCode : e.which,
+				isEnterKey = key === 13;
+			errorEl.text('Your empire names cannot be blank.');
+			$(e.currentTarget).addClass('invalid');
+			$(errorEl).insertBefore($('#aiDifficulty'));
+			$('#declareWar').prop('disabled', true);
+			$('#specialMap').remove();
 
 			// If enter key was pressed and either input is empty, move focus to the empty input
 			if(!App.Models.gameStartModel.get('aiMode') && isEnterKey && e.currentTarget.id === "leftName" && !invalidName && $("#rightName").val() === "") {

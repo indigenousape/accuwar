@@ -165,13 +165,15 @@ App.Collections.Territories = Backbone.Collection.extend({
         var recruitIndex = _.findIndex(policiesInFullObj, function(policy) { return policy.id == 'recruit_army' });
 
         _.each(array, function(model) {
+            var isRecruiting = recruitUnits ? model.get('econPopulation') / 2 > policiesInFullObj[recruitIndex].amount : false;
+
             var newInfrastrength = repairInfra ? 100 : model.get('econStrength'),
                 newFortStrength = repairForts ? 100 : model.get('fortStrength'),
-                newUnits =  recruitUnits ? model.get('armyPopulation') + policiesInFullObj[recruitIndex].amount : model.get('armyPopulation'),
-                newEconPopulation = recruitUnits ? model.get('econPopulation') - policiesInFullObj[recruitIndex].amount : model.get('econPopulation'),
+                newUnits =  recruitUnits && isRecruiting ? model.get('armyPopulation') + policiesInFullObj[recruitIndex].amount : model.get('armyPopulation'),
+                newEconPopulation = recruitUnits && isRecruiting ? model.get('econPopulation') - policiesInFullObj[recruitIndex].amount : model.get('econPopulation'),
                 newEconLevel = upgradeTech && model.get('econStrength') === 100 && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL || upgradeTech && repairInfra && model.get('econLevel') < App.Constants.MAX_TECH_LEVEL ? model.get('econLevel') + 1 : model.get('econLevel'),
                 newFortLevel = upgradeForts && model.get('fortStrength') === 100 && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL || upgradeForts && repairForts && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL ? model.get('fortLevel') + 1 : model.get('fortLevel'),
-                recruits = recruitUnits ? policiesInFullObj[recruitIndex].amount : 0,
+                recruits = recruitUnits && isRecruiting ? policiesInFullObj[recruitIndex].amount : 0,
                 newEconStrengthCost = repairInfra ? 0 : model.get('econStrengthCost'),
                 newFortStrengthCost = repairForts ? 0 : model.get('fortStrengthCost'),
                 newFortLevelCost = upgradeForts && model.get('fortStrength') === 100 && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL || upgradeForts && repairForts && model.get('fortLevel') < App.Constants.MAX_FORT_LEVEL ? App.Constants.FORT_LVL_COST * (1 + newFortLevel) : model.get('fortLevelCost'),
@@ -837,7 +839,7 @@ App.Collections.Territories = Backbone.Collection.extend({
         // then sort territories by the army size from smallest to largest
 
         var array = _.chain(this.models)
-                    .filter(function(model) { return model.get('side') === s && recruits < model.get('econPopulation') })
+                    .filter(function(model) { return model.get('side') === s && recruits < model.get('econPopulation') / 2 })
                     .sortBy(function(model){ return model.get('armyPopulation') })
                     .value();
 

@@ -279,10 +279,15 @@ App.Views.NationStats = Backbone.View.extend({
 			var uncheckedHTML = '';
 			for (var m = 0; m < policiesArr.length; m++) {
 
+				var levelTxt = '';
+				if(policiesArr[m].id === 'recruit_army') {
+					levelTxt = ' (Weapons Tech: Level ' + App.Utilities.activeEmpire().get('armyTechLvl') + ')';
+				} 
+
 				if(policiesArr[m].priority != 0 && policiesArr[m].side === App.Utilities.activeSide()) {
-					modalHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies" checked> '+policiesArr[m].title+'</label>';
+					modalHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies" checked> '+policiesArr[m].title+ levelTxt +'</label>';
 				} else if(policiesArr[m].side === App.Utilities.activeSide()) {
-					uncheckedHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies"> '+policiesArr[m].title+ '</label>';
+					uncheckedHTML += '<label for="'+policiesArr[m].id+'"><input type="checkbox" id="'+policiesArr[m].id+'" value="'+policiesArr[m].id+'" name="available-policies" class="available-policies"> '+policiesArr[m].title+ levelTxt +'</label>';
 				}
 			}
 
@@ -291,7 +296,7 @@ App.Views.NationStats = Backbone.View.extend({
 			modalHTML += '<div id="enactedPolicies" role="status" aria-live="assertive"></div>';
 
 			var confModalModel = new App.Models.Modal({
-				title: 'Update Policies: Tech Level ' + App.Utilities.activeEmpire().get('armyTechLvl'),
+				title: 'Update Policies',
 				confBtnId: 'confUpdatePolicy',
 				modalMsg: modalHTML,
 				confBtnClass: 'btn-primary',
@@ -546,57 +551,10 @@ App.Views.NationStats = Backbone.View.extend({
 
 			if (App.Models.gameStartModel.get('aiDifficulty') === 1) {
 
-				// Activate repair forts and repair infrastructure policies at the start of the game
-				if(App.Models.nationStats.get('currentTurn') === App.Constants.START_TURN) {
-					App.Utilities.togglePolicy('repair_forts', true);
-					App.Utilities.togglePolicy('repair_infra', true);
-				}
+				// Starts the policies turn function 
+				App.Utilities.aiPoliciesTurn();
+				// /App.Utilities.aiDoNextAttack();
 
-				// Randomly set the recruiting policy off and on
-				var polArr = _.where(App.Utilities.activeEmpire().get('activePolicies'), {side: App.Utilities.activeSide()});
-				var clickedPolIndexInSidePolicies = _.pluck(polArr, 'id');
-				var indexInSidePolicies = _.indexOf(clickedPolIndexInSidePolicies, 'recruit_army');
-
-				if(Math.random() > 0.33 && polArr[indexInSidePolicies].priority === 0) {
-
-					// If the right army is larger than the left army, only recruit 125000 units per territory
-					// Otherwise, evaluate the difference in the size of both armies and set to a value that closes the gap
-					if(App.Models.nationStats.get('right').get('armyPopulationNow') >= App.Models.nationStats.get('left').get('armyPopulationNow')) {
-						App.Utilities.togglePolicy('recruit_army', true, 125000);
-					} else {
-						var sizeDiff = App.Models.nationStats.get('left').get('armyPopulationNow') - App.Models.nationStats.get('right').get('armyPopulationNow');
-						var recruitPolAmt = Math.round(sizeDiff / App.Models.nationStats.get('right').get('terrs').length);
-						recruitPolAmt = Math.max(recruitPolAmt - (recruitPolAmt % 25000), 125000);
-
-						// Make sure the recruit amount is affordable (otherwise it won't help to set the recruits to this amount)
-						while(App.Models.nationStats.get('right').get('treasury') < recruitPolAmt * App.Constants.ARMY_UNIT_COST) {
-							recruitPolAmt -= 25000;
-						}
-
-						App.Utilities.togglePolicy('recruit_army', true, recruitPolAmt);
-					}
-
-				} else if (polArr[indexInSidePolicies].priority != 0) {
-					App.Utilities.togglePolicy('recruit_army', false);
-				}
-
-				// Start attacking
-				var borderTerrs = App.Collections.terrCollection.returnTerrsWithBorders('right');
-
-				// Is the side has two capitals, the game is over.
-				if(borderTerrs.length > 0 && !App.Collections.terrCollection.hasTwoCapitals('right')) {
-
-					App.Utilities.nextAttack(borderTerrs[0].cid);
-
-				} else if (!App.Collections.terrCollection.hasTwoCapitals('right')) {
-					setTimeout(function() {
-						App.Utilities.aiEndTurn();
-					}, 1200);
-				}
-				
-				// setTimeout(function() {
-				// 	App.Utilities.aiEndTurn();
-				// }, 1200);
 			}
 
 			/* Advanced Difficulty AI */
@@ -662,7 +620,7 @@ App.Views.NationStats = Backbone.View.extend({
 		var polIndex = _.pluck(App.Utilities.activeEmpire().get('activePolicies'), 'id'),
 			polIndex = _.indexOf(polIndex, 'repair_forts'),
 			polIsActive = polIndex != -1 ? App.Utilities.activeEmpire().get('activePolicies')[polIndex].priority : false,
-			repairPolHTML = !polIsActive ? '<p>To automate repairs, activate the <a href="#" class="modal-link" id="repairFortPol" data-pol-id="repair_forts">Repair forts policy</a>.</p>' : '';
+			repairPolHTML = !polIsActive ? '<p class="small">To automate repairs, activate the <a href="#" class="modal-link" id="repairFortPol" data-pol-id="repair_forts">Repair forts policy</a>.</p>' : '';
 
 		var confModalModel = new App.Models.Modal({
 			title: 'Repair All Forts',

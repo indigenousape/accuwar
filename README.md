@@ -41,7 +41,7 @@ Compatible with all modern browsers and mobile devices. Report any issues.
 - All Devices
 
 # Release
-4.0 Beta
+4.2 Beta
 
 # Credits
 MAPS

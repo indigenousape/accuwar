@@ -112,7 +112,7 @@ function generateFormToken($form) {
 
 </div>
 
-<p class="small text-muted version-text">Beta <span class="release-txt">Release 4.1.0</span></p>
+<p class="small text-muted version-text">Beta <span class="release-txt">Release 4.2.0</span></p>
 
 <script src="js/jquery-3.2.1.min.js"></script>
 <script src="js/contact.js"></script>

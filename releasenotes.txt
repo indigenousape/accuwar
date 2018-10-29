@@ -12,6 +12,52 @@ https://simple-sidebar.github.io/simpler-sidebar/
 RELEASE 4.0
  - Release priority: Develop AI, Bugfixes
  
+
+===========================================================================
+Release Notes
+4.2 Beta
+Release Date 10/28/2018
+Priorities: Continue adding messaging to clarify game concepts.
+
+ENHANCEMENTS
+
+1. UI Enhancement: Tips
+	Before: When turn starts, game notifications are displayed if user's economy crashes.
+
+	Now: When no economic crash happens, we use the opportunity to display context-based advice.
+
+		- Army is smaller than the other size's army encourage recruiting
+		- Or if total recruits is zero after a few turns
+		- Treasury amt is very close to starting projected tax income amount (and tax rate is less than 50%) -> Consider raising taxes (means user is spending all the money)
+		- Weapons technology falling behind the enemy
+		- Same starting tech level after two turns
+		- Infrastructure damaged -> Encourage repairing infrastructure
+		- Forts damaged -> Encourage repairing forts
+		- No policies enacted -> Encourage enacting policies
+
+	Advice is phrased and sourced the same way as economic crashes.
+
+2. UI: AI Easy Mode: Policies
+	- Make the AI enacting and deactivating policies visible during the turns
+	- Starts with the first turn
+	- Would prefer to have it kick off at the END of an AI turn and be able to more precisely set recruit values.
+
+3. UI: Add Game Notification after invasions same as other battles.
+	- Added modal models and views to the namespace so they could be referenced
+	- Created new array of invasion words for use
+	- Notification shown when the Confirm button is clicked on the TP modal
+
+BUGFIXES
+
+1. Bugfix: Removed Level text from Policies Modal Title
+	- And added Weapon Level text to Army checkbox and slider in policies window
+
+2. UI Enhancement/Bugfix: Game Start Screen
+	- Redid the Settings Menu so that it's in a "collapsible" layout instead of a dropdown menu
+	- Clicking anywhere except the checkboxes used to close the menu before, now the user must manually close it
+3. Bugfix: Add validation on "Declare War" to check whether either player is empty.
+	Handle 1player vs 2player
+
 ===========================================================================
 Release Notes
 4.1 Beta
